@@ -1,0 +1,54 @@
+# Playwright Configuration
+browser:
+  type: chromium                    # chromium, firefox, webkit
+  headless: false
+  slow_mo: 0
+  args:
+    - '--start-maximized'
+    - '--disable-web-security'
+  channel: null                     # chrome, msedge
+
+viewport:
+  width: 1920
+  height: 1080
+
+context:
+  ignore_https_errors: true
+  record_video:
+    enabled: true
+    dir: "reports/{execution_id}/videos"
+    mode: "retain-on-failure"
+    size:
+      width: 1920
+      height: 1080
+  record_har:
+    enabled: true
+    path: "reports/{execution_id}/network/requests.har"
+    omit_content: false
+
+trace:
+  enabled: true
+  screenshots: true
+  snapshots: true
+  sources: true
+
+screenshot:
+  mode: on-failure                  # always, on-failure, off
+  full_page: true
+  type: png                         # png, jpeg
+
+timeouts:
+  default: 30000
+  navigation: 30000
+  action: 10000
+
+performance:
+  collect_metrics: true
+  collect_navigation_timing: true
+  collect_resource_timing: true
+
+console:
+  capture: true
+  filter_levels:
+    - error
+    - warning

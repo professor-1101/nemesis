@@ -1,0 +1,32 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.pyc
+*.pyd
+*.pyo
+
+# Virtual environment
+.venv/
+venv/
+env/
+
+# Editor/IDE files
+.vscode/
+.idea/
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
+
+# Logs and reports
+*.log
+logs/
+reports/
+htmlcov/
+.coverage
+
+# Environment variables
+.env
+
+# Large bundled file (if not intended for version control)
+all.py

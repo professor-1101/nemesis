@@ -1,0 +1,15 @@
+# Nemesis Framework (installed from local path)
+# nemesis-automation>=1.0.0
+
+# Testing Dependencies
+behave>=1.2.6
+playwright>=1.40.0
+
+# Configuration
+pyyaml>=6.0
+
+# Development (Optional)
+black>=23.0.0
+isort>=5.12.0
+mypy>=1.7.0
+pytest>=7.4.0
