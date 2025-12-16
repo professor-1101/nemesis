@@ -1,8 +1,4 @@
-"""Browser Driver Port - Interface for browser automation
-
-This interface allows swapping browser automation frameworks
-(Playwright, Selenium, Puppeteer) without changing core logic.
-"""
+"""Browser automation interface"""
 
 from __future__ import annotations
 from abc import ABC, abstractmethod
@@ -11,91 +7,48 @@ from pathlib import Path
 
 
 class IPage(Protocol):
-    """
-    Interface for browser page
-
-    Abstraction over Playwright.Page, Selenium.WebDriver, etc.
-    """
+    """Browser page interface"""
 
     @abstractmethod
-    def goto(self, url: str, **options) -> None:
-        """Navigate to URL"""
-        ...
+    def goto(self, url: str, **options) -> None: ...
 
     @abstractmethod
-    def click(self, selector: str, **options) -> None:
-        """Click element"""
-        ...
+    def click(self, selector: str, **options) -> None: ...
 
     @abstractmethod
-    def fill(self, selector: str, value: str, **options) -> None:
-        """Fill input field"""
-        ...
+    def fill(self, selector: str, value: str, **options) -> None: ...
 
     @abstractmethod
-    def get_text(self, selector: str) -> str:
-        """Get element text content"""
-        ...
+    def get_text(self, selector: str) -> str: ...
 
     @abstractmethod
-    def is_visible(self, selector: str) -> bool:
-        """Check if element is visible"""
-        ...
+    def is_visible(self, selector: str) -> bool: ...
 
     @abstractmethod
-    def screenshot(self, **options) -> bytes:
-        """Take screenshot"""
-        ...
+    def screenshot(self, **options) -> bytes: ...
 
     @abstractmethod
-    def evaluate(self, script: str) -> Any:
-        """Execute JavaScript"""
-        ...
+    def evaluate(self, script: str) -> Any: ...
 
     @abstractmethod
-    def close(self) -> None:
-        """Close page"""
-        ...
+    def close(self) -> None: ...
 
 
 class IBrowser(Protocol):
-    """
-    Interface for browser instance
-
-    Abstraction over Playwright.Browser, Selenium browser, etc.
-    """
+    """Browser instance interface"""
 
     @abstractmethod
-    def new_page(self) -> IPage:
-        """Create new page/tab"""
-        ...
+    def new_page(self) -> IPage: ...
 
     @abstractmethod
-    def close(self) -> None:
-        """Close browser"""
-        ...
+    def close(self) -> None: ...
 
     @abstractmethod
-    def contexts(self) -> List[Any]:
-        """Get browser contexts"""
-        ...
+    def contexts(self) -> List[Any]: ...
 
 
 class IBrowserDriver(ABC):
-    """
-    Port: Browser Driver Interface
-
-    This is the main interface that infrastructure adapters must implement.
-    It allows the core domain to be independent of specific browser automation frameworks.
-
-    Implementations:
-    - PlaywrightBrowserDriver (Infrastructure layer)
-    - SeleniumBrowserDriver (future)
-    - PuppeteerBrowserDriver (future)
-
-    Clean Architecture: This interface lives in Domain layer.
-    Implementations live in Infrastructure layer.
-    """
+    """Browser driver port"""
 
     @abstractmethod
     def launch(
@@ -119,17 +72,17 @@ class IBrowserDriver(ABC):
 
     @abstractmethod
     def close(self) -> None:
-        """Close browser and cleanup resources"""
+
         ...
 
     @abstractmethod
     def is_running(self) -> bool:
-        """Check if browser is currently running"""
+
         ...
 
     @abstractmethod
     def get_browser_type(self) -> str:
-        """Get browser type (chromium, firefox, webkit)"""
+
         ...
 
     @abstractmethod
@@ -156,10 +109,10 @@ class IBrowserDriver(ABC):
 
     @abstractmethod
     def save_trace(self, trace_path: Path) -> None:
-        """Save trace file"""
+
         ...
 
     @abstractmethod
     def save_video(self, video_path: Path) -> Optional[Path]:
-        """Save video file"""
+
         ...
