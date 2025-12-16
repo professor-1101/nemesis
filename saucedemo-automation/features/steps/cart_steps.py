@@ -13,7 +13,7 @@ def step_login_as_user(context, username):
     # Use default password for all users
     password = "secret_sauce"
     
-    context.login_page = LoginPage(context.page, context.config)
+    context.login_page = LoginPage(context.page, context.test_config)
     context.login_page.open()
     context.login_page.login(username, password)
 
@@ -22,7 +22,7 @@ def step_login_as_user(context, username):
 def step_on_inventory_page(context):
     """Verify user is on inventory page."""
     # Browser is automatically managed by Nemesis
-    context.inventory_page = InventoryPage(context.page, context.config)
+    context.inventory_page = InventoryPage(context.page, context.test_config)
     context.inventory_page.verify_page_loaded()
 
 
@@ -31,7 +31,7 @@ def step_add_product_to_cart(context, product_name):
     """Add product to cart."""
     # Browser is automatically managed by Nemesis
     if not hasattr(context, 'inventory_page'):
-        context.inventory_page = InventoryPage(context.page, context.config)
+        context.inventory_page = InventoryPage(context.page, context.test_config)
     context.inventory_page.add_product_to_cart(product_name)
     # Store product name for later verification
     context.last_added_product = product_name
@@ -42,7 +42,7 @@ def step_click_cart_icon(context):
     """Click on cart icon."""
     # Browser is automatically managed by Nemesis
     if not hasattr(context, 'inventory_page'):
-        context.inventory_page = InventoryPage(context.page, context.config)
+        context.inventory_page = InventoryPage(context.page, context.test_config)
     context.inventory_page.click_cart_icon()
 
 
@@ -51,7 +51,7 @@ def step_verify_cart_badge(context, count):
     """Verify cart badge shows correct count."""
     # Browser is automatically managed by Nemesis
     if not hasattr(context, 'inventory_page'):
-        context.inventory_page = InventoryPage(context.page, context.config)
+        context.inventory_page = InventoryPage(context.page, context.test_config)
     context.inventory_page.verify_cart_badge_count(count)
 
 
@@ -60,7 +60,7 @@ def step_verify_product_in_cart(context, product_name):
     """Verify product is in cart."""
     # Browser is automatically managed by Nemesis
     if not hasattr(context, 'cart_page'):
-        context.cart_page = CartPage(context.page, context.config)
+        context.cart_page = CartPage(context.page, context.test_config)
     context.cart_page.verify_product_in_cart(product_name)
 
 
@@ -69,7 +69,7 @@ def step_verify_product_price(context, price):
     """Verify product price."""
     # Browser is automatically managed by Nemesis
     if not hasattr(context, 'cart_page'):
-        context.cart_page = CartPage(context.page, context.config)
+        context.cart_page = CartPage(context.page, context.test_config)
     # Get product name from context (set in previous step)
     product_name = getattr(context, 'last_added_product', 'Sauce Labs Backpack')
     context.cart_page.verify_product_price(product_name, price)
@@ -80,7 +80,7 @@ def step_verify_empty_cart(context):
     """Verify cart is empty."""
     # Browser is automatically managed by Nemesis
     if not hasattr(context, 'cart_page'):
-        context.cart_page = CartPage(context.page, context.config)
+        context.cart_page = CartPage(context.page, context.test_config)
     context.cart_page.verify_empty_cart()
 
 
@@ -89,7 +89,7 @@ def step_verify_cart_headers(context):
     """Verify cart headers are visible."""
     # Browser is automatically managed by Nemesis
     if not hasattr(context, 'cart_page'):
-        context.cart_page = CartPage(context.page, context.config)
+        context.cart_page = CartPage(context.page, context.test_config)
     context.cart_page.verify_cart_headers()
 
 
@@ -98,5 +98,5 @@ def step_verify_continue_shopping_button(context):
     """Verify Continue Shopping button is visible."""
     # Browser is automatically managed by Nemesis
     if not hasattr(context, 'cart_page'):
-        context.cart_page = CartPage(context.page, context.config)
+        context.cart_page = CartPage(context.page, context.test_config)
     context.cart_page.verify_continue_shopping_button()

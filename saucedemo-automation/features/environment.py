@@ -40,8 +40,8 @@ class DependencyContainer:
         self.output_dir.mkdir(parents=True, exist_ok=True)
 
         # Infrastructure: Browser Driver
-        browser_type = config.get("browser_type", "chromium")
-        self.browser_driver = PlaywrightBrowserDriver(browser_type=browser_type)
+        # Note: Browser type is set during launch, not in constructor
+        self.browser_driver = PlaywrightBrowserDriver()
 
         # Infrastructure: Reporters
         self.reporters: List[IReporter] = [
@@ -56,7 +56,9 @@ class DependencyContainer:
         )
 
         self.scenario_coordinator = ScenarioCoordinator(
-            reporters=self.reporters
+            browser_driver=self.browser_driver,
+            reporters=self.reporters,
+            collectors=[]  # No collectors for now
         )
 
         # Domain entities (created during execution)
@@ -187,7 +189,8 @@ def before_scenario(context: Context, scenario) -> None:
 
     # Make browser page available to steps
     context.page = context.container.page
-    context.config = context.config_data
+    # Note: cannot use 'config' as attribute name (reserved by behave)
+    context.test_config = context.config_data
 
     # Start scenario
     context.scenario_entity = context.container.start_scenario(
@@ -244,7 +247,7 @@ def after_step(context: Context, step) -> None:
             error_msg = str(step.exception) if step.exception else "Step failed"
             context.current_step.fail(error_msg)
         else:
-            context.current_step.complete()
+            context.current_step.complete_successfully()
 
         # Report step end
         for reporter in context.container.reporters:

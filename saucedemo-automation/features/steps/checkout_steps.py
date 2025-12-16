@@ -10,7 +10,7 @@ from pages.login_page import LoginPage
 @given('I have added "{product_name}" to cart')
 def step_add_product_to_cart(context, product_name):
     """Add product to cart from inventory."""
-    context.inventory_page = InventoryPage(context.page, context.config)
+    context.inventory_page = InventoryPage(context.page, context.test_config)
     # Use sync method directly
     context.inventory_page.add_product_to_cart(product_name)
 
@@ -20,7 +20,7 @@ def step_navigate_to_cart(context):
     """Navigate to cart page."""
     # Use sync method directly
     context.inventory_page.click_cart_icon()
-    context.cart_page = CartPage(context.page, context.config)
+    context.cart_page = CartPage(context.page, context.test_config)
 
 
 @given('I click the "{button}" button')
@@ -29,7 +29,7 @@ def step_click_button_given(context, button):
     if button == "Checkout":
         # Use sync method directly
         context.cart_page.click_checkout()
-        context.checkout_page = CheckoutPage(context.page, context.config)
+        context.checkout_page = CheckoutPage(context.page, context.test_config)
 
 
 @when('I enter first name "{first_name}"')
