@@ -1,0 +1,192 @@
+************* Module nemesis.cli
+src\nemesis\cli\__init__.py:4:0: C0411: first party import "nemesis.core.config.ConfigLoader" should be placed before local import "main.cli" (wrong-import-order)
+************* Module nemesis.cli.commands.init
+src\nemesis\cli\commands\init.py:6:0: R0402: Use 'from importlib import resources' instead (consider-using-from-import)
+src\nemesis\cli\commands\init.py:16:0: R0915: Too many statements (63/50) (too-many-statements)
+************* Module nemesis.cli.commands.run
+src\nemesis\cli\commands\run.py:90:0: R0913: Too many arguments (10/5) (too-many-arguments)
+src\nemesis\cli\commands\run.py:90:0: R0917: Too many positional arguments (10/5) (too-many-positional-arguments)
+src\nemesis\cli\commands\run.py:90:0: R0914: Too many local variables (17/15) (too-many-locals)
+src\nemesis\cli\commands\run.py:90:0: R0912: Too many branches (23/12) (too-many-branches)
+src\nemesis\cli\commands\run.py:90:0: R0915: Too many statements (88/50) (too-many-statements)
+************* Module nemesis.cli.commands.validate
+src\nemesis\cli\commands\validate.py:17:0: R0914: Too many local variables (17/15) (too-many-locals)
+src\nemesis\cli\commands\validate.py:17:0: R0912: Too many branches (25/12) (too-many-branches)
+src\nemesis\cli\commands\validate.py:17:0: R0915: Too many statements (91/50) (too-many-statements)
+************* Module nemesis.cli.core.executor
+src\nemesis\cli\core\executor.py:16:0: R0902: Too many instance attributes (10/7) (too-many-instance-attributes)
+src\nemesis\cli\core\executor.py:19:4: R0913: Too many arguments (11/5) (too-many-arguments)
+src\nemesis\cli\core\executor.py:19:4: R0917: Too many positional arguments (11/5) (too-many-positional-arguments)
+src\nemesis\cli\core\executor.py:116:8: R1702: Too many nested blocks (7/5) (too-many-nested-blocks)
+src\nemesis\cli\core\executor.py:117:22: R1732: Consider using 'with' for resource-allocating operations (consider-using-with)
+src\nemesis\cli\core\executor.py:113:4: R0912: Too many branches (20/12) (too-many-branches)
+src\nemesis\cli\core\executor.py:113:4: R0915: Too many statements (62/50) (too-many-statements)
+src\nemesis\cli\core\executor.py:16:0: R0903: Too few public methods (1/2) (too-few-public-methods)
+************* Module nemesis.cli.core.report_base
+src\nemesis\cli\core\report_base.py:10:0: R0903: Too few public methods (0/2) (too-few-public-methods)
+************* Module nemesis.cli.core.report_scanner
+src\nemesis\cli\core\report_scanner.py:14:0: R0903: Too few public methods (1/2) (too-few-public-methods)
+************* Module nemesis.cli.ui.tables
+src\nemesis\cli\ui\tables.py:11:0: R0913: Too many arguments (7/5) (too-many-arguments)
+src\nemesis\cli\ui\tables.py:11:0: R0917: Too many positional arguments (7/5) (too-many-positional-arguments)
+************* Module nemesis.collectors.console
+src\nemesis\collectors\console.py:17:0: R0902: Too many instance attributes (8/7) (too-many-instance-attributes)
+************* Module nemesis.collectors.network
+src\nemesis\collectors\network.py:16:0: R0902: Too many instance attributes (10/7) (too-many-instance-attributes)
+src\nemesis\collectors\network.py:97:4: R0912: Too many branches (13/12) (too-many-branches)
+************* Module nemesis.collectors.performance.exporters
+src\nemesis\collectors\performance\exporters.py:10:0: R0903: Too few public methods (1/2) (too-few-public-methods)
+src\nemesis\collectors\performance\exporters.py:18:0: R0903: Too few public methods (1/2) (too-few-public-methods)
+src\nemesis\collectors\performance\exporters.py:36:0: R0903: Too few public methods (1/2) (too-few-public-methods)
+************* Module nemesis.collectors.performance.models
+src\nemesis\collectors\performance\models.py:7:0: R0902: Too many instance attributes (26/7) (too-many-instance-attributes)
+src\nemesis\collectors\performance\models.py:40:0: R0902: Too many instance attributes (16/7) (too-many-instance-attributes)
+src\nemesis\collectors\performance\models.py:68:0: R0902: Too many instance attributes (10/7) (too-many-instance-attributes)
+src\nemesis\collectors\performance\models.py:149:0: R0902: Too many instance attributes (8/7) (too-many-instance-attributes)
+src\nemesis\collectors\performance\models.py:162:0: R0902: Too many instance attributes (11/7) (too-many-instance-attributes)
+************* Module nemesis.collectors.performance.performance_collector
+src\nemesis\collectors\performance\performance_collector.py:27:0: R0902: Too many instance attributes (13/7) (too-many-instance-attributes)
+************* Module nemesis.collectors.performance.metric_collectors.base
+src\nemesis\collectors\performance\metric_collectors\base.py:11:0: R0903: Too few public methods (1/2) (too-few-public-methods)
+************* Module nemesis.collectors.performance.metric_collectors.event_timing
+src\nemesis\collectors\performance\metric_collectors\event_timing.py:6:0: R0903: Too few public methods (1/2) (too-few-public-methods)
+************* Module nemesis.collectors.performance.metric_collectors.layout_shifts
+src\nemesis\collectors\performance\metric_collectors\layout_shifts.py:6:0: R0903: Too few public methods (1/2) (too-few-public-methods)
+************* Module nemesis.collectors.performance.metric_collectors.long_tasks
+src\nemesis\collectors\performance\metric_collectors\long_tasks.py:6:0: R0903: Too few public methods (1/2) (too-few-public-methods)
+************* Module nemesis.collectors.performance.metric_collectors.memory
+src\nemesis\collectors\performance\metric_collectors\memory.py:6:0: R0903: Too few public methods (1/2) (too-few-public-methods)
+************* Module nemesis.collectors.performance.metric_collectors.navigation
+src\nemesis\collectors\performance\metric_collectors\navigation.py:6:0: R0903: Too few public methods (1/2) (too-few-public-methods)
+************* Module nemesis.collectors.performance.metric_collectors.paint_timing
+src\nemesis\collectors\performance\metric_collectors\paint_timing.py:6:0: R0903: Too few public methods (1/2) (too-few-public-methods)
+************* Module nemesis.collectors.performance.metric_collectors.resources
+src\nemesis\collectors\performance\metric_collectors\resources.py:68:8: C0206: Consider iterating with .items() (consider-using-dict-items)
+************* Module nemesis.collectors.performance.metric_collectors.runtime
+src\nemesis\collectors\performance\metric_collectors\runtime.py:6:0: R0903: Too few public methods (1/2) (too-few-public-methods)
+************* Module nemesis.collectors.performance.metric_collectors.user_timing
+src\nemesis\collectors\performance\metric_collectors\user_timing.py:6:0: R0903: Too few public methods (1/2) (too-few-public-methods)
+************* Module nemesis.collectors.performance.metric_collectors.web_vitals
+src\nemesis\collectors\performance\metric_collectors\web_vitals.py:6:0: R0903: Too few public methods (1/2) (too-few-public-methods)
+************* Module nemesis.core.browser.browser_cleanup
+src\nemesis\core\browser\browser_cleanup.py:9:0: R0903: Too few public methods (1/2) (too-few-public-methods)
+************* Module nemesis.core.browser.browser_health
+src\nemesis\core\browser\browser_health.py:8:0: R0903: Too few public methods (1/2) (too-few-public-methods)
+************* Module nemesis.core.browser.browser_lifecycle
+src\nemesis\core\browser\browser_lifecycle.py:26:0: R0902: Too many instance attributes (10/7) (too-many-instance-attributes)
+src\nemesis\core\browser\browser_lifecycle.py:196:4: R0912: Too many branches (23/12) (too-many-branches)
+src\nemesis\core\browser\browser_lifecycle.py:196:4: R0915: Too many statements (85/50) (too-many-statements)
+************* Module nemesis.core.browser.browser_manager
+src\nemesis\core\browser\browser_manager.py:74:12: W0212: Access to a protected member _playwright of a client class (protected-access)
+src\nemesis\core\browser\browser_manager.py:75:12: W0212: Access to a protected member _browser of a client class (protected-access)
+src\nemesis\core\browser\browser_manager.py:76:12: W0212: Access to a protected member _context of a client class (protected-access)
+src\nemesis\core\browser\browser_manager.py:77:12: W0212: Access to a protected member _page of a client class (protected-access)
+src\nemesis\core\browser\browser_manager.py:83:15: W0212: Access to a protected member _context of a client class (protected-access)
+src\nemesis\core\browser\browser_manager.py:88:8: W0212: Access to a protected member _context of a client class (protected-access)
+src\nemesis\core\browser\browser_manager.py:94:15: W0212: Access to a protected member _browser of a client class (protected-access)
+src\nemesis\core\browser\browser_manager.py:99:15: W0212: Access to a protected member _page of a client class (protected-access)
+src\nemesis\core\browser\browser_manager.py:104:15: W0212: Access to a protected member _playwright of a client class (protected-access)
+************* Module nemesis.core.browser.browser_operations
+src\nemesis\core\browser\browser_operations.py:10:0: R0903: Too few public methods (1/2) (too-few-public-methods)
+************* Module nemesis.core.config.loader
+src\nemesis\core\config\loader.py:8:0: C0411: standard import "configparser.ConfigParser" should be placed before third party import "yaml" (wrong-import-order)
+************* Module nemesis.core.config.validator
+src\nemesis\core\config\validator.py:86:4: R0912: Too many branches (13/12) (too-many-branches)
+src\nemesis\core\config\validator.py:13:0: R0903: Too few public methods (1/2) (too-few-public-methods)
+************* Module nemesis.core.logging.factory
+src\nemesis\core\logging\factory.py:85:4: W0603: Using the global statement (global-statement)
+************* Module nemesis.core.logging.shipping.manager
+src\nemesis\core\logging\shipping\manager.py:9:0: R0903: Too few public methods (1/2) (too-few-public-methods)
+************* Module nemesis.environment.browser_environment
+src\nemesis\environment\browser_environment.py:93:4: R0911: Too many return statements (8/6) (too-many-return-statements)
+************* Module nemesis.environment.collector_content_logger
+src\nemesis\environment\collector_content_logger.py:81:4: R0914: Too many local variables (29/15) (too-many-locals)
+src\nemesis\environment\collector_content_logger.py:81:4: R0912: Too many branches (16/12) (too-many-branches)
+src\nemesis\environment\collector_content_logger.py:81:4: R0915: Too many statements (65/50) (too-many-statements)
+src\nemesis\environment\collector_content_logger.py:180:4: R0914: Too many local variables (21/15) (too-many-locals)
+src\nemesis\environment\collector_content_logger.py:180:4: R0912: Too many branches (22/12) (too-many-branches)
+src\nemesis\environment\collector_content_logger.py:180:4: R0915: Too many statements (75/50) (too-many-statements)
+************* Module nemesis.environment.environment_manager
+src\nemesis\environment\environment_manager.py:15:0: R0902: Too many instance attributes (8/7) (too-many-instance-attributes)
+************* Module nemesis.environment.hooks
+src\nemesis\environment\hooks.py:26:4: W0603: Using the global statement (global-statement)
+************* Module nemesis.environment.scenario_attachment_handler
+src\nemesis\environment\scenario_attachment_handler.py:23:4: R0912: Too many branches (19/12) (too-many-branches)
+src\nemesis\environment\scenario_attachment_handler.py:23:4: R0915: Too many statements (58/50) (too-many-statements)
+src\nemesis\environment\scenario_attachment_handler.py:110:4: R0912: Too many branches (21/12) (too-many-branches)
+src\nemesis\environment\scenario_attachment_handler.py:110:4: R0915: Too many statements (68/50) (too-many-statements)
+************* Module nemesis.reporting.attachments
+src\nemesis\reporting\attachments.py:9:0: R0903: Too few public methods (1/2) (too-few-public-methods)
+************* Module nemesis.reporting.manager
+src\nemesis\reporting\manager.py:20:0: R0902: Too many instance attributes (13/7) (too-many-instance-attributes)
+src\nemesis\reporting\manager.py:20:0: R0904: Too many public methods (23/20) (too-many-public-methods)
+************* Module nemesis.reporting.reportportal
+src\nemesis\reporting\reportportal.py:16:0: R0902: Too many instance attributes (10/7) (too-many-instance-attributes)
+************* Module nemesis.reporting.local.data_model
+src\nemesis\reporting\local\data_model.py:8:0: R0902: Too many instance attributes (9/7) (too-many-instance-attributes)
+src\nemesis\reporting\local\data_model.py:22:0: R0902: Too many instance attributes (8/7) (too-many-instance-attributes)
+************* Module nemesis.reporting.local.formatters.performance_formatter
+src\nemesis\reporting\local\formatters\performance_formatter.py:5:0: R0914: Too many local variables (19/15) (too-many-locals)
+src\nemesis\reporting\local\formatters\performance_formatter.py:5:0: R0912: Too many branches (17/12) (too-many-branches)
+src\nemesis\reporting\local\formatters\performance_formatter.py:5:0: R0915: Too many statements (54/50) (too-many-statements)
+************* Module nemesis.reporting.local.tabs.file_tab_helper
+src\nemesis\reporting\local\tabs\file_tab_helper.py:39:0: R0913: Too many arguments (9/5) (too-many-arguments)
+src\nemesis\reporting\local\tabs\file_tab_helper.py:39:0: R0917: Too many positional arguments (9/5) (too-many-positional-arguments)
+************* Module nemesis.reporting.management.finalization_manager
+src\nemesis\reporting\management\finalization_manager.py:51:8: R1702: Too many nested blocks (6/5) (too-many-nested-blocks)
+src\nemesis\reporting\management\finalization_manager.py:21:4: R0912: Too many branches (26/12) (too-many-branches)
+src\nemesis\reporting\management\finalization_manager.py:21:4: R0915: Too many statements (80/50) (too-many-statements)
+************* Module nemesis.reporting.management.reporter_manager
+src\nemesis\reporting\management\reporter_manager.py:32:4: R0912: Too many branches (20/12) (too-many-branches)
+src\nemesis\reporting\management\reporter_manager.py:32:4: R0915: Too many statements (65/50) (too-many-statements)
+************* Module nemesis.reporting.management.attachments.base_manager
+src\nemesis\reporting\management\attachments\base_manager.py:9:0: R0903: Too few public methods (0/2) (too-few-public-methods)
+************* Module nemesis.reporting.management.attachments.screenshot_manager
+src\nemesis\reporting\management\attachments\screenshot_manager.py:15:4: R0912: Too many branches (13/12) (too-many-branches)
+src\nemesis\reporting\management\attachments\screenshot_manager.py:6:0: R0903: Too few public methods (1/2) (too-few-public-methods)
+************* Module nemesis.reporting.management.attachments.trace_manager
+src\nemesis\reporting\management\attachments\trace_manager.py:10:4: R0912: Too many branches (13/12) (too-many-branches)
+src\nemesis\reporting\management\attachments\trace_manager.py:7:0: R0903: Too few public methods (1/2) (too-few-public-methods)
+************* Module nemesis.reporting.management.attachments.video_manager
+src\nemesis\reporting\management\attachments\video_manager.py:37:4: R0912: Too many branches (15/12) (too-many-branches)
+src\nemesis\reporting\management\attachments\video_manager.py:8:0: R0903: Too few public methods (1/2) (too-few-public-methods)
+************* Module nemesis.reporting.report_portal.rp_attachment_manager
+src\nemesis\reporting\report_portal\rp_attachment_manager.py:12:0: R0903: Too few public methods (1/2) (too-few-public-methods)
+************* Module nemesis.reporting.report_portal.rp_base_manager
+src\nemesis\reporting\report_portal\rp_base_manager.py:19:4: R0913: Too many arguments (6/5) (too-many-arguments)
+src\nemesis\reporting\report_portal\rp_base_manager.py:19:4: R0917: Too many positional arguments (6/5) (too-many-positional-arguments)
+src\nemesis\reporting\report_portal\rp_base_manager.py:12:0: R0903: Too few public methods (0/2) (too-few-public-methods)
+************* Module nemesis.reporting.report_portal.rp_config_loader
+src\nemesis\reporting\report_portal\rp_config_loader.py:14:0: R0902: Too many instance attributes (9/7) (too-many-instance-attributes)
+src\nemesis\reporting\report_portal\rp_config_loader.py:14:0: R0903: Too few public methods (1/2) (too-few-public-methods)
+************* Module nemesis.reporting.report_portal.rp_launch_manager
+src\nemesis\reporting\report_portal\rp_launch_manager.py:173:24: W0212: Access to a protected member _launch_id of a client class (protected-access)
+src\nemesis\reporting\report_portal\rp_launch_manager.py:176:65: W0212: Access to a protected member _item_stack of a client class (protected-access)
+src\nemesis\reporting\report_portal\rp_launch_manager.py:178:31: W0212: Access to a protected member _item_stack of a client class (protected-access)
+src\nemesis\reporting\report_portal\rp_launch_manager.py:178:74: W0212: Access to a protected member _item_stack of a client class (protected-access)
+src\nemesis\reporting\report_portal\rp_launch_manager.py:179:28: W0212: Access to a protected member _item_stack of a client class (protected-access)
+src\nemesis\reporting\report_portal\rp_launch_manager.py:135:4: R0912: Too many branches (15/12) (too-many-branches)
+************* Module nemesis.utils.config_utils
+src\nemesis\utils\config_utils.py:65:4: W0603: Using the global statement (global-statement)
+src\nemesis\utils\config_utils.py:73:4: W0603: Using the global statement (global-statement)
+************* Module nemesis.utils.path_utils
+src\nemesis\utils\path_utils.py:68:4: W0603: Using the global statement (global-statement)
+src\nemesis\utils\path_utils.py:76:4: W0603: Using the global statement (global-statement)
+************* Module nemesis.utils.video_converter
+src\nemesis\utils\video_converter.py:75:17: W1510: 'subprocess.run' used without explicitly defining the value for 'check'. (subprocess-run-check)
+src\nemesis\utils\video_converter.py:14:0: R0911: Too many return statements (10/6) (too-many-return-statements)
+src\nemesis\utils\video_converter.py:14:0: R0912: Too many branches (13/12) (too-many-branches)
+************* Module nemesis.utils.helpers.exception_utils
+src\nemesis\utils\helpers\exception_utils.py:17:0: C0305: Trailing newlines (trailing-newlines)
+************* Module nemesis.utils.helpers.retry_utils
+src\nemesis\utils\helpers\retry_utils.py:7:0: R0903: Too few public methods (1/2) (too-few-public-methods)
+************* Module nemesis.utils.helpers.validation_utils
+src\nemesis\utils\helpers\validation_utils.py:6:0: R0903: Too few public methods (1/2) (too-few-public-methods)
+
+-------------------------------------------------------------------
+Your code has been rated at 9.80/10 (previous run: 10.00/10, -0.20)
+
+
+------------------------------------------------------------------
+
+Your code has been rated at 9.80/10 (previous run: 9.80/10, +0.00)

@@ -1,0 +1,891 @@
+=== Code Complexity Report ===
+Generated at: 2025-11-04 11:11:49
+
+This report contains code complexity metrics.
+Functions/methods with grades C, D, E, F need refactoring.
+
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\cli\commands\clean.py
+    F 21:0 clean_command - C
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\cli\commands\init.py
+    F 16:0 init_command - C
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\cli\commands\list.py
+    F 32:0 list_command - C
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\cli\commands\run.py
+    F 90:0 run_command - D
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\cli\commands\validate.py
+    F 17:0 validate_command - D
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\cli\core\executor.py
+    M 113:4 TestExecutor._execute_realtime - D
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\cli\core\report_scanner.py
+    M 78:4 ReportScanner._detect_status - C
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\collectors\console.py
+    M 89:4 ConsoleCollector._on_console_message - C
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\collectors\network.py
+    M 97:4 NetworkCollector._on_response - C
+    M 174:4 NetworkCollector.get_metrics - C
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\collectors\performance\exporters.py
+    M 58:4 SummaryExporter._build_summary_lines - C
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\collectors\performance\metric_collectors\resources.py
+    M 37:4 ResourceTimingCollector.calculate_summary - C
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\core\browser\browser_cleanup.py
+    M 16:4 BrowserCleanup.cleanup_resources - C
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\core\browser\browser_lifecycle.py
+    M 196:4 BrowserLifecycle._cleanup_resources - D
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\core\config\validator.py
+    M 86:4 ConfigValidator._validate_field - D
+    C 13:0 ConfigValidator - C
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\environment\browser_environment.py
+    M 93:4 BrowserEnvironment.start_browser_for_scenario - C
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\environment\collector_content_logger.py
+    M 180:4 CollectorContentLogger.log_performance_content - D
+    M 81:4 CollectorContentLogger.log_network_content - C
+    C 11:0 CollectorContentLogger - C
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\environment\reporting_environment.py
+    M 201:4 ReportingEnvironment.end_scenario - C
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\environment\scenario_attachment_handler.py
+    M 110:4 ScenarioAttachmentHandler.attach_collectors - D
+    M 23:4 ScenarioAttachmentHandler.attach_videos - C
+    C 11:0 ScenarioAttachmentHandler - C
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\reporting\reportportal.py
+    M 19:4 ReportPortalClient.__init__ - C
+    M 243:4 ReportPortalClient.__exit__ - C
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\reporting\local\summary_builder.py
+    F 6:0 build_summary_section - C
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\reporting\local\formatters\network_formatter.py
+    F 5:0 format_network_data - C
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\reporting\local\formatters\performance_formatter.py
+    F 5:0 format_performance_data - D
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\reporting\management\feature_manager.py
+    M 44:4 FeatureManager.end_feature - C
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\reporting\management\finalization_manager.py
+    M 21:4 FinalizationManager.finalize - D
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\reporting\management\reporter_manager.py
+    M 32:4 ReporterManager._initialize_reporters - D
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\reporting\management\step_manager.py
+    M 44:4 StepManager.end_step - C
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\reporting\management\attachments\metrics_manager.py
+    M 10:4 MetricsManager.attach_metrics - C
+    M 50:4 MetricsManager.attach_file - C
+    C 7:0 MetricsManager - C
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\reporting\management\attachments\screenshot_manager.py
+    M 15:4 ScreenshotManager.attach_screenshot - C
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\reporting\management\attachments\trace_manager.py
+    C 7:0 TraceManager - C
+    M 10:4 TraceManager.attach_trace - C
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\reporting\management\attachments\video_manager.py
+    M 37:4 VideoManager.attach_video - C
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\reporting\report_portal\rp_attachment_manager.py
+    M 47:4 RPAttachmentManager.attach_file - C
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\reporting\report_portal\rp_launch_manager.py
+    M 135:4 RPLaunchManager.finish_launch - C
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\reporting\report_portal\rp_logger.py
+    M 119:4 RPLogger.log_exception_with_attachment - C
+    C 13:0 RPLogger - C
+    M 48:4 RPLogger.log_exception - C
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\utils\video_converter.py
+    F 14:0 convert_to_mp4 - C
+
+-------------------------------------------------------------------
+
+Average Complexity:
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\cli\ascii_art.py
+    F 22:0 print_banner - A
+    F 59:0 print_step - A
+    F 63:0 print_success - A
+    F 67:0 print_error - A
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\cli\main.py
+    F 62:0 main - B
+    F 23:0 cli - A
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\cli\commands\clean.py
+    F 21:0 clean_command - C
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\cli\commands\init.py
+    F 16:0 init_command - C
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\cli\commands\list.py
+    F 32:0 list_command - C
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\cli\commands\run.py
+    F 90:0 run_command - D
+    F 45:0 _show_report_path - B
+    F 20:0 _get_latest_execution_id - B
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\cli\commands\validate.py
+    F 17:0 validate_command - D
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\cli\core\executor.py
+    M 113:4 TestExecutor._execute_realtime - D
+    M 66:4 TestExecutor._build_command - B
+    C 16:0 TestExecutor - B
+    M 52:4 TestExecutor._setup_environment - A
+    M 19:4 TestExecutor.__init__ - A
+    M 43:4 TestExecutor.execute - A
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\cli\core\report_base.py
+    C 10:0 ReportBase - A
+    M 13:4 ReportBase.__init__ - A
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\cli\core\report_cleaner.py
+    M 79:4 ReportCleaner._parse_duration - B
+    M 18:4 ReportCleaner.find_old_reports - A
+    C 15:0 ReportCleaner - A
+    M 39:4 ReportCleaner.delete_reports - A
+    M 70:4 ReportCleaner._format_size - A
+    M 57:4 ReportCleaner.calculate_total_size - A
+    M 66:4 ReportCleaner._get_dir_size - A
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\cli\core\report_scanner.py
+    M 78:4 ReportScanner._detect_status - C
+    C 14:0 ReportScanner - B
+    M 17:4 ReportScanner.scan_reports - A
+    M 40:4 ReportScanner._parse_execution - A
+    M 124:4 ReportScanner._sort_executions - A
+    M 120:4 ReportScanner._calculate_dir_size - A
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\cli\ui\progress.py
+    F 14:0 show_execution_progress - A
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\cli\ui\styles.py
+    F 4:0 success_style - A
+    F 9:0 error_style - A
+    F 14:0 warning_style - A
+    F 19:0 info_style - A
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\cli\ui\tables.py
+    F 11:0 show_configuration_table - B
+    F 70:0 show_executions_table - A
+    F 48:0 show_execution_summary - A
+    F 110:0 _format_size - A
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\collectors\base_collector.py
+    M 28:4 BaseCollector.__exit__ - A
+    C 8:0 BaseCollector - A
+    M 12:4 BaseCollector._get_timestamp - A
+    M 20:4 BaseCollector.__enter__ - A
+    M 56:4 BaseCollector._cleanup_listeners - A
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\collectors\console.py
+    M 89:4 ConsoleCollector._on_console_message - C
+    M 177:4 ConsoleCollector.save_to_file - B
+    C 17:0 ConsoleCollector - A
+    M 46:4 ConsoleCollector._validate_filter_levels - A
+    M 246:4 ConsoleCollector.dispose - A
+    M 35:4 ConsoleCollector._compile_ignore_patterns - A
+    M 73:4 ConsoleCollector._setup_listener - A
+    M 143:4 ConsoleCollector._format_location - A
+    M 158:4 ConsoleCollector.get_errors - A
+    M 163:4 ConsoleCollector.get_warnings - A
+    M 168:4 ConsoleCollector.get_summary - A
+    M 239:4 ConsoleCollector._cleanup_listeners - A
+    M 23:4 ConsoleCollector.__init__ - A
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\collectors\network.py
+    M 97:4 NetworkCollector._on_response - C
+    M 174:4 NetworkCollector.get_metrics - C
+    C 16:0 NetworkCollector - B
+    M 45:4 NetworkCollector._setup_listeners - B
+    M 69:4 NetworkCollector._on_request - B
+    M 199:4 NetworkCollector.save_metrics - B
+    M 152:4 NetworkCollector._on_request_failed - A
+    M 244:4 NetworkCollector.dispose - A
+    M 23:4 NetworkCollector.__init__ - A
+    M 65:4 NetworkCollector._should_track_url - A
+    M 235:4 NetworkCollector._cleanup_listeners - A
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\collectors\performance\exporters.py
+    M 58:4 SummaryExporter._build_summary_lines - C
+    M 191:4 SummaryExporter._format_long_tasks - A
+    M 212:4 SummaryExporter._format_layout_shifts - A
+    C 36:0 SummaryExporter - A
+    M 137:4 SummaryExporter._format_resources - A
+    C 10:0 BaseExporter - A
+    C 18:0 JSONExporter - A
+    M 39:4 SummaryExporter.export - A
+    M 14:4 BaseExporter.export - A
+    M 21:4 JSONExporter.export - A
+    M 102:4 SummaryExporter._format_web_vitals - A
+    M 121:4 SummaryExporter._format_navigation - A
+    M 170:4 SummaryExporter._format_paint - A
+    M 180:4 SummaryExporter._format_memory - A
+    M 229:4 SummaryExporter._format_runtime - A
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\collectors\performance\models.py
+    C 162:0 PerformanceReport - A
+    C 7:0 NavigationTiming - A
+    C 40:0 ResourceTiming - A
+    C 61:0 PaintTiming - A
+    C 68:0 WebVitals - A
+    C 88:0 MemoryMetrics - A
+    C 99:0 RuntimeMetrics - A
+    C 110:0 LongTask - A
+    C 119:0 LayoutShift - A
+    C 128:0 UserTimingEntry - A
+    C 137:0 EventTiming - A
+    C 149:0 ResourceSummary - A
+    M 178:4 PerformanceReport.to_dict - A
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\collectors\performance\performance_collector.py
+    M 113:4 PerformanceCollector.save_to_file - A
+    C 27:0 PerformanceCollector - A
+    M 72:4 PerformanceCollector.collect_all - A
+    M 153:4 PerformanceCollector._get_save_path - A
+    M 56:4 PerformanceCollector._init_collectors - A
+    M 42:4 PerformanceCollector.__init__ - A
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\collectors\performance\metric_collectors\base.py
+    M 32:4 BaseMetricCollector._safe_evaluate - A
+    C 11:0 BaseMetricCollector - A
+    M 14:4 BaseMetricCollector.__init__ - A
+    M 25:4 BaseMetricCollector.collect - A
+    M 52:4 BaseMetricCollector._round_metric - A
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\collectors\performance\metric_collectors\event_timing.py
+    C 6:0 EventTimingCollector - A
+    M 9:4 EventTimingCollector.collect - A
+    M 28:4 EventTimingCollector._get_script - A
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\collectors\performance\metric_collectors\layout_shifts.py
+    C 6:0 LayoutShiftsCollector - A
+    M 9:4 LayoutShiftsCollector.collect - A
+    M 25:4 LayoutShiftsCollector._get_script - A
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\collectors\performance\metric_collectors\long_tasks.py
+    C 6:0 LongTasksCollector - A
+    M 9:4 LongTasksCollector.collect - A
+    M 25:4 LongTasksCollector._get_script - A
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\collectors\performance\metric_collectors\memory.py
+    C 6:0 MemoryCollector - A
+    M 9:4 MemoryCollector.collect - A
+    M 28:4 MemoryCollector._get_script - A
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\collectors\performance\metric_collectors\navigation.py
+    C 6:0 NavigationTimingCollector - A
+    M 9:4 NavigationTimingCollector.collect - A
+    M 63:4 NavigationTimingCollector._get_script - A
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\collectors\performance\metric_collectors\paint_timing.py
+    C 6:0 PaintTimingCollector - A
+    M 9:4 PaintTimingCollector.collect - A
+    M 20:4 PaintTimingCollector._get_script - A
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\collectors\performance\metric_collectors\resources.py
+    M 37:4 ResourceTimingCollector.calculate_summary - C
+    C 6:0 ResourceTimingCollector - B
+    M 9:4 ResourceTimingCollector.collect - A
+    M 85:4 ResourceTimingCollector._get_script - A
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\collectors\performance\metric_collectors\runtime.py
+    C 6:0 RuntimeMetricsCollector - A
+    M 9:4 RuntimeMetricsCollector.collect - A
+    M 27:4 RuntimeMetricsCollector._get_script - A
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\collectors\performance\metric_collectors\user_timing.py
+    C 6:0 UserTimingCollector - A
+    M 9:4 UserTimingCollector.collect - A
+    M 25:4 UserTimingCollector._get_script - A
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\collectors\performance\metric_collectors\web_vitals.py
+    C 6:0 WebVitalsCollector - A
+    M 43:4 WebVitalsCollector._get_lcp_status - A
+    M 53:4 WebVitalsCollector._get_inp_status - A
+    M 63:4 WebVitalsCollector._get_cls_status - A
+    M 19:4 WebVitalsCollector.collect - A
+    M 73:4 WebVitalsCollector._get_script - A
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\core\directory_manager.py
+    M 97:4 DirectoryManager._create_directory - A
+    C 9:0 DirectoryManager - A
+    M 22:4 DirectoryManager.should_create_directory - A
+    M 52:4 DirectoryManager.create_execution_directories - A
+    M 75:4 DirectoryManager.get_attachment_path - A
+    M 115:4 DirectoryManager._get_bool_config - A
+    M 12:4 DirectoryManager.__init__ - A
+    M 40:4 DirectoryManager.get_execution_base_path - A
+    M 130:4 DirectoryManager._get_default_for_type - A
+    M 149:4 DirectoryManager.cleanup - A
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\core\execution_context.py
+    C 9:0 ExecutionContext - A
+    M 21:4 ExecutionContext.get_execution_id - A
+    M 15:4 ExecutionContext.__new__ - A
+    M 39:4 ExecutionContext.set_execution_id - A
+    M 47:4 ExecutionContext._generate_id - A
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\core\browser\browser_cleanup.py
+    M 16:4 BrowserCleanup.cleanup_resources - C
+    C 9:0 BrowserCleanup - B
+    M 12:4 BrowserCleanup.__init__ - A
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\core\browser\browser_health.py
+    M 15:4 BrowserHealthMonitor.validate_browser_health - B
+    C 8:0 BrowserHealthMonitor - A
+    M 11:4 BrowserHealthMonitor.__init__ - A
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\core\browser\browser_launcher.py
+    M 36:4 BrowserLauncher.build_context_options - A
+    C 12:0 BrowserLauncher - A
+    M 15:4 BrowserLauncher.__init__ - A
+    M 24:4 BrowserLauncher.get_browser_type - A
+    M 28:4 BrowserLauncher.get_browser_args - A
+    M 32:4 BrowserLauncher.get_viewport - A
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\core\browser\browser_lifecycle.py
+    M 196:4 BrowserLifecycle._cleanup_resources - D
+    M 378:4 BrowserLifecycle._convert_videos_in_directory - B
+    M 49:4 BrowserLifecycle.start - B
+    M 418:4 BrowserLifecycle._save_collector_data - B
+    C 26:0 BrowserLifecycle - B
+    M 130:4 BrowserLifecycle._validate_browser_health - A
+    M 317:4 BrowserLifecycle.managed_browser - A
+    M 151:4 BrowserLifecycle._build_context_options - A
+    M 342:4 BrowserLifecycle._initialize_collectors - A
+    M 453:4 BrowserLifecycle.get_page - A
+    M 462:4 BrowserLifecycle.get_browser - A
+    M 449:4 BrowserLifecycle.is_healthy - A
+    M 29:4 BrowserLifecycle.__init__ - A
+    M 118:4 BrowserLifecycle._get_browser_type - A
+    M 122:4 BrowserLifecycle._get_browser_args - A
+    M 126:4 BrowserLifecycle._get_viewport - A
+    M 309:4 BrowserLifecycle.close - A
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\core\browser\browser_manager.py
+    C 10:0 BrowserManager - A
+    M 13:4 BrowserManager.__init__ - A
+    M 25:4 BrowserManager.start - A
+    M 29:4 BrowserManager.close - A
+    M 33:4 BrowserManager.stop - A
+    M 37:4 BrowserManager.managed_browser - A
+    M 42:4 BrowserManager.is_healthy - A
+    M 46:4 BrowserManager.get_page - A
+    M 50:4 BrowserManager.get_browser - A
+    M 55:4 BrowserManager._get_browser_type - A
+    M 59:4 BrowserManager._get_browser_args - A
+    M 63:4 BrowserManager._get_viewport - A
+    M 67:4 BrowserManager._build_context_options - A
+    M 71:4 BrowserManager._cleanup_resources - A
+    M 81:4 BrowserManager._context - A
+    M 86:4 BrowserManager._context - A
+    M 92:4 BrowserManager._browser - A
+    M 97:4 BrowserManager._page - A
+    M 102:4 BrowserManager._playwright - A
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\core\browser\browser_operations.py
+    M 20:4 BrowserOperations.get_video_path - A
+    C 10:0 BrowserOperations - A
+    M 42:4 BrowserOperations._sanitize_filename - A
+    M 13:4 BrowserOperations.__init__ - A
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\core\config\defaults.py
+    F 6:0 get_default_config - A
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\core\config\loader.py
+    M 237:4 ConfigLoader._substitute_env_vars - B
+    M 48:4 ConfigLoader.load - B
+    M 146:4 ConfigLoader._load_behave_config - B
+    M 254:4 ConfigLoader._apply_env_overrides - B
+    C 21:0 ConfigLoader - B
+    M 91:4 ConfigLoader._load_playwright_config - B
+    M 117:4 ConfigLoader._load_reportportal_config - B
+    M 182:4 ConfigLoader._load_logging_config - B
+    M 210:4 ConfigLoader._load_reporting_config - B
+    M 34:4 ConfigLoader._find_config_dir - A
+    M 283:4 ConfigLoader.get - A
+    M 306:4 ConfigLoader.config_exists - A
+    M 24:4 ConfigLoader.__init__ - A
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\core\config\validator.py
+    M 86:4 ConfigValidator._validate_field - D
+    C 13:0 ConfigValidator - C
+    M 16:4 ConfigValidator.validate - B
+    M 48:4 ConfigValidator._validate_section - A
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\core\exceptions\base_exceptions.py
+    C 7:0 NemesisError - A
+    M 10:4 NemesisError.__init__ - A
+    M 18:4 NemesisError.format_message - A
+    M 24:4 NemesisError.to_dict - A
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\core\exceptions\browser_exceptions.py
+    C 6:0 BrowserError - A
+    C 10:0 PageObjectError - A
+    C 14:0 ElementNotFoundError - A
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\core\exceptions\collector_exceptions.py
+    C 6:0 CollectorError - A
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\core\exceptions\config_exceptions.py
+    C 6:0 ConfigurationError - A
+    C 10:0 ValidationError - A
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\core\exceptions\network_exceptions.py
+    C 6:0 NetworkError - A
+    C 10:0 NemesisTimeoutError - A
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\core\exceptions\reporting_exceptions.py
+    C 6:0 ReportingError - A
+    C 10:0 ReportPortalError - A
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\core\logging\factory.py
+    F 83:0 get_factory - A
+    C 12:0 LoggerFactory - A
+    M 21:4 LoggerFactory.create_test_logger - A
+    M 43:4 LoggerFactory.create_framework_logger - A
+    M 65:4 LoggerFactory._get_shipping_manager - A
+    F 91:0 create_test_logger - A
+    F 96:0 create_framework_logger - A
+    M 15:4 LoggerFactory.__init__ - A
+    M 74:4 LoggerFactory.get_context_manager - A
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\core\logging\legacy_wrapper.py
+    C 8:0 Logger - A
+    M 14:4 Logger.__init__ - A
+    M 20:4 Logger.get_instance - A
+    M 26:4 Logger._get_logger - A
+    M 34:4 Logger.info - A
+    M 38:4 Logger.debug - A
+    M 42:4 Logger.warning - A
+    M 46:4 Logger.error - A
+    M 50:4 Logger.critical - A
+    M 54:4 Logger.feature_start - A
+    M 58:4 Logger.feature_end - A
+    M 62:4 Logger.scenario_start - A
+    M 66:4 Logger.scenario_end - A
+    M 70:4 Logger.step_start - A
+    M 74:4 Logger.step_end - A
+    M 78:4 Logger.start_correlation - A
+    M 84:4 Logger.end_correlation - A
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\core\logging\config\settings.py
+    C 17:0 LoggingConfig - A
+    M 40:4 LoggingConfig.__post_init__ - A
+    M 47:4 LoggingConfig.for_test_execution - A
+    M 80:4 LoggingConfig.for_framework - A
+    C 8:0 LocalConfig - A
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\core\logging\context\manager.py
+    C 11:0 LogContext - A
+    M 24:4 LogContext.to_dict - A
+    C 33:0 ContextManager - A
+    M 72:4 ContextManager.get_current_context - A
+    M 79:4 ContextManager.get_execution_id - A
+    M 36:4 ContextManager.__init__ - A
+    M 42:4 ContextManager.start_correlation - A
+    M 60:4 ContextManager.end_correlation - A
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\core\logging\core\logger.py
+    C 13:0 LoggerConfig - A
+    M 21:4 LoggerConfig.__post_init__ - A
+    C 26:0 Logger - A
+    M 58:4 Logger._log - A
+    M 29:4 Logger.__init__ - A
+    M 37:4 Logger._create_log_entry - A
+    M 53:4 Logger._should_log - A
+    M 65:4 Logger.debug - A
+    M 69:4 Logger.info - A
+    M 73:4 Logger.warning - A
+    M 77:4 Logger.error - A
+    M 81:4 Logger.critical - A
+    M 85:4 Logger.log_exception - A
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\core\logging\models\log_entry.py
+    M 35:4 LogEntry.__post_init__ - A
+    C 10:0 LogEntry - A
+    M 46:4 LogEntry.to_dict - A
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\core\logging\severity\mapper.py
+    M 75:4 SeverityMapper.get_exception_context - A
+    C 28:0 SeverityMapping - A
+    C 42:0 SeverityMapper - A
+    M 37:4 SeverityMapping.__post_init__ - A
+    M 58:4 SeverityMapper.map_exception - A
+    C 9:0 LogLevel - A
+    C 18:0 ExceptionCategory - A
+    M 45:4 SeverityMapper.__init__ - A
+    M 49:4 SeverityMapper._create_default_mappings - A
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\core\logging\shipping\manager.py
+    M 50:4 ShippingManager._send_directly - B
+    C 9:0 ShippingManager - A
+    M 32:4 ShippingManager.send_log - A
+    M 73:4 ShippingManager._send_to_channel - A
+    M 17:4 ShippingManager._initialize_channels - A
+    M 12:4 ShippingManager.__init__ - A
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\core\logging\shipping\channels\local.py
+    C 24:0 LocalChannel - A
+    M 33:4 LocalChannel._get_output_path - A
+    M 68:4 LocalChannel.send_log - A
+    M 104:4 LocalChannel.get_status - A
+    M 96:4 LocalChannel.__del__ - A
+    F 11:0 _json_dumps_fallback - A
+    M 27:4 LocalChannel.__init__ - A
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\environment\browser_environment.py
+    M 93:4 BrowserEnvironment.start_browser_for_scenario - C
+    M 231:4 BrowserEnvironment._activate_collectors - B
+    C 14:0 BrowserEnvironment - A
+    M 184:4 BrowserEnvironment.stop_browser_for_scenario - A
+    M 28:4 BrowserEnvironment.setup - A
+    M 67:4 BrowserEnvironment.teardown - A
+    M 217:4 BrowserEnvironment._initialize_collectors - A
+    M 258:4 BrowserEnvironment._stop_collectors - A
+    M 17:4 BrowserEnvironment.__init__ - A
+    M 271:4 BrowserEnvironment.get_browser_manager - A
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\environment\collector_content_logger.py
+    M 180:4 CollectorContentLogger.log_performance_content - D
+    M 81:4 CollectorContentLogger.log_network_content - C
+    C 11:0 CollectorContentLogger - C
+    M 23:4 CollectorContentLogger.log_console_content - B
+    M 14:4 CollectorContentLogger.__init__ - A
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\environment\environment_manager.py
+    M 97:4 EnvironmentManager.teardown_environment - B
+    M 36:4 EnvironmentManager.setup_environment - B
+    C 15:0 EnvironmentManager - A
+    M 148:4 EnvironmentManager._start_test_suite - A
+    M 168:4 EnvironmentManager._end_test_suite - A
+    M 18:4 EnvironmentManager.__init__ - A
+    M 185:4 EnvironmentManager.get_browser_manager - A
+    M 189:4 EnvironmentManager.get_report_manager - A
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\environment\hooks.py
+    F 168:0 before_scenario - B
+    F 276:0 before_step - B
+    F 226:0 after_scenario - B
+    F 69:0 after_all - B
+    F 133:0 after_feature - B
+    F 34:0 before_all - A
+    F 327:0 after_step - A
+    F 103:0 before_feature - A
+    F 20:0 _get_env_manager - A
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\environment\logger_environment.py
+    C 10:0 LoggerEnvironment - A
+    M 23:4 LoggerEnvironment.setup - A
+    M 57:4 LoggerEnvironment.teardown - A
+    M 80:4 LoggerEnvironment.start_correlation - A
+    M 112:4 LoggerEnvironment.log_test_suite_start - A
+    M 138:4 LoggerEnvironment.log_test_suite_end - A
+    M 166:4 LoggerEnvironment.log_feature_start - A
+    M 189:4 LoggerEnvironment.log_feature_end - A
+    M 213:4 LoggerEnvironment.log_scenario_start - A
+    M 236:4 LoggerEnvironment.log_scenario_end - A
+    M 260:4 LoggerEnvironment.log_step_start - A
+    M 283:4 LoggerEnvironment.log_step_end - A
+    M 13:4 LoggerEnvironment.__init__ - A
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\environment\reporting_environment.py
+    M 201:4 ReportingEnvironment.end_scenario - C
+    M 27:4 ReportingEnvironment.setup - B
+    C 12:0 ReportingEnvironment - A
+    M 73:4 ReportingEnvironment.teardown - A
+    M 99:4 ReportingEnvironment.start_test_suite - A
+    M 118:4 ReportingEnvironment.end_test_suite - A
+    M 138:4 ReportingEnvironment.start_feature - A
+    M 158:4 ReportingEnvironment.end_feature - A
+    M 179:4 ReportingEnvironment.start_scenario - A
+    M 256:4 ReportingEnvironment.start_step - A
+    M 275:4 ReportingEnvironment.end_step - A
+    M 15:4 ReportingEnvironment.__init__ - A
+    M 295:4 ReportingEnvironment.get_report_manager - A
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\environment\scenario_attachment_handler.py
+    M 110:4 ScenarioAttachmentHandler.attach_collectors - D
+    M 23:4 ScenarioAttachmentHandler.attach_videos - C
+    C 11:0 ScenarioAttachmentHandler - C
+    M 14:4 ScenarioAttachmentHandler.__init__ - A
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\reporting\attachments.py
+    M 33:4 AttachmentHandler._sanitize_filename - A
+    C 9:0 AttachmentHandler - A
+    M 16:4 AttachmentHandler.save_metrics - A
+    M 12:4 AttachmentHandler.__init__ - A
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\reporting\manager.py
+    M 23:4 ReportManager.__init__ - A
+    M 72:4 ReportManager._propagate_execution_id - A
+    M 207:4 ReportManager.cleanup - A
+    C 20:0 ReportManager - A
+    M 113:4 ReportManager.start_scenario - A
+    M 126:4 ReportManager.end_scenario - A
+    M 142:4 ReportManager.start_step - A
+    M 150:4 ReportManager.end_step - A
+    M 243:4 ReportManager.__exit__ - A
+    M 283:4 ReportManager.end_test_suite - A
+    M 94:4 ReportManager.start_test_suite - A
+    M 159:4 ReportManager.attach_screenshot - A
+    M 164:4 ReportManager.attach_video - A
+    M 169:4 ReportManager.attach_trace - A
+    M 174:4 ReportManager.attach_metrics - A
+    M 179:4 ReportManager.attach_file - A
+    M 190:4 ReportManager.log_message - A
+    M 195:4 ReportManager.finalize - A
+    M 221:4 ReportManager.get_execution_path - A
+    M 227:4 ReportManager.get_execution_id - A
+    M 233:4 ReportManager.is_healthy - A
+    M 100:4 ReportManager.start_feature - A
+    M 104:4 ReportManager.end_feature - A
+    M 239:4 ReportManager.__enter__ - A
+    M 256:4 ReportManager.__repr__ - A
+    M 264:4 ReportManager.local_reporter - A
+    M 269:4 ReportManager.rp_client - A
+    M 274:4 ReportManager.execution_id - A
+    M 279:4 ReportManager.execution_path - A
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\reporting\reportportal.py
+    M 19:4 ReportPortalClient.__init__ - C
+    M 243:4 ReportPortalClient.__exit__ - C
+    M 188:4 ReportPortalClient.log_exception_with_attachment - A
+    C 16:0 ReportPortalClient - A
+    M 156:4 ReportPortalClient.finish_launch - A
+    M 95:4 ReportPortalClient.start_launch - A
+    M 100:4 ReportPortalClient.start_feature - A
+    M 110:4 ReportPortalClient.finish_feature - A
+    M 119:4 ReportPortalClient.start_test - A
+    M 129:4 ReportPortalClient.start_step - A
+    M 138:4 ReportPortalClient.finish_step - A
+    M 147:4 ReportPortalClient.finish_test - A
+    M 168:4 ReportPortalClient.log_message - A
+    M 178:4 ReportPortalClient.log_exception - A
+    M 201:4 ReportPortalClient.attach_file - A
+    M 212:4 ReportPortalClient.is_healthy - A
+    M 222:4 ReportPortalClient.get_launch_url - A
+    M 233:4 ReportPortalClient.launch_id - A
+    M 239:4 ReportPortalClient.__enter__ - A
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\reporting\local\data_model.py
+    C 22:0 ScenarioData - A
+    M 41:4 ScenarioData.passed_steps - A
+    M 46:4 ScenarioData.failed_steps - A
+    C 52:0 ExecutionData - A
+    M 67:4 ExecutionData.passed_scenarios - A
+    M 72:4 ExecutionData.failed_scenarios - A
+    M 34:4 ScenarioData.duration - A
+    M 60:4 ExecutionData.duration - A
+    M 77:4 ExecutionData.total_steps - A
+    C 8:0 StepData - A
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\reporting\local\filter_controls.py
+    F 6:0 build_filter_controls - B
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\reporting\local\html_builder.py
+    C 13:0 HTMLReportBuilder - A
+    M 16:4 HTMLReportBuilder.__init__ - A
+    M 20:4 HTMLReportBuilder.build - A
+    M 42:4 HTMLReportBuilder.build_report - A
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\reporting\local\reporter.py
+    M 164:4 LocalReporter._try_recover_execution_data - B
+    M 100:4 LocalReporter.add_attachment - A
+    M 255:4 LocalReporter._get_execution_duration - A
+    C 16:0 LocalReporter - A
+    M 57:4 LocalReporter.end_step - A
+    M 76:4 LocalReporter.add_log - A
+    M 136:4 LocalReporter.generate_report - A
+    M 43:4 LocalReporter.start_step - A
+    M 91:4 LocalReporter.add_screenshot - A
+    M 120:4 LocalReporter.end_scenario - A
+    M 19:4 LocalReporter.__init__ - A
+    M 31:4 LocalReporter.start_scenario - A
+    M 231:4 LocalReporter._print_report_success - A
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\reporting\local\scenario_builder.py
+    F 98:0 _build_tab_navigation - A
+    F 125:0 _build_steps_content - A
+    F 158:0 _build_logs_content - A
+    F 9:0 build_scenario_card - A
+    F 30:0 _build_scenario_header - A
+    F 62:0 _build_scenario_tabs - A
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\reporting\local\summary_builder.py
+    F 6:0 build_summary_section - C
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\reporting\local\tab_helpers.py
+    F 6:0 build_tab_metadata - A
+    F 27:0 iterate_tab_metadata - A
+    F 41:0 extract_tab_fields - A
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\reporting\local\tab_template.py
+    F 6:0 build_tab_navigation - A
+    F 34:0 build_tab_content - A
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\reporting\local\builders\assets_manager.py
+    F 7:0 copy_assets - A
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\reporting\local\builders\report_status.py
+    F 3:0 determine_overall_status - B
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\reporting\local\builders\scenarios_builder.py
+    F 6:0 build_all_scenarios - A
+    F 22:0 _build_no_scenarios_placeholder - A
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\reporting\local\formatters\console_formatter.py
+    F 3:0 colorize_console_logs - B
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\reporting\local\formatters\network_formatter.py
+    F 5:0 format_network_data - C
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\reporting\local\formatters\performance_formatter.py
+    F 5:0 format_performance_data - D
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\reporting\local\tabs\attachments.py
+    F 65:0 _get_all_attachments - A
+    F 8:0 build_attachments_tab - A
+    F 109:0 _get_file_icon_and_preview - A
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\reporting\local\tabs\console.py
+    F 9:0 build_console_tab - A
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\reporting\local\tabs\file_tab_helper.py
+    F 7:0 process_tab_files - B
+    F 39:0 build_file_tab_content - B
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\reporting\local\tabs\logs.py
+    F 6:0 build_logs_tab - A
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\reporting\local\tabs\network.py
+    F 9:0 build_network_tab - A
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\reporting\local\tabs\performance.py
+    F 9:0 build_performance_tab - A
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\reporting\local\tabs\steps.py
+    F 6:0 build_steps_tab - A
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\reporting\management\attachment_manager.py
+    C 9:0 AttachmentManager - A
+    M 12:4 AttachmentManager.__init__ - A
+    M 19:4 AttachmentManager.attach_screenshot - A
+    M 23:4 AttachmentManager.attach_video - A
+    M 27:4 AttachmentManager.attach_trace - A
+    M 31:4 AttachmentManager.attach_metrics - A
+    M 35:4 AttachmentManager.attach_file - A
+    M 45:4 AttachmentManager.log_message - A
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\reporting\management\execution_manager.py
+    C 11:0 ExecutionManager - A
+    M 25:4 ExecutionManager._create_execution_directory - A
+    M 50:4 ExecutionManager.start_execution - A
+    M 59:4 ExecutionManager.end_execution - A
+    M 67:4 ExecutionManager.cleanup - A
+    M 14:4 ExecutionManager.__init__ - A
+    M 42:4 ExecutionManager.get_execution_id - A
+    M 46:4 ExecutionManager.get_execution_path - A
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\reporting\management\feature_manager.py
+    M 44:4 FeatureManager.end_feature - C
+    C 6:0 FeatureManager - B
+    M 14:4 FeatureManager.start_feature - B
+    M 9:4 FeatureManager.__init__ - A
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\reporting\management\finalization_manager.py
+    M 21:4 FinalizationManager.finalize - D
+    C 12:0 FinalizationManager - B
+    M 144:4 FinalizationManager._finish_launch_direct_api - B
+    M 204:4 FinalizationManager.is_healthy - A
+    M 15:4 FinalizationManager.__init__ - A
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\reporting\management\reporter_manager.py
+    M 32:4 ReporterManager._initialize_reporters - D
+    C 11:0 ReporterManager - A
+    M 137:4 ReporterManager.is_local_enabled - A
+    M 141:4 ReporterManager.is_rp_enabled - A
+    M 14:4 ReporterManager.__init__ - A
+    M 129:4 ReporterManager.get_local_reporter - A
+    M 133:4 ReporterManager.get_rp_client - A
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\reporting\management\scenario_manager.py
+    M 45:4 ScenarioManager.end_scenario - B
+    C 8:0 ScenarioManager - B
+    M 16:4 ScenarioManager.start_scenario - B
+    M 11:4 ScenarioManager.__init__ - A
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\reporting\management\step_manager.py
+    M 44:4 StepManager.end_step - C
+    C 7:0 StepManager - B
+    M 15:4 StepManager.start_step - B
+    M 10:4 StepManager.__init__ - A
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\reporting\management\attachments\base_manager.py
+    M 27:4 BaseAttachmentManager._store_attachment_locally - A
+    C 9:0 BaseAttachmentManager - A
+    M 16:4 BaseAttachmentManager.__init__ - A
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\reporting\management\attachments\metrics_manager.py
+    M 10:4 MetricsManager.attach_metrics - C
+    M 50:4 MetricsManager.attach_file - C
+    C 7:0 MetricsManager - C
+    M 85:4 MetricsManager.log_message - B
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\reporting\management\attachments\screenshot_manager.py
+    M 15:4 ScreenshotManager.attach_screenshot - C
+    C 6:0 ScreenshotManager - B
+    M 9:4 ScreenshotManager.__init__ - A
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\reporting\management\attachments\trace_manager.py
+    C 7:0 TraceManager - C
+    M 10:4 TraceManager.attach_trace - C
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\reporting\management\attachments\video_manager.py
+    M 37:4 VideoManager.attach_video - C
+    C 8:0 VideoManager - B
+    M 11:4 VideoManager._convert_video - A
+    M 23:4 VideoManager._store_video_locally - A
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\reporting\report_portal\rp_attachment_manager.py
+    M 47:4 RPAttachmentManager.attach_file - C
+    C 12:0 RPAttachmentManager - B
+    M 21:4 RPAttachmentManager._get_current_item_id - A
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\reporting\report_portal\rp_base_manager.py
+    C 12:0 RPBaseManager - A
+    M 44:4 RPBaseManager._get_current_item_id - A
+    M 19:4 RPBaseManager.__init__ - A
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\reporting\report_portal\rp_client_base.py
+    M 66:4 RPClientBase.get_launch_url - A
+    C 11:0 RPClientBase - A
+    M 33:4 RPClientBase._create_client - A
+    M 48:4 RPClientBase._validate_connection - A
+    M 16:4 RPClientBase.__init__ - A
+    M 60:4 RPClientBase.is_healthy - A
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\reporting\report_portal\rp_config_loader.py
+    M 42:4 RPConfigLoader._validate_config - A
+    C 14:0 RPConfigLoader - A
+    M 31:4 RPConfigLoader._load_config - A
+    M 21:4 RPConfigLoader.__init__ - A
+    M 60:4 RPConfigLoader.get_rp_settings - A
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\reporting\report_portal\rp_feature_manager.py
+    M 61:4 RPFeatureManager.finish_feature - B
+    M 33:4 RPFeatureManager.start_feature - A
+    C 13:0 RPFeatureManager - A
+    M 19:4 RPFeatureManager.__init__ - A
+    M 85:4 RPFeatureManager.get_feature_id - A
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\reporting\report_portal\rp_launch_manager.py
+    M 135:4 RPLaunchManager.finish_launch - C
+    M 63:4 RPLaunchManager.start_launch - B
+    C 19:0 RPLaunchManager - A
+    M 46:4 RPLaunchManager._normalize_attributes - A
+    M 242:4 RPLaunchManager.rerun_launch - A
+    M 128:4 RPLaunchManager.get_launch_url - A
+    M 30:4 RPLaunchManager.__init__ - A
+    M 58:4 RPLaunchManager._current_timestamp_ms - A
+    M 120:4 RPLaunchManager.get_launch_id - A
+    M 124:4 RPLaunchManager.is_launch_active - A
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\reporting\report_portal\rp_logger.py
+    M 119:4 RPLogger.log_exception_with_attachment - C
+    C 13:0 RPLogger - C
+    M 48:4 RPLogger.log_exception - C
+    M 21:4 RPLogger.log_message - B
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\reporting\report_portal\rp_step_manager.py
+    M 37:4 RPStepManager.start_step - B
+    M 68:4 RPStepManager.finish_step - B
+    C 15:0 RPStepManager - A
+    M 21:4 RPStepManager.__init__ - A
+    M 93:4 RPStepManager.get_step_id - A
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\reporting\report_portal\rp_test_manager.py
+    M 38:4 RPTestManager.start_test - B
+    M 81:4 RPTestManager.finish_test - B
+    C 16:0 RPTestManager - A
+    M 22:4 RPTestManager.__init__ - A
+    M 112:4 RPTestManager.get_test_id - A
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\reporting\report_portal\rp_utils.py
+    M 62:4 RPUtils.extract_stack_trace - B
+    M 45:4 RPUtils.parse_attributes - A
+    C 11:0 RPUtils - A
+    M 18:4 RPUtils.timestamp - A
+    M 23:4 RPUtils.get_mime_type - A
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\utils\config_utils.py
+    M 18:4 ConfigHelper.get_path - A
+    M 48:4 ConfigHelper.get_list - A
+    C 7:0 ConfigHelper - A
+    F 63:0 get_config_helper - A
+    M 30:4 ConfigHelper.get_boolean - A
+    M 36:4 ConfigHelper.get_int - A
+    M 42:4 ConfigHelper.get_string - A
+    F 71:0 set_config_helper - A
+    M 10:4 ConfigHelper.__init__ - A
+    M 54:4 ConfigHelper.is_enabled - A
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\utils\path_utils.py
+    M 19:4 PathManager.get_reports_dir - A
+    M 30:4 PathManager.get_features_dir - A
+    F 66:0 get_path_manager - A
+    C 8:0 PathManager - A
+    F 74:0 set_path_manager - A
+    M 11:4 PathManager.__init__ - A
+    M 41:4 PathManager.get_execution_path - A
+    M 46:4 PathManager.get_attachment_path - A
+    M 54:4 PathManager.get_logs_path - A
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\utils\video_converter.py
+    F 14:0 convert_to_mp4 - C
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\utils\__init__.py
+    F 16:0 sanitize_filename - A
+    F 20:0 generate_timestamp - A
+    F 24:0 ensure_directory - A
+    F 28:0 read_json_file - A
+    F 32:0 write_json_file - A
+    F 36:0 format_duration - A
+    F 40:0 calculate_file_hash - A
+    F 44:0 parse_size_string - A
+    F 48:0 is_valid_url - A
+    F 52:0 flatten_dict - A
+    F 56:0 retry_on_exception - A
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\utils\decorators\cache_decorators.py
+    F 12:0 memoize - A
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\utils\decorators\logging_decorators.py
+    F 13:0 log_execution - A
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\utils\decorators\rate_limit_decorators.py
+    F 13:0 rate_limit - A
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\utils\decorators\retry_decorators.py
+    F 13:0 retry - A
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\utils\decorators\safety_decorators.py
+    F 12:0 safe_execute - A
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\utils\decorators\timeout_decorators.py
+    F 69:0 _timeout_with_time_check - A
+    F 15:0 timeout - A
+    F 45:0 _timeout_with_signal - A
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\utils\helpers\browser_helpers.py
+    F 56:0 get_viewport - B
+    F 17:0 get_browser_type - A
+    F 6:0 _ensure_logger_on_config - A
+    F 44:0 get_browser_args - A
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\utils\helpers\exception_handling.py
+    F 9:0 handle_keyboard_and_system_exit_in_context - A
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\utils\helpers\exception_helpers.py
+    F 23:0 ensure_directory_exists - A
+    F 9:0 handle_keyboard_system_exit - A
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\utils\helpers\exception_utils.py
+    F 4:0 handle_keyboard_and_system_exit - A
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\utils\helpers\file_utils.py
+    M 41:4 FileUtils.write_json_file - B
+    C 11:0 FileUtils - A
+    M 24:4 FileUtils.read_json_file - A
+    M 90:4 FileUtils.calculate_file_hash - A
+    M 107:4 FileUtils.calculate_dir_size - A
+    M 15:4 FileUtils.ensure_directory - A
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\utils\helpers\har_helpers.py
+    F 6:0 add_har_path_to_options - A
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\utils\helpers\retry_utils.py
+    C 7:0 RetryUtils - A
+    M 11:4 RetryUtils.retry_on_exception - A
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\utils\helpers\scenario_helpers.py
+    F 6:0 normalize_scenario_status - A
+    F 29:0 normalize_scenario_status_for_rp - A
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\utils\helpers\string_utils.py
+    C 7:0 StringUtils - A
+    M 15:4 StringUtils.sanitize_filename - A
+    M 61:4 StringUtils.flatten_dict - A
+    M 45:4 StringUtils.is_valid_url - A
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\utils\helpers\time_utils.py
+    C 6:0 TimeUtils - A
+    M 15:4 TimeUtils.format_duration - A
+    M 10:4 TimeUtils.generate_timestamp - A
+C:\Users\asadeghianazar\Desktop\Projects\Projects\Nemesis\src\nemesis\utils\helpers\validation_utils.py
+    C 6:0 ValidationUtils - A
+    M 10:4 ValidationUtils.parse_size_string - A
+
+666 blocks (classes, functions, methods) analyzed.
+Average complexity: A (3.735735735735736)
+

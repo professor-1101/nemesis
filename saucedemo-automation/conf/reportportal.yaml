@@ -1,0 +1,25 @@
+# ReportPortal Configuration
+# Update these values with your ReportPortal instance details
+
+endpoint: http://192.168.10.191:9080
+project: develop_automation
+api_key: developer_tynmjr9wQdy6JAm2zBqlC3Kf-MigjzSkGPqvMOsHACa-AeFiVSHfluZPCNMbCNkR
+
+launch_name: Nemesis Test Automation
+launch_description: E2E Testing with Behave & Playwright
+launch_attributes: BDD Playwright E2E
+
+client_type: SYNC
+verify_ssl: false
+
+logging:
+  log_batch_size: 20
+  log_batch_payload_size: 65000000
+
+retry:
+  max_retries: 3
+  retry_delay: 1.0
+
+timeout:
+  connection: 30
+  read: 120
