@@ -1,8 +1,4 @@
-"""Run Tests Use Case - Execute test scenarios with Clean Architecture
-
-This use case orchestrates test execution following Clean Architecture principles.
-It replaces the old TestExecutor with a clean, testable implementation.
-"""
+"""Test execution orchestration use case"""
 
 from __future__ import annotations
 from dataclasses import dataclass
@@ -17,11 +13,7 @@ from nemesis.domain.value_objects import ExecutionId, ScenarioStatus
 
 @dataclass
 class RunTestsConfig:
-    """
-    Configuration for test execution
-
-    Value Object pattern: Encapsulates all config in one immutable object
-    """
+    """Test execution configuration value object"""
     tags: List[str]
     feature: Optional[str]
     env: str
@@ -52,21 +44,7 @@ class RunTestsConfig:
 
 
 class RunTestsUseCase:
-    """
-    Use Case: Run Tests
-
-    Responsibilities (SRP):
-    - Orchestrate test execution workflow
-    - Coordinate browser, reporters, collectors
-    - Manage execution lifecycle
-    - Report progress and results
-
-    Clean Architecture:
-    - Application layer use case
-    - Depends only on Domain layer (ports)
-    - Independent of infrastructure details
-    - Testable without external dependencies
-    """
+    """Orchestrates test execution workflow with browser, reporters, and collectors"""
 
     def __init__(
         self,

@@ -1,8 +1,4 @@
-"""Live Reporter - Cypress-like real-time test execution display
-
-This module provides beautiful, real-time feedback during test execution,
-inspired by Cypress's excellent UX.
-"""
+"""Real-time test execution reporter with live progress display"""
 
 from typing import Optional, List
 from datetime import datetime, timedelta
@@ -20,19 +16,7 @@ from nemesis.domain.ports import IReporter
 
 
 class LiveReporter(IReporter):
-    """
-    Cypress-like Live Reporter
-
-    Provides real-time, beautiful terminal output during test execution.
-    Updates the display live as tests run, showing:
-    - Current scenario/step being executed
-    - Pass/fail status with colors and icons
-    - Execution time for each step/scenario
-    - Overall progress and statistics
-    - Error messages and screenshots
-
-    Inspired by Cypress's excellent developer experience.
-    """
+    """IReporter implementation with real-time terminal UI updates"""
 
     def __init__(self, console: Optional[Console] = None):
         """Initialize live reporter"""
