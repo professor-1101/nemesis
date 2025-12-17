@@ -11,7 +11,7 @@ from nemesis.reporting.manager import ReportManager
 class CollectorContentLogger:
     """Logs collector file contents to ReportPortal for filtering and dashboards."""
 
-    def __init__(self, report_manager: Optional[ReportManager]):
+    def __init__(self, report_manager: Optional[ReportManager]) -> None:
         """Initialize collector content logger.
 
         Args:

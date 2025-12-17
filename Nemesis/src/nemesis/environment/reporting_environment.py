@@ -12,7 +12,7 @@ from nemesis.environment.scenario_attachment_handler import ScenarioAttachmentHa
 class ReportingEnvironment:
     """Manages reporting setup and lifecycle."""
 
-    def __init__(self, config: ConfigLoader):
+    def __init__(self, config: ConfigLoader) -> None:
         """Initialize reporting environment.
 
         Args:

@@ -11,7 +11,7 @@ from nemesis.reporting.manager import ReportManager
 class ScenarioAttachmentHandler:
     """Handles attachment of videos and collector data for scenarios."""
 
-    def __init__(self, report_manager: Optional[ReportManager]):
+    def __init__(self, report_manager: Optional[ReportManager]) -> None:
         """Initialize scenario attachment handler.
 
         Args:

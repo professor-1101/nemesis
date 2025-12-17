@@ -15,7 +15,7 @@ from .logger_environment import LoggerEnvironment
 class EnvironmentManager:
     """Centralized environment manager for test setup and teardown."""
 
-    def __init__(self, config_dir: Optional[Path] = None):
+    def __init__(self, config_dir: Optional[Path] = None) -> None:
         """Initialize environment manager.
 
         Args:

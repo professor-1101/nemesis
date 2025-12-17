@@ -11,7 +11,7 @@ from nemesis.infrastructure.logging import Logger
 class LoggerEnvironment:
     """Manages logger setup and lifecycle."""
 
-    def __init__(self, config: ConfigLoader):
+    def __init__(self, config: ConfigLoader) -> None:
         """Initialize logger environment.
 
         Args:

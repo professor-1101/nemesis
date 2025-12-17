@@ -14,7 +14,7 @@ from nemesis.infrastructure.collectors.performance import PerformanceCollector
 class BrowserEnvironment:
     """Manages browser setup and lifecycle."""
 
-    def __init__(self, config: ConfigLoader):
+    def __init__(self, config: ConfigLoader) -> None:
         """Initialize browser environment.
 
         Args:
