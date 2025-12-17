@@ -51,7 +51,12 @@ class ReportPortalClient:
         )
         self.rp_feature_manager = RPFeatureManager(self.rp_client_base, self.rp_launch_manager)
         self.rp_test_manager = RPTestManager(self.rp_client_base, self.rp_launch_manager, self.rp_feature_manager)
-        self.rp_step_manager = RPStepManager(self.rp_client_base, self.rp_launch_manager, self.rp_test_manager)
+        self.rp_step_manager = RPStepManager(
+            self.rp_client_base,
+            self.rp_launch_manager,
+            self.rp_test_manager,
+            rp_settings.get("step_log_layout", "NESTED")
+        )
         self.rp_logger = RPLogger(self.rp_client_base, self.rp_launch_manager, self.rp_feature_manager, self.rp_test_manager, self.rp_step_manager)
         self.rp_attachment_manager = RPAttachmentManager(self.rp_client_base, self.rp_launch_manager, self.rp_feature_manager, self.rp_test_manager, self.rp_step_manager)
 

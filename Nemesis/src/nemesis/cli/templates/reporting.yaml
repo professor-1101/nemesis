@@ -16,4 +16,5 @@ reportportal:
   enabled: true  # Master switch - controls if ReportPortal is used at all
   send_artifacts: true
   step_level_reporting: true
+  step_log_layout: NESTED  # SCENARIO (logs only), STEP (flat items), NESTED (hierarchical)
   max_attachment_size: 10485760  # 10MB

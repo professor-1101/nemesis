@@ -14,17 +14,29 @@ from .rp_utils import RPUtils
 
 class RPStepManager:
     """Manages ReportPortal step lifecycle within tests.
-    
+
     Handles starting and finishing steps (BDD steps) within test scenarios,
     maintaining step hierarchy for detailed test execution tracking.
+
+    Supports three logging layouts:
+    - SCENARIO: Steps logged as messages only (no test items)
+    - STEP: Steps as flat test items under scenario
+    - NESTED: Steps as nested test items (hierarchical)
     """
-    def __init__(self, rp_client_base: RPClientBase, rp_launch_manager: RPLaunchManager, rp_test_manager: RPTestManager) -> None:
+    def __init__(
+        self,
+        rp_client_base: RPClientBase,
+        rp_launch_manager: RPLaunchManager,
+        rp_test_manager: RPTestManager,
+        step_log_layout: str = "NESTED"
+    ) -> None:
         """Initialize ReportPortal step manager.
-        
+
         Args:
             rp_client_base: Base ReportPortal client
             rp_launch_manager: Launch manager instance
             rp_test_manager: Test manager instance
+            step_log_layout: Layout mode (SCENARIO, STEP, NESTED)
         """
         self.rp_client_base = rp_client_base
         self.client: RPClient = rp_client_base.client
@@ -32,10 +44,55 @@ class RPStepManager:
         self.rp_test_manager = rp_test_manager
         self.logger = Logger.get_instance({})
         self.step_id: str | None = None
+        self.step_log_layout = step_log_layout.upper()
+
+        self.logger.info(f"RPStepManager initialized with layout: {self.step_log_layout}")
+
+    def should_create_step_item(self) -> bool:
+        """Check if step should be created as test item based on layout.
+
+        Returns:
+            True if step item should be created, False if only logged
+        """
+        return self.step_log_layout in ("STEP", "NESTED")
+
+    def log_step_as_message(self, step_name: str, status: str = "INFO") -> None:
+        """Log step as message (for SCENARIO layout mode).
+
+        Args:
+            step_name: Name of the step
+            status: Log level (INFO, WARN, ERROR)
+        """
+        test_id = self.rp_test_manager.get_test_id()
+        if not test_id:
+            return
+
+        try:
+            self.client.log(
+                time=RPUtils.timestamp(),
+                message=f"Step: {step_name}",
+                level=status,
+                item_id=test_id
+            )
+        except (AttributeError, RuntimeError) as e:
+            self.logger.debug(f"Failed to log step as message: {e}", exc_info=True)
+        except (KeyboardInterrupt, SystemExit):
+            raise
+        except Exception as e:  # pylint: disable=broad-exception-caught
+            self.logger.debug(f"Failed to log step as message: {e}", exc_info=True)
 
     @retry(max_attempts=2, delay=0.5)
     def start_step(self, step_name: str) -> None:
-        """Start step with BDD formatting."""
+        """Start step with BDD formatting (respects layout mode).
+
+        In SCENARIO mode: Logs step as message only
+        In STEP/NESTED mode: Creates step as test item
+        """
+        # SCENARIO mode: Log as message only, don't create test item
+        if self.step_log_layout == "SCENARIO":
+            self.log_step_as_message(step_name, "INFO")
+            return
+
         launch_id = self.rp_launch_manager.get_launch_id()
         test_id = self.rp_test_manager.get_test_id()
 
@@ -66,7 +123,15 @@ class RPStepManager:
 
     @safe_execute(log_exceptions=True)
     def finish_step(self, status: str) -> None:
-        """Finish step."""
+        """Finish step (respects layout mode).
+
+        In SCENARIO mode: No-op (step was logged as message)
+        In STEP/NESTED mode: Finishes step test item
+        """
+        # SCENARIO mode: Nothing to finish (step was logged as message)
+        if self.step_log_layout == "SCENARIO":
+            return
+
         if not self.step_id or not self.rp_launch_manager.is_launch_active():
             return
 
