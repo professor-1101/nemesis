@@ -3,10 +3,11 @@ import re
 import threading
 import traceback
 from pathlib import Path
-from typing import Any
+from typing import Any, Dict, List
 
 from playwright.sync_api import ConsoleMessage, Page
 
+from nemesis.domain.ports import ICollector
 from nemesis.core.exceptions import CollectorError
 from nemesis.core.logging import Logger
 from nemesis.utils import get_path_manager
@@ -14,8 +15,8 @@ from nemesis.utils.helpers.exception_helpers import ensure_directory_exists
 from .base_collector import BaseCollector
 
 
-class ConsoleCollector(BaseCollector):
-    """Collects browser console logs."""
+class ConsoleCollector(ICollector, BaseCollector):
+    """Collects browser console logs implementing ICollector port."""
 
     MAX_LOGS = 10000  # Prevent memory issues
     MAX_MESSAGE_LENGTH = 5000  # Truncate long messages
@@ -256,3 +257,32 @@ class ConsoleCollector(BaseCollector):
         except SystemExit:
             raise
         self._listener_active = False
+
+    # ICollector interface implementation
+    def start(self) -> None:
+        """Start collecting data (listener already setup in __init__)."""
+        if not self._listener_active:
+            self._setup_listener()
+
+    def stop(self) -> None:
+        """Stop collecting data."""
+        self._cleanup_listeners()
+
+    def get_collected_data(self) -> List[Dict[str, Any]]:
+        """Get collected console logs."""
+        with self._lock:
+            return self.logs.copy()
+
+    def save_collected_data(
+        self,
+        execution_id: str,
+        output_dir: Path,
+        scenario_name: str = ""
+    ) -> Path:
+        """Save collected data to file."""
+        return self.save_to_file(execution_id, scenario_name)
+
+    def clear(self) -> None:
+        """Clear collected data."""
+        with self._lock:
+            self.logs.clear()

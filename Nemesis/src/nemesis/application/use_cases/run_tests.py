@@ -234,8 +234,6 @@ class RunTestsUseCase:
     def _capture_screenshot(self, step: Step, scenario: Scenario) -> None:
         """Capture screenshot on step failure"""
         try:
-            # This would be implemented by browser driver
-            # For now, just log the intent
             screenshot_path = (
                 self.output_dir
                 / "screenshots"
@@ -243,17 +241,35 @@ class RunTestsUseCase:
             )
             screenshot_path.parent.mkdir(parents=True, exist_ok=True)
 
-            # Browser driver would capture screenshot here
-            # browser.screenshot(path=screenshot_path)
+            # Capture screenshot using browser driver
+            if self.browser_driver and self.browser_driver.is_running():
+                # Get current browser and page
+                browser = self.browser_driver._browser
+                if browser and browser.contexts:
+                    for context in browser.contexts:
+                        for page in context.pages:
+                            # Screenshot from the current page
+                            screenshot_bytes = page.screenshot()
+                            screenshot_path.write_bytes(screenshot_bytes)
 
+                            for reporter in self.reporters:
+                                reporter.attach_file(
+                                    screenshot_path,
+                                    description=f"Screenshot at step: {step.name}",
+                                    attachment_type="image/png"
+                                )
+                                reporter.log_message(
+                                    f"Screenshot captured: {screenshot_path}",
+                                    level="INFO"
+                                )
+                            return
+        except Exception as e:
+            # Log error but don't fail the test
             for reporter in self.reporters:
                 reporter.log_message(
-                    f"Screenshot captured: {screenshot_path}",
-                    level="INFO"
+                    f"Failed to capture screenshot: {str(e)}",
+                    level="WARNING"
                 )
-        except Exception:
-            # Silently ignore screenshot errors
-            pass
 
     def get_progress(self) -> Dict[str, Any]:
         """

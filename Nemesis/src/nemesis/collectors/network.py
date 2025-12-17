@@ -2,10 +2,11 @@
 import json
 import traceback
 from pathlib import Path
-from typing import Any
+from typing import Any, Dict, List
 
 from playwright.sync_api import Page, Request, Response
 
+from nemesis.domain.ports import ICollector
 from nemesis.core.exceptions import CollectorError
 from nemesis.core.logging import Logger
 from nemesis.utils import get_path_manager
@@ -13,8 +14,8 @@ from nemesis.utils.helpers.exception_helpers import ensure_directory_exists
 from .base_collector import BaseCollector
 
 
-class NetworkCollector(BaseCollector):
-    """Collects network requests and responses."""
+class NetworkCollector(ICollector, BaseCollector):
+    """Collects network requests and responses implementing ICollector port."""
 
     MAX_REQUESTS = 50000  # Prevent memory issues
     MAX_URL_LENGTH = 500
@@ -256,3 +257,34 @@ class NetworkCollector(BaseCollector):
         except SystemExit:
             raise
         self._listeners_setup = False
+
+    # ICollector interface implementation
+    def start(self) -> None:
+        """Start collecting network data."""
+        if not self._listeners_setup:
+            self._setup_listeners()
+
+    def stop(self) -> None:
+        """Stop collecting network data."""
+        self._cleanup_listeners()
+
+    def get_collected_data(self) -> List[Dict[str, Any]]:
+        """Get collected network requests/responses."""
+        return self.requests.copy()
+
+    def save_collected_data(
+        self,
+        execution_id: str,
+        output_dir: Path,
+        scenario_name: str = ""
+    ) -> Path:
+        """Save collected data to file."""
+        return self.save_metrics(execution_id, scenario_name)
+
+    def clear(self) -> None:
+        """Clear collected data."""
+        self.requests.clear()
+
+    def get_summary(self) -> Dict[str, Any]:
+        """Get summary statistics."""
+        return self.get_metrics()

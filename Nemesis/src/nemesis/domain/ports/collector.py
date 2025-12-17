@@ -21,12 +21,22 @@ class ICollector(ABC):
         ...
 
     @abstractmethod
-    def save_to_file(self, output_path: Path) -> None:
+    def save_collected_data(
+        self,
+        execution_id: str,
+        output_dir: Path,
+        scenario_name: str = ""
+    ) -> Path:
         """
         Save collected data to file
 
         Args:
-            output_path: Path to output file
+            execution_id: Execution identifier
+            output_dir: Output directory for saving data
+            scenario_name: Optional scenario name
+
+        Returns:
+            Path to saved file
         """
         ...
 

@@ -233,11 +233,46 @@ class PlaywrightBrowserDriver(IBrowserDriver):
         return browser.playwright_browser.new_context(**context_options)
 
     def save_trace(self, trace_path: Path) -> None:
-        """Save trace file (Playwright-specific)"""
-        # This would need context reference - simplified for now
-        pass
+        """Save trace file from browser context."""
+        if not self._browser:
+            raise RuntimeError("Browser not running, cannot save trace")
+
+        trace_path = Path(trace_path)
+        trace_path.parent.mkdir(parents=True, exist_ok=True)
+
+        # Get all contexts and save traces
+        for context in self._browser.contexts:
+            try:
+                # Stop tracing and save
+                context.tracing.stop(path=str(trace_path))
+            except Exception:
+                # Tracing may not be enabled, ignore
+                pass
 
     def save_video(self, video_path: Path) -> Optional[Path]:
-        """Save video file (Playwright-specific)"""
-        # This would need page reference - simplified for now
+        """Save video file from browser pages."""
+        if not self._browser:
+            return None
+
+        video_path = Path(video_path)
+        video_path.parent.mkdir(parents=True, exist_ok=True)
+
+        # Get all contexts and save videos from pages
+        for context in self._browser.contexts:
+            for page in context.pages:
+                try:
+                    video = page.video
+                    if video:
+                        # Close page to finalize video
+                        page.close()
+                        # Move video to desired path
+                        actual_path = video.path()
+                        if actual_path:
+                            import shutil
+                            shutil.move(actual_path, str(video_path))
+                            return video_path
+                except Exception:
+                    # Video recording may not be enabled
+                    pass
+
         return None
