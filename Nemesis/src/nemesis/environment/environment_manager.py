@@ -4,9 +4,9 @@ import traceback
 from typing import Any, Optional
 from pathlib import Path
 
-from nemesis.core.config import ConfigLoader
-from nemesis.core.logging import Logger
-from nemesis.core.execution_context import ExecutionContext
+from nemesis.infrastructure.config import ConfigLoader
+from nemesis.infrastructure.logging import Logger
+from nemesis.shared.execution_context import ExecutionContext
 from .browser_environment import BrowserEnvironment
 from .reporting_environment import ReportingEnvironment
 from .logger_environment import LoggerEnvironment

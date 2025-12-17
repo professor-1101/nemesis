@@ -8,7 +8,7 @@ from typing import Any, Dict, List, Optional
 
 from rich.console import Console
 
-from nemesis.core.logging import Logger
+from nemesis.infrastructure.logging import Logger
 from nemesis.utils import get_path_manager
 
 console = Console()

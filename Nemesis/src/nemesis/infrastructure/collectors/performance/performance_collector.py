@@ -6,8 +6,8 @@ from typing import Dict, Any, List
 from playwright.sync_api import Page
 
 from nemesis.domain.ports import ICollector
-from nemesis.core.exceptions import CollectorError
-from nemesis.core.logging import Logger
+from nemesis.shared.exceptions import CollectorError
+from nemesis.infrastructure.logging import Logger
 from nemesis.utils import get_path_manager
 
 from .metric_collectors import (

@@ -1,6 +1,6 @@
 """Screenshot attachment management."""
 
-from nemesis.core.logging import Logger
+from nemesis.infrastructure.logging import Logger
 
 
 class ScreenshotManager:

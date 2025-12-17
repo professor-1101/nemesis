@@ -4,7 +4,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List
 
-from nemesis.core.logging import Logger
+from nemesis.infrastructure.logging import Logger
 from nemesis.utils.helpers import FileUtils
 from .report_base import ReportBase
 

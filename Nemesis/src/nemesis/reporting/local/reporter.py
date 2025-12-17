@@ -8,7 +8,7 @@ from typing import Any
 from rich.console import Console
 from rich.panel import Panel
 
-from nemesis.core.logging import Logger
+from nemesis.infrastructure.logging import Logger
 from nemesis.reporting.local.data_model import ExecutionData, ScenarioData, StepData
 from nemesis.reporting.local.allure import AllureReportBuilder
 

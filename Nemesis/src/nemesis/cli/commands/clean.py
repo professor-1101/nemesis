@@ -6,7 +6,7 @@ import click
 from rich.console import Console
 from rich.prompt import Confirm
 
-from nemesis.core.logging import Logger
+from nemesis.infrastructure.logging import Logger
 from ..ascii_art import print_error, print_step, print_success
 from ..core  import ReportCleaner
 

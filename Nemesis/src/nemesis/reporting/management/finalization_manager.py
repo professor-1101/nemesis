@@ -6,7 +6,7 @@ from datetime import datetime
 import requests
 from rich.console import Console
 
-from nemesis.core.logging import Logger
+from nemesis.infrastructure.logging import Logger
 
 
 class FinalizationManager:

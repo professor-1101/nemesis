@@ -2,8 +2,8 @@
 import traceback
 from pathlib import Path
 
-from nemesis.core.config import ConfigLoader
-from nemesis.core.logging import Logger
+from nemesis.infrastructure.config import ConfigLoader
+from nemesis.infrastructure.logging import Logger
 from .report_portal.rp_config_loader import RPConfigLoader
 from .report_portal.rp_client_base import RPClientBase
 from .report_portal.rp_launch_manager import RPLaunchManager

@@ -3,7 +3,7 @@ import traceback
 
 from playwright.sync_api import Browser, BrowserContext, Page, Playwright
 
-from nemesis.core.logging import Logger
+from nemesis.infrastructure.logging import Logger
 
 
 class BrowserCleanup:

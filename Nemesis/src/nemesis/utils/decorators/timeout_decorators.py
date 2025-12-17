@@ -5,8 +5,8 @@ import time
 import traceback
 from typing import Any, Callable, TypeVar
 
-from nemesis.core.exceptions import NemesisTimeoutError
-from nemesis.core.logging import Logger
+from nemesis.shared.exceptions import NemesisTimeoutError
+from nemesis.infrastructure.logging import Logger
 
 F = TypeVar("F", bound=Callable[..., Any])
 LOGGER = Logger.get_instance({})

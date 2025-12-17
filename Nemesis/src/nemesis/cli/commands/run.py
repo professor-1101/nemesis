@@ -7,8 +7,8 @@ from typing import Optional
 import click
 from rich.console import Console
 
-from nemesis.core.config import ConfigLoader
-from nemesis.core.logging import Logger
+from nemesis.infrastructure.config import ConfigLoader
+from nemesis.infrastructure.logging import Logger
 from nemesis.reporting.local.allure.allure_cli_manager import AllureCLIManager, AllureCLINotInstalledError
 from ..ascii_art  import print_banner, print_error, print_step, print_success
 from ..core.executor import TestExecutor

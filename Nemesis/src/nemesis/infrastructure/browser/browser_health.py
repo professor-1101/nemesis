@@ -1,8 +1,8 @@
 """Browser health monitoring."""
 import traceback
 
-from nemesis.core.exceptions.browser_exceptions import BrowserError
-from nemesis.core.logging import Logger
+from nemesis.shared.exceptions.browser_exceptions import BrowserError
+from nemesis.infrastructure.logging import Logger
 
 
 class BrowserHealthMonitor:

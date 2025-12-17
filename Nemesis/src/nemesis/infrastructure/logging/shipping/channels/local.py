@@ -40,7 +40,7 @@ class LocalChannel:
             execution_id = os.environ.get('NEMESIS_EXECUTION_ID')
             if not execution_id:
                 # Generate a proper execution ID instead of using 'unknown'
-                from nemesis.core.execution_context import ExecutionContext
+                from nemesis.shared.execution_context import ExecutionContext
                 execution_id = ExecutionContext.get_execution_id()
 
         # Sanitize execution_id to prevent path traversal

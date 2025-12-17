@@ -1,10 +1,10 @@
 """Main browser manager - REFACTORED."""
 
-from nemesis.core.config import ConfigLoader
-from nemesis.core.browser.browser_lifecycle import BrowserLifecycle
-from nemesis.core.browser.browser_launcher import BrowserLauncher
-from nemesis.core.browser.browser_cleanup import BrowserCleanup
-from nemesis.core.browser.browser_health import BrowserHealthMonitor
+from nemesis.infrastructure.config import ConfigLoader
+from nemesis.infrastructure.browser.browser_lifecycle import BrowserLifecycle
+from nemesis.infrastructure.browser.browser_launcher import BrowserLauncher
+from nemesis.infrastructure.browser.browser_cleanup import BrowserCleanup
+from nemesis.infrastructure.browser.browser_health import BrowserHealthMonitor
 
 
 class BrowserManager:

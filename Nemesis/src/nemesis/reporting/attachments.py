@@ -3,7 +3,7 @@ import json
 from pathlib import Path
 from typing import Any
 
-from nemesis.core.logging import Logger
+from nemesis.infrastructure.logging import Logger
 
 
 class AttachmentHandler:

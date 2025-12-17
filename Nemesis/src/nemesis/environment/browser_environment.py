@@ -2,10 +2,10 @@
 import traceback
 from typing import Any, Optional
 
-from nemesis.core.config import ConfigLoader
-from nemesis.core.execution_context import ExecutionContext
-from nemesis.core.logging import Logger
-from nemesis.core.browser import BrowserManager
+from nemesis.infrastructure.config import ConfigLoader
+from nemesis.shared.execution_context import ExecutionContext
+from nemesis.infrastructure.logging import Logger
+from nemesis.infrastructure.browser import BrowserManager
 from nemesis.infrastructure.collectors.console import ConsoleCollector
 from nemesis.infrastructure.collectors.network import NetworkCollector
 from nemesis.infrastructure.collectors.performance import PerformanceCollector

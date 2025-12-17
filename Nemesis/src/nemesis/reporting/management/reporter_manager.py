@@ -2,8 +2,8 @@
 import traceback
 from typing import Optional, Any
 
-from nemesis.core.config import ConfigLoader
-from nemesis.core.logging import Logger
+from nemesis.infrastructure.config import ConfigLoader
+from nemesis.infrastructure.logging import Logger
 from nemesis.reporting.local import LocalReporter
 from nemesis.reporting.reportportal import ReportPortalClient
 

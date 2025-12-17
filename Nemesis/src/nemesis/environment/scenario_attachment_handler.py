@@ -3,7 +3,7 @@ import time
 import traceback
 from typing import Any, Optional
 
-from nemesis.core.logging import Logger
+from nemesis.infrastructure.logging import Logger
 from nemesis.environment.collector_content_logger import CollectorContentLogger
 from nemesis.reporting.manager import ReportManager
 

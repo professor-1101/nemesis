@@ -5,9 +5,9 @@ __version__ = "1.0.0"
 from nemesis.infrastructure.collectors.console import ConsoleCollector
 from nemesis.infrastructure.collectors.network import NetworkCollector
 from nemesis.infrastructure.collectors.performance.performance_collector import PerformanceCollector
-from nemesis.core.browser import BrowserManager
-from nemesis.core.config import ConfigLoader
-from nemesis.core.logging import Logger
+from nemesis.infrastructure.browser import BrowserManager
+from nemesis.infrastructure.config import ConfigLoader
+from nemesis.infrastructure.logging import Logger
 from nemesis.reporting.manager import ReportManager
 
 __all__ = [

@@ -5,7 +5,7 @@ import traceback
 import click
 from rich.console import Console
 
-from nemesis.core.logging import Logger
+from nemesis.infrastructure.logging import Logger
 from .ascii_art import print_banner
 from .commands.clean import clean_command
 from .commands.init import init_command

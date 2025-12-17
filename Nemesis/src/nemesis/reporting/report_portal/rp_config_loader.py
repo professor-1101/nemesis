@@ -6,9 +6,9 @@ file and environment variables, providing structured access to settings.
 import os
 from typing import Any, Dict
 
-from nemesis.core.config import ConfigLoader
-from nemesis.core.exceptions import ReportPortalError
-from nemesis.core.logging import Logger
+from nemesis.infrastructure.config import ConfigLoader
+from nemesis.shared.exceptions import ReportPortalError
+from nemesis.infrastructure.logging import Logger
 from .rp_utils import RPUtils
 
 class RPConfigLoader:

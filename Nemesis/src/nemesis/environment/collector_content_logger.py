@@ -4,7 +4,7 @@ import traceback
 from pathlib import Path
 from typing import Optional
 
-from nemesis.core.logging import Logger
+from nemesis.infrastructure.logging import Logger
 from nemesis.reporting.manager import ReportManager
 
 

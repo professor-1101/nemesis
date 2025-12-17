@@ -6,7 +6,7 @@ from pathlib import Path
 import click
 from rich.console import Console
 
-from nemesis.core.logging import Logger
+from nemesis.infrastructure.logging import Logger
 from nemesis.reporting.local.allure.allure_cli_manager import AllureCLIManager, AllureCLINotInstalledError
 from ..ascii_art import print_error, print_step, print_success
 from ..core.report_scanner import ReportScanner

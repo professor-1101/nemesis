@@ -2,10 +2,10 @@
 
 from pathlib import Path
 
-from nemesis.core.config import ConfigLoader
-from nemesis.core.directory_manager import DirectoryManager
-from nemesis.core.logging import Logger
-from nemesis.core.execution_context import ExecutionContext
+from nemesis.infrastructure.config import ConfigLoader
+from nemesis.shared.directory_manager import DirectoryManager
+from nemesis.infrastructure.logging import Logger
+from nemesis.shared.execution_context import ExecutionContext
 
 
 class ExecutionManager:

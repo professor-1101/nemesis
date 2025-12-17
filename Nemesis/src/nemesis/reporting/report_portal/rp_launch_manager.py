@@ -10,8 +10,8 @@ from typing import Any, Dict, List
 
 from reportportal_client import RPClient
 
-from nemesis.core.exceptions import ReportPortalError
-from nemesis.core.logging import Logger
+from nemesis.shared.exceptions import ReportPortalError
+from nemesis.infrastructure.logging import Logger
 from nemesis.utils.decorators import retry
 from .rp_client_base import RPClientBase
 

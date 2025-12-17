@@ -6,7 +6,7 @@ import shutil
 from pathlib import Path
 from typing import Optional, Tuple
 
-from nemesis.core.logging import Logger
+from nemesis.infrastructure.logging import Logger
 
 
 class AllureCLINotInstalledError(Exception):

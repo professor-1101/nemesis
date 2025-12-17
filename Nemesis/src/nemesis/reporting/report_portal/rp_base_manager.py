@@ -1,7 +1,7 @@
 """Base class for ReportPortal managers with common initialization."""
 
 from reportportal_client import RPClient
-from nemesis.core.logging import Logger
+from nemesis.infrastructure.logging import Logger
 from .rp_client_base import RPClientBase
 from .rp_launch_manager import RPLaunchManager
 from .rp_feature_manager import RPFeatureManager

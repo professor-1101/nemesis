@@ -8,7 +8,7 @@ import yaml
 from configparser import ConfigParser
 from rich.console import Console
 
-from nemesis.core.logging import Logger
+from nemesis.infrastructure.logging import Logger
 
 from .defaults import get_default_config
 from .validator import ConfigValidator

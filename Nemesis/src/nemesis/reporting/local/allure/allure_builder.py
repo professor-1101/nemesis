@@ -6,7 +6,7 @@ import traceback
 from pathlib import Path
 from typing import Any, Optional
 
-from nemesis.core.logging import Logger
+from nemesis.infrastructure.logging import Logger
 from nemesis.reporting.local.data_model import ExecutionData
 from .allure_integration import AllureResultsGenerator
 from .allure_cli_manager import AllureCLIManager, AllureCLINotInstalledError
@@ -348,7 +348,7 @@ class AllureReportBuilder:
             
             # Add browser info if available
             try:
-                from nemesis.core.browser import BrowserManager
+                from nemesis.infrastructure.browser import BrowserManager
                 # Try to get browser info from config or context
                 # This is a best-effort attempt
                 environment_data["browser"] = "Playwright"

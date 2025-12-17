@@ -5,7 +5,7 @@ import traceback
 import click
 from rich.console import Console
 
-from nemesis.core.logging import Logger
+from nemesis.infrastructure.logging import Logger
 from ..ascii_art import print_error, print_step
 from ..core.report_scanner import ReportScanner
 from ..ui.tables import show_executions_table

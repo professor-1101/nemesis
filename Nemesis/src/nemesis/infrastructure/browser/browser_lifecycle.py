@@ -14,11 +14,11 @@ from playwright.sync_api import (
     sync_playwright,
 )
 
-from nemesis.core.config import ConfigLoader
-from nemesis.core.directory_manager import DirectoryManager
-from nemesis.core.exceptions.browser_exceptions import BrowserError
-from nemesis.core.execution_context import ExecutionContext
-from nemesis.core.logging import Logger
+from nemesis.infrastructure.config import ConfigLoader
+from nemesis.shared.directory_manager import DirectoryManager
+from nemesis.shared.exceptions.browser_exceptions import BrowserError
+from nemesis.shared.execution_context import ExecutionContext
+from nemesis.infrastructure.logging import Logger
 from nemesis.utils.helpers.browser_helpers import get_browser_args, get_browser_type, get_viewport
 from nemesis.utils.helpers.har_helpers import add_har_path_to_options
 

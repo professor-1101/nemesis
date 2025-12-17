@@ -4,9 +4,9 @@ import traceback
 from pathlib import Path
 from typing import Any, Optional
 
-from nemesis.core.config import ConfigLoader
-from nemesis.core.execution_context import ExecutionContext
-from nemesis.core.logging import Logger
+from nemesis.infrastructure.config import ConfigLoader
+from nemesis.shared.execution_context import ExecutionContext
+from nemesis.infrastructure.logging import Logger
 from nemesis.reporting.management.execution_manager import ExecutionManager
 from nemesis.reporting.management.reporter_manager import ReporterManager
 from nemesis.reporting.management.feature_manager import FeatureManager
@@ -74,7 +74,7 @@ class ReportManager:
             return
 
         try:
-            from nemesis.core.logging import get_factory  # pylint: disable=import-outside-toplevel
+            from nemesis.infrastructure.logging import get_factory  # pylint: disable=import-outside-toplevel
             factory = get_factory()
             context_manager = factory.get_context_manager()
             execution_id = self.execution_manager.get_execution_id()

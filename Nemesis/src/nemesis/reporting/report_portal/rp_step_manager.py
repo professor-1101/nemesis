@@ -6,7 +6,7 @@ hierarchy for detailed test execution tracking.
 """
 from reportportal_client import RPClient
 from nemesis.utils.decorators import retry, safe_execute
-from nemesis.core.logging import Logger
+from nemesis.infrastructure.logging import Logger
 from .rp_client_base import RPClientBase
 from .rp_launch_manager import RPLaunchManager
 from .rp_test_manager import RPTestManager

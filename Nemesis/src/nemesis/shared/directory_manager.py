@@ -2,8 +2,8 @@
 import traceback
 from pathlib import Path
 from typing import Dict, Optional, Set
-from nemesis.core.config import ConfigLoader
-from nemesis.core.logging import Logger
+from nemesis.infrastructure.config import ConfigLoader
+from nemesis.infrastructure.logging import Logger
 
 
 class DirectoryManager:

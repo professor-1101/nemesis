@@ -5,7 +5,7 @@ from rich.console import Console
 from rich.panel import Panel
 from rich.text import Text
 
-from nemesis.core.logging import Logger
+from nemesis.infrastructure.logging import Logger
 
 console = Console()
 LOGGER = Logger.get_instance({})

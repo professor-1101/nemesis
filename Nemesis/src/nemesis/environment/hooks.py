@@ -2,7 +2,7 @@
 import traceback
 from typing import Any, TYPE_CHECKING
 
-from nemesis.core.logging import Logger
+from nemesis.infrastructure.logging import Logger
 
 # Lazy import to break cyclic dependency:
 # hooks -> environment_manager -> reporting_environment -> reporting.manager ->

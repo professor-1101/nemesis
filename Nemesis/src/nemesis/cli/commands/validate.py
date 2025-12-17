@@ -7,7 +7,7 @@ from pathlib import Path
 import click
 from rich.table import Table
 
-from nemesis.core.config import ConfigLoader, ConfigValidator
+from nemesis.infrastructure.config import ConfigLoader, ConfigValidator
 from ..ascii_art import print_banner, print_error, print_step, print_success
 from .common import console, LOGGER as logger
 

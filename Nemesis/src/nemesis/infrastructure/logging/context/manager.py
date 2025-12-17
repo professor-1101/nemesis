@@ -43,7 +43,7 @@ class ContextManager:
         """Start a new correlation session."""
         correlation_id = str(uuid.uuid4())
         # Use centralized execution ID
-        from nemesis.core.execution_context import ExecutionContext
+        from nemesis.shared.execution_context import ExecutionContext
         execution_id = ExecutionContext.get_execution_id()
 
         context = LogContext(

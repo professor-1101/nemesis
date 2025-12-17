@@ -1,7 +1,7 @@
 """Scenario management for reporting."""
 import traceback
 
-from nemesis.core.logging import Logger
+from nemesis.infrastructure.logging import Logger
 from nemesis.utils.helpers.scenario_helpers import normalize_scenario_status_for_rp
 
 

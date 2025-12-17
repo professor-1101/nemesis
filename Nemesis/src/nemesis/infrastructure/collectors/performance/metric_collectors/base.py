@@ -5,7 +5,7 @@ from typing import Any
 
 from playwright.sync_api import Page
 
-from nemesis.core.logging import Logger
+from nemesis.infrastructure.logging import Logger
 
 
 class BaseMetricCollector(ABC):

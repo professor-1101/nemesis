@@ -8,8 +8,8 @@ from typing import Any, Dict, List
 from playwright.sync_api import ConsoleMessage, Page
 
 from nemesis.domain.ports import ICollector
-from nemesis.core.exceptions import CollectorError
-from nemesis.core.logging import Logger
+from nemesis.shared.exceptions import CollectorError
+from nemesis.infrastructure.logging import Logger
 from nemesis.utils import get_path_manager
 from nemesis.utils.helpers.exception_helpers import ensure_directory_exists
 from .base_collector import BaseCollector

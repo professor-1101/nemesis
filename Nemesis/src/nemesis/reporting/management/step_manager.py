@@ -1,7 +1,7 @@
 """Step management for reporting."""
 import traceback
 
-from nemesis.core.logging import Logger
+from nemesis.infrastructure.logging import Logger
 
 
 class StepManager:

@@ -47,7 +47,7 @@ class LoggingConfig:
     def for_test_execution(cls) -> "LoggingConfig":
         """Create configuration for test execution."""
         try:
-            from nemesis.core.config import ConfigLoader
+            from nemesis.infrastructure.config import ConfigLoader
             from nemesis.utils import get_config_helper
 
             config = ConfigLoader()
@@ -80,7 +80,7 @@ class LoggingConfig:
     def for_framework(cls) -> "LoggingConfig":
         """Create configuration for framework."""
         try:
-            from nemesis.core.config import ConfigLoader
+            from nemesis.infrastructure.config import ConfigLoader
             from nemesis.utils import get_config_helper
 
             config = ConfigLoader()

@@ -3,8 +3,8 @@ import traceback
 import uuid
 from typing import Any, Optional
 
-from nemesis.core.config import ConfigLoader
-from nemesis.core.logging import Logger
+from nemesis.infrastructure.config import ConfigLoader
+from nemesis.infrastructure.logging import Logger
 
 
 class LoggerEnvironment:

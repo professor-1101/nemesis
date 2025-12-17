@@ -1,9 +1,17 @@
-"""Browser Infrastructure Adapters"""
+"""Browser management package - REFACTORED."""
 
-from .playwright_adapter import PlaywrightBrowserDriver, PlaywrightBrowserAdapter, PlaywrightPageAdapter
+from .browser_manager import BrowserManager
+from .browser_lifecycle import BrowserLifecycle
+from .browser_launcher import BrowserLauncher
+from .browser_cleanup import BrowserCleanup
+from .browser_health import BrowserHealthMonitor
+from .browser_operations import BrowserOperations
 
 __all__ = [
-    "PlaywrightBrowserDriver",
-    "PlaywrightBrowserAdapter",
-    "PlaywrightPageAdapter",
+    'BrowserManager',
+    'BrowserLifecycle',
+    'BrowserLauncher',
+    'BrowserCleanup',
+    'BrowserHealthMonitor',
+    'BrowserOperations'
 ]

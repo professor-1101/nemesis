@@ -6,8 +6,8 @@ for BDD-style test organization.
 """
 from reportportal_client import RPClient
 from nemesis.utils.decorators import retry, safe_execute
-from nemesis.core.exceptions import ReportPortalError
-from nemesis.core.logging import Logger
+from nemesis.shared.exceptions import ReportPortalError
+from nemesis.infrastructure.logging import Logger
 from .rp_client_base import RPClientBase
 from .rp_launch_manager import RPLaunchManager
 from .rp_feature_manager import RPFeatureManager

@@ -2,8 +2,8 @@
 import traceback
 from typing import Any, Optional
 
-from nemesis.core.config import ConfigLoader
-from nemesis.core.logging import Logger
+from nemesis.infrastructure.config import ConfigLoader
+from nemesis.infrastructure.logging import Logger
 from nemesis.reporting.manager import ReportManager
 from nemesis.reporting.attachments import AttachmentHandler
 from nemesis.environment.scenario_attachment_handler import ScenarioAttachmentHandler
