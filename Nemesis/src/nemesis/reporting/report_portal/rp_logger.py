@@ -19,7 +19,12 @@ class RPLogger(RPBaseManager):
 
     @retry(max_attempts=2, delay=0.5)
     def log_message(self, message: str, level: str = "INFO") -> None:
-        """Log message to current item."""
+        """Log message to current item.
+
+        Args:
+            message: Message text to log
+            level: Log level (INFO, DEBUG, WARN, ERROR, TRACE)
+        """
         item_id = self._get_current_item_id()
         launch_id = self.rp_launch_manager.get_launch_id()
 
@@ -43,6 +48,26 @@ class RPLogger(RPBaseManager):
             # Catch-all for unexpected errors from ReportPortal SDK log
             # NOTE: ReportPortal SDK may raise various exceptions we cannot predict
             self.logger.error(f"Failed to log message: {e}", traceback=traceback.format_exc(), module=__name__, class_name="RPLogger", method="log_message")
+
+    @retry(max_attempts=2, delay=0.5)
+    def log_metadata(self, key: str, value: str, level: str = "INFO") -> None:
+        """Log custom metadata to current test item.
+
+        Formats metadata as key-value pair for better visibility in ReportPortal.
+        This method follows SRP by delegating to log_message() for actual logging.
+
+        Args:
+            key: Metadata key (e.g., "environment", "browser_version")
+            value: Metadata value
+            level: Log level (default: INFO)
+
+        Example:
+            >>> log_metadata("browser_version", "Chrome 120")
+            >>> log_metadata("test_data_id", "USER-12345", "DEBUG")
+        """
+        # SRP: Format metadata, delegate logging to log_message()
+        formatted_message = f"[METADATA] {key}: {value}"
+        self.log_message(formatted_message, level)
 
     @retry(max_attempts=2, delay=0.5)
     def log_exception(self, exception: Exception, description: str = "") -> None:

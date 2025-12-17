@@ -191,6 +191,31 @@ class ReportManager:
         if self.attachment_manager:
             self.attachment_manager.log_message(message, level)
 
+    def add_metadata(self, key: str, value: str, level: str = "INFO") -> None:
+        """Add custom metadata to current test item.
+
+        Application layer coordination method for runtime metadata enrichment.
+        Delegates to ReportPortal infrastructure for actual logging.
+
+        Useful for adding dynamic runtime information to test reports:
+        - Environment details (browser version, OS, deployment environment)
+        - Test data identifiers (user IDs, order numbers, etc.)
+        - Performance metrics (response times, resource usage)
+        - Any other contextual information relevant to test execution
+
+        Args:
+            key: Metadata key (e.g., "environment", "test_user", "browser_version")
+            value: Metadata value
+            level: Log level (default: INFO)
+
+        Example:
+            >>> context.report_manager.add_metadata("browser_version", "Chrome 120")
+            >>> context.report_manager.add_metadata("test_environment", "staging")
+            >>> context.report_manager.add_metadata("test_data_id", "USER-12345", "DEBUG")
+        """
+        if self.rp_enabled and self.reporter_manager.get_rp_client():
+            self.reporter_manager.get_rp_client().log_metadata(key, value, level)
+
     def finalize(self) -> None:
         """Finalize all reporting.
 

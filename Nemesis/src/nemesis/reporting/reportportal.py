@@ -175,13 +175,31 @@ class ReportPortalClient:
 
     def log_message(self, message: str, level: str = "INFO") -> None:
         """Log a message to ReportPortal.
-        
+
         Args:
             message: Message text to log
             level: Log level (INFO, DEBUG, WARN, ERROR, etc.)
         """
         if self.rp_logger:
             self.rp_logger.log_message(message, level)
+
+    def log_metadata(self, key: str, value: str, level: str = "INFO") -> None:
+        """Log custom metadata to current test item in ReportPortal.
+
+        Formats metadata as key-value pair for better visibility in ReportPortal.
+        Useful for runtime metadata enrichment (environment details, test data IDs, etc.).
+
+        Args:
+            key: Metadata key (e.g., "environment", "browser_version", "test_user")
+            value: Metadata value
+            level: Log level (default: INFO)
+
+        Example:
+            >>> rp_client.log_metadata("browser_version", "Chrome 120")
+            >>> rp_client.log_metadata("test_data_id", "USER-12345", "DEBUG")
+        """
+        if self.rp_logger:
+            self.rp_logger.log_metadata(key, value, level)
 
     def log_exception(self, exception: Exception, description: str = "") -> None:
         """Log an exception to ReportPortal with full stack trace.
