@@ -12,9 +12,10 @@ class FeatureManager:
         self.reporter_manager = reporter_manager
 
     def start_feature(self, feature) -> None:
-        """Start feature reporting."""
+        """Start feature reporting with support for advanced tags."""
         feature_name = getattr(feature, 'name', str(feature))
         description = getattr(feature, 'description', '')
+        tags = getattr(feature, 'tags', [])
 
         self.logger.feature_start(feature_name)
 
@@ -32,7 +33,8 @@ class FeatureManager:
         if self.reporter_manager.is_rp_enabled():
             try:
                 desc_text = '\n'.join(description) if isinstance(description, list) else description
-                self.reporter_manager.get_rp_client().start_feature(feature_name, desc_text)
+                # Pass tags to ReportPortal for advanced tag parsing
+                self.reporter_manager.get_rp_client().start_feature(feature_name, desc_text, tags)
             except (AttributeError, RuntimeError) as e:
                 # ReportPortal client API errors
                 self.logger.error(f"Failed to start feature in ReportPortal: {e}", traceback=traceback.format_exc(), module=__name__, class_name="FeatureManager", method="start_feature")

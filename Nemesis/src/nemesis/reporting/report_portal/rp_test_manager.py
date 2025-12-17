@@ -35,8 +35,15 @@ class RPTestManager:
         self.test_id: str | None = None
 
     @retry(max_attempts=2, delay=0.5)
-    def start_test(self, name: str, test_type: str = "SCENARIO") -> None:
-        """Start test (scenario) under feature."""
+    def start_test(self, name: str, test_type: str = "SCENARIO", tags: list = None, description: str = "") -> None:
+        """Start test (scenario) under feature with support for advanced tags.
+
+        Args:
+            name: Scenario name
+            test_type: Test item type (default: SCENARIO)
+            tags: List of Behave tags (supports @attribute, @test_case_id, etc.)
+            description: Scenario description
+        """
         launch_id = self.rp_launch_manager.get_launch_id()
         feature_id = self.rp_feature_manager.get_feature_id()
 
@@ -50,13 +57,35 @@ class RPTestManager:
             # Clear previous test_id before starting new test
             self.test_id = None
 
-            self.test_id = self.client.start_test_item(
-                name=formatted_name,
-                start_time=RPUtils.timestamp(),
-                item_type=test_type,
-                parent_item_id=feature_id,
-                launch_uuid=launch_id,
-            )
+            # Parse tags for attributes and metadata
+            parsed_tags = RPUtils.parse_behave_tags(tags or [])
+            attributes = parsed_tags.get('attributes', [])
+            test_case_id = parsed_tags.get('test_case_id')
+
+            # Build start_test_item parameters
+            start_params = {
+                "name": formatted_name,
+                "start_time": RPUtils.timestamp(),
+                "item_type": test_type,
+                "parent_item_id": feature_id,
+                "launch_uuid": launch_id,
+            }
+
+            # Add description if present
+            if description:
+                start_params["description"] = description
+
+            # Add attributes if present
+            if attributes:
+                start_params["attributes"] = attributes
+                self.logger.debug(f"Scenario attributes: {attributes}")
+
+            # Add test_case_id if present
+            if test_case_id:
+                start_params["test_case_id"] = test_case_id
+                self.logger.debug(f"Scenario test_case_id: {test_case_id}")
+
+            self.test_id = self.client.start_test_item(**start_params)
 
             if not self.test_id:
                 raise ReportPortalError(
@@ -64,7 +93,7 @@ class RPTestManager:
                     f"ReportPortal did not return test ID for {name}"
                 )
 
-            self.logger.info(f"Scenario started: {name}")
+            self.logger.info(f"Scenario started: {name} (attributes: {len(attributes)}, test_case_id: {test_case_id})")
 
         except (AttributeError, RuntimeError) as e:
             # ReportPortal SDK API errors - start_test_item failed

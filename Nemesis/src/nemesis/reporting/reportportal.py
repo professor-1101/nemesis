@@ -97,15 +97,16 @@ class ReportPortalClient:
         if self.rp_launch_manager:
             self.rp_launch_manager.start_launch()
 
-    def start_feature(self, feature_name: str, description: str = "") -> None:
-        """Start a feature (test suite) in ReportPortal.
-        
+    def start_feature(self, feature_name: str, description: str = "", tags: list = None) -> None:
+        """Start a feature (test suite) in ReportPortal with advanced tag support.
+
         Args:
             feature_name: Name of the feature to start
             description: Optional description for the feature
+            tags: List of Behave tags (supports @attribute, @test_case_id, etc.)
         """
         if self.rp_feature_manager:
-            self.rp_feature_manager.start_feature(feature_name, description)
+            self.rp_feature_manager.start_feature(feature_name, description, tags)
 
     def finish_feature(self, status: str = "PASSED") -> None:
         """Finish a feature (test suite) in ReportPortal.
@@ -116,15 +117,17 @@ class ReportPortalClient:
         if self.rp_feature_manager:
             self.rp_feature_manager.finish_feature(status)
 
-    def start_test(self, name: str, test_type: str = "SCENARIO") -> None:
-        """Start a test (scenario) in ReportPortal.
-        
+    def start_test(self, name: str, test_type: str = "SCENARIO", tags: list = None, description: str = "") -> None:
+        """Start a test (scenario) in ReportPortal with advanced tag support.
+
         Args:
             name: Name of the test/scenario to start
             test_type: Type of test item (SCENARIO, TEST, etc.)
+            tags: List of Behave tags (supports @attribute, @test_case_id, etc.)
+            description: Optional scenario description
         """
         if self.rp_test_manager:
-            self.rp_test_manager.start_test(name, test_type)
+            self.rp_test_manager.start_test(name, test_type, tags, description)
 
     def start_step(self, step_name: str) -> None:
         """Start a step within a test in ReportPortal.

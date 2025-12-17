@@ -14,8 +14,10 @@ class ScenarioManager:
         self.reporter_manager = reporter_manager
 
     def start_scenario(self, scenario) -> None:
-        """Start scenario reporting."""
+        """Start scenario reporting with support for advanced tags."""
         scenario_name = getattr(scenario, 'name', str(scenario))
+        tags = getattr(scenario, 'tags', [])
+        description = getattr(scenario, 'description', '')
 
         self.logger.scenario_start(scenario_name)
 
@@ -33,7 +35,9 @@ class ScenarioManager:
 
         if self.reporter_manager.is_rp_enabled():
             try:
-                self.reporter_manager.get_rp_client().start_test(scenario_name, "SCENARIO")
+                # Pass tags and description to ReportPortal for advanced tag parsing
+                desc_text = '\n'.join(description) if isinstance(description, list) else description
+                self.reporter_manager.get_rp_client().start_test(scenario_name, "SCENARIO", tags, desc_text)
             except (AttributeError, RuntimeError) as e:
                 # ReportPortal client errors
                 self.logger.error(f"Failed to start scenario in ReportPortal: {e}", traceback=traceback.format_exc(), module=__name__, class_name="ScenarioManager", method="start_scenario")

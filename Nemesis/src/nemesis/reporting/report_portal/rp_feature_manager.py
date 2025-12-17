@@ -30,22 +30,47 @@ class RPFeatureManager:
         self.feature_id: str | None = None
 
     @retry(max_attempts=2, delay=0.5)
-    def start_feature(self, feature_name: str, description: str = "") -> None:
-        """Start feature as SUITE."""
+    def start_feature(self, feature_name: str, description: str = "", tags: list = None) -> None:
+        """Start feature as SUITE with support for advanced tags.
+
+        Args:
+            feature_name: Name of the feature
+            description: Feature description
+            tags: List of Behave tags (supports @attribute, @test_case_id, etc.)
+        """
         launch_id = self.rp_launch_manager.get_launch_id()
         if not launch_id:
             self.logger.warning("Cannot start feature: no active launch")
             return
 
         try:
-            self.feature_id = self.client.start_test_item(
-                name=f"Feature: {feature_name}",
-                start_time=RPUtils.timestamp(),
-                item_type="SUITE",
-                description=description,
-                launch_uuid=launch_id,
-            )
-            self.logger.info(f"Feature started: {feature_name}")
+            # Parse tags for attributes and metadata
+            parsed_tags = RPUtils.parse_behave_tags(tags or [])
+            attributes = parsed_tags.get('attributes', [])
+            test_case_id = parsed_tags.get('test_case_id')
+
+            # Build start_test_item parameters
+            start_params = {
+                "name": f"Feature: {feature_name}",
+                "start_time": RPUtils.timestamp(),
+                "item_type": "SUITE",
+                "description": description,
+                "launch_uuid": launch_id,
+            }
+
+            # Add attributes if present
+            if attributes:
+                start_params["attributes"] = attributes
+                self.logger.debug(f"Feature attributes: {attributes}")
+
+            # Add test_case_id if present
+            if test_case_id:
+                start_params["test_case_id"] = test_case_id
+                self.logger.debug(f"Feature test_case_id: {test_case_id}")
+
+            self.feature_id = self.client.start_test_item(**start_params)
+            self.logger.info(f"Feature started: {feature_name} (attributes: {len(attributes)})")
+
         except (AttributeError, RuntimeError) as e:
             # ReportPortal SDK API errors - start_test_item failed
             self.logger.error(f"Failed to start feature - API error: {e}", exc_info=True)
