@@ -150,6 +150,185 @@ reports/2025-10-18_14-30-45_abc123/
 └── console/                 # Browser console logs
 ```
 
+## 🎯 ReportPortal Features Demonstrated
+
+This project showcases all ReportPortal capabilities available in the Nemesis framework:
+
+### 1. Automatic Features
+
+#### Test Hierarchy
+- **Launch** → **Suite** (Feature) → **Scenario** (Test) → **Step**
+- Proper BDD structure maintained in ReportPortal
+- Configurable step layouts (SCENARIO/STEP/NESTED)
+
+#### Automatic Attachments
+- **Screenshots**: Captured on failures
+- **Videos**: Full scenario recordings
+- **Traces**: Playwright execution traces
+- **HAR Files**: Network traffic logs
+- **Console Logs**: Browser console messages
+- **Performance Metrics**: Navigation timing, web vitals
+
+#### Exception Handling
+- Full stack traces logged to ReportPortal
+- Automatic exception capture with context
+- Fallback mechanisms for robust reporting
+
+### 2. Manual Features (Advanced Examples)
+
+#### Custom Metadata Enrichment
+```gherkin
+# features/advanced_examples/metadata_demo.feature
+Scenario: Login with metadata enrichment
+  When I add metadata "test_environment" with value "staging"
+  And I add metadata "browser_version" with value "Chrome 120"
+  And I add metadata "test_user" with value "standard_user"
+  And I login with username "standard_user" and password "secret_sauce"
+  Then I add metadata "login_duration_ms" with value "250"
+```
+
+**Usage in Steps**:
+```python
+# In your step definitions
+context.report_manager.add_metadata("key", "value")
+```
+
+**Benefits**:
+- Add environment details (browser version, OS, deployment environment)
+- Track test data identifiers (user IDs, order numbers, etc.)
+- Record performance metrics (response times, resource usage)
+- Provide contextual information for better traceability
+
+#### Explicit Logging
+```gherkin
+# features/advanced_examples/explicit_logging.feature
+Scenario: Checkout with step-by-step logging
+  When I log message "Step 1: User logged in" at level "INFO"
+  And I log message "Step 2: Product added to cart" at level "INFO"
+  And I log message "Cart state updated" at level "DEBUG"
+  Then I log message "Checkout completed successfully" at level "INFO"
+```
+
+**Log Levels Supported**:
+- `INFO`: General informational messages
+- `DEBUG`: Detailed debugging information
+- `WARN`: Warning messages for unexpected behavior
+- `ERROR`: Error conditions
+- `TRACE`: Very detailed tracing information
+
+**Usage in Steps**:
+```python
+context.report_manager.log_message("Your message", level="INFO")
+```
+
+#### Data-Driven Testing
+```gherkin
+# features/advanced_examples/data_driven.feature
+Scenario Outline: Login with multiple valid users
+  When I login with username "<username>" and password "<password>"
+  Then I should see the products page
+
+  Examples: Valid Users
+    | username                | password     |
+    | standard_user           | secret_sauce |
+    | problem_user            | secret_sauce |
+    | performance_glitch_user | secret_sauce |
+```
+
+**Benefits**:
+- Each example creates a separate test in ReportPortal
+- Parameters visible in test names
+- Better test coverage with minimal code
+
+### 3. Advanced Tag Support
+
+#### @attribute Tags
+```gherkin
+@attribute(priority:high) @attribute(component:authentication)
+Feature: User Authentication
+```
+
+**Effect**: Tags appear as attributes in ReportPortal for filtering and analytics
+
+#### @test_case_id Tags
+```gherkin
+@test_case_id(TC-LOGIN-001)
+Scenario: Successful login
+```
+
+**Effect**: Links test to test case management system
+
+#### @fixture Tags
+```gherkin
+@fixture.database @fixture.cache
+Scenario: Test with fixtures
+```
+
+**Effect**: Marks tests that use specific fixtures
+
+### 4. Configuration Options
+
+#### Step Log Layout
+```yaml
+# config/reporting.yaml
+reportportal:
+  step_log_layout: NESTED  # Options: SCENARIO, STEP, NESTED
+```
+
+- **SCENARIO**: Steps logged as messages only (compact view)
+- **STEP**: Steps as flat test items under scenario
+- **NESTED**: Steps as nested test items (hierarchical, most detailed)
+
+#### Skip Handling
+```yaml
+reportportal:
+  is_skipped_an_issue: false  # Don't mark skipped tests as issues
+```
+
+- `false`: Skipped tests are NOT marked as issues
+- `true`: Skipped tests ARE marked as issues
+
+#### Debug Mode
+```yaml
+reportportal:
+  debug_mode: false  # Create DEBUG launches for testing
+```
+
+- `false`: Creates DEFAULT launches (production)
+- `true`: Creates DEBUG launches (development/testing)
+
+### 5. Running Examples
+
+#### Run Metadata Demo
+```bash
+nemesis run --feature advanced_examples/metadata_demo.feature
+```
+
+#### Run Logging Demo
+```bash
+nemesis run --feature advanced_examples/explicit_logging.feature
+```
+
+#### Run Data-Driven Tests
+```bash
+nemesis run --feature advanced_examples/data_driven.feature
+```
+
+#### Run All Advanced Examples
+```bash
+nemesis run --tags @advanced
+```
+
+### 6. ReportPortal Dashboard
+
+After running tests, view results in ReportPortal:
+
+1. **Launches**: View all test executions
+2. **Filters**: Filter by tags, attributes, status
+3. **Trends**: Analyze test stability over time
+4. **Widgets**: Create custom dashboards
+5. **Defects**: Track known issues and their status
+
 ## ⚙️ Configuration
 
 ### Environment Variables
