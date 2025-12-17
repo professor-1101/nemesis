@@ -2,6 +2,7 @@
 import traceback
 import uuid
 from typing import Any, Optional
+import sys
 
 from nemesis.infrastructure.config import ConfigLoader
 from nemesis.infrastructure.logging import Logger
@@ -44,14 +45,14 @@ class LoggerEnvironment:
             # Logger initialization errors
             logger = Logger.get_instance({})
             logger.error(f"Logger setup failed: {e}", traceback=traceback.format_exc(), module=__name__, class_name="LoggerEnvironment", method="setup")
-            print(f"Logger setup failed: {e}")
+            sys.stderr.write(f"Logger setup failed: {e}\n")
             return False
         except Exception as e:  # pylint: disable=broad-exception-caught
             # Catch-all for unexpected errors from Logger initialization
             # NOTE: Logger.get_instance may raise various exceptions we cannot predict
             logger = Logger.get_instance({})
             logger.error(f"Logger setup failed: {e}", traceback=traceback.format_exc(), module=__name__, class_name="LoggerEnvironment", method="setup")
-            print(f"Logger setup failed: {e}")
+            sys.stderr.write(f"Logger setup failed: {e}\n")
             return False
 
     def teardown(self, _context: Any, status: str) -> None:
@@ -69,13 +70,13 @@ class LoggerEnvironment:
             # Logger teardown errors - non-critical
             logger = Logger.get_instance({})
             logger.warning(f"Error during logger teardown: {e}", traceback=traceback.format_exc(), module=__name__, class_name="LoggerEnvironment", method="teardown")
-            print(f"Error during logger teardown: {e}")
+            sys.stderr.write(f"Error during logger teardown: {e}\n")
         except Exception as e:  # pylint: disable=broad-exception-caught
             # Catch-all for unexpected errors from logger operations
             # NOTE: Logger operations may raise various exceptions we cannot predict
             logger = Logger.get_instance({})
             logger.warning(f"Error during logger teardown: {e}", traceback=traceback.format_exc(), module=__name__, class_name="LoggerEnvironment", method="teardown")
-            print(f"Error during logger teardown: {e}")
+            sys.stderr.write(f"Error during logger teardown: {e}\n")
 
     def start_correlation(self, context: Any) -> str:
         """Start correlation tracking.
@@ -99,14 +100,14 @@ class LoggerEnvironment:
             # Correlation tracking errors
             logger = Logger.get_instance({})
             logger.warning(f"Error starting correlation: {e}", traceback=traceback.format_exc(), module=__name__, class_name="LoggerEnvironment", method="start_correlation")
-            print(f"Error starting correlation: {e}")
+            sys.stderr.write(f"Error starting correlation: {e}\n")
             return "unknown"
         except Exception as e:  # pylint: disable=broad-exception-caught
             # Catch-all for unexpected errors from uuid generation
             # NOTE: uuid.uuid4() may raise various exceptions we cannot predict
             logger = Logger.get_instance({})
             logger.warning(f"Error starting correlation: {e}", traceback=traceback.format_exc(), module=__name__, class_name="LoggerEnvironment", method="start_correlation")
-            print(f"Error starting correlation: {e}")
+            sys.stderr.write(f"Error starting correlation: {e}\n")
             return "unknown"
 
     def log_test_suite_start(self, context: Any) -> None:
@@ -127,13 +128,13 @@ class LoggerEnvironment:
             # Logger operation errors - non-critical
             logger = Logger.get_instance({})
             logger.warning(f"Error logging test suite start: {e}", traceback=traceback.format_exc(), module=__name__, class_name="LoggerEnvironment", method="log_test_suite_start")
-            print(f"Error logging test suite start: {e}")
+            sys.stderr.write(f"Error logging test suite start: {e}\n")
         except Exception as e:  # pylint: disable=broad-exception-caught
             # Catch-all for unexpected errors from logger operations
             # NOTE: Logger.info may raise various exceptions we cannot predict
             logger = Logger.get_instance({})
             logger.warning(f"Error logging test suite start: {e}", traceback=traceback.format_exc(), module=__name__, class_name="LoggerEnvironment", method="log_test_suite_start")
-            print(f"Error logging test suite start: {e}")
+            sys.stderr.write(f"Error logging test suite start: {e}\n")
 
     def log_test_suite_end(self, context: Any, status: str) -> None:
         """Log test suite end.
@@ -155,13 +156,13 @@ class LoggerEnvironment:
             # Logger operation errors - non-critical
             logger = Logger.get_instance({})
             logger.warning(f"Error logging test suite end: {e}", traceback=traceback.format_exc(), module=__name__, class_name="LoggerEnvironment", method="log_test_suite_end")
-            print(f"Error logging test suite end: {e}")
+            sys.stderr.write(f"Error logging test suite end: {e}\n")
         except Exception as e:  # pylint: disable=broad-exception-caught
             # Catch-all for unexpected errors from logger operations
             # NOTE: Logger.info may raise various exceptions we cannot predict
             logger = Logger.get_instance({})
             logger.warning(f"Error logging test suite end: {e}", traceback=traceback.format_exc(), module=__name__, class_name="LoggerEnvironment", method="log_test_suite_end")
-            print(f"Error logging test suite end: {e}")
+            sys.stderr.write(f"Error logging test suite end: {e}\n")
 
     def log_feature_start(self, _context: Any, feature: Any) -> None:
         """Log feature start.
@@ -178,13 +179,13 @@ class LoggerEnvironment:
             # Logger operation errors - non-critical
             logger = Logger.get_instance({})
             logger.warning(f"Error logging feature start: {e}", traceback=traceback.format_exc(), module=__name__, class_name="LoggerEnvironment", method="log_feature_start")
-            print(f"Error logging feature start: {e}")
+            sys.stderr.write(f"Error logging feature start: {e}\n")
         except Exception as e:  # pylint: disable=broad-exception-caught
             # Catch-all for unexpected errors from logger operations
             # NOTE: Logger.info may raise various exceptions we cannot predict
             logger = Logger.get_instance({})
             logger.warning(f"Error logging feature start: {e}", traceback=traceback.format_exc(), module=__name__, class_name="LoggerEnvironment", method="log_feature_start")
-            print(f"Error logging feature start: {e}")
+            sys.stderr.write(f"Error logging feature start: {e}\n")
 
     def log_feature_end(self, _context: Any, feature: Any, status: str) -> None:
         """Log feature end.
@@ -202,13 +203,13 @@ class LoggerEnvironment:
             # Logger operation errors - non-critical
             logger = Logger.get_instance({})
             logger.warning(f"Error logging feature end: {e}", traceback=traceback.format_exc(), module=__name__, class_name="LoggerEnvironment", method="log_feature_end")
-            print(f"Error logging feature end: {e}")
+            sys.stderr.write(f"Error logging feature end: {e}\n")
         except Exception as e:  # pylint: disable=broad-exception-caught
             # Catch-all for unexpected errors from logger operations
             # NOTE: Logger.info may raise various exceptions we cannot predict
             logger = Logger.get_instance({})
             logger.warning(f"Error logging feature end: {e}", traceback=traceback.format_exc(), module=__name__, class_name="LoggerEnvironment", method="log_feature_end")
-            print(f"Error logging feature end: {e}")
+            sys.stderr.write(f"Error logging feature end: {e}\n")
 
     def log_scenario_start(self, _context: Any, scenario: Any) -> None:
         """Log scenario start.
@@ -225,13 +226,13 @@ class LoggerEnvironment:
             # Logger operation errors - non-critical
             logger = Logger.get_instance({})
             logger.warning(f"Error logging scenario start: {e}", traceback=traceback.format_exc(), module=__name__, class_name="LoggerEnvironment", method="log_scenario_start")
-            print(f"Error logging scenario start: {e}")
+            sys.stderr.write(f"Error logging scenario start: {e}\n")
         except Exception as e:  # pylint: disable=broad-exception-caught
             # Catch-all for unexpected errors from logger operations
             # NOTE: Logger.info may raise various exceptions we cannot predict
             logger = Logger.get_instance({})
             logger.warning(f"Error logging scenario start: {e}", traceback=traceback.format_exc(), module=__name__, class_name="LoggerEnvironment", method="log_scenario_start")
-            print(f"Error logging scenario start: {e}")
+            sys.stderr.write(f"Error logging scenario start: {e}\n")
 
     def log_scenario_end(self, _context: Any, scenario: Any, status: str) -> None:
         """Log scenario end.
@@ -249,13 +250,13 @@ class LoggerEnvironment:
             # Logger operation errors - non-critical
             logger = Logger.get_instance({})
             logger.warning(f"Error logging scenario end: {e}", traceback=traceback.format_exc(), module=__name__, class_name="LoggerEnvironment", method="log_scenario_end")
-            print(f"Error logging scenario end: {e}")
+            sys.stderr.write(f"Error logging scenario end: {e}\n")
         except Exception as e:  # pylint: disable=broad-exception-caught
             # Catch-all for unexpected errors from logger operations
             # NOTE: Logger.info may raise various exceptions we cannot predict
             logger = Logger.get_instance({})
             logger.warning(f"Error logging scenario end: {e}", traceback=traceback.format_exc(), module=__name__, class_name="LoggerEnvironment", method="log_scenario_end")
-            print(f"Error logging scenario end: {e}")
+            sys.stderr.write(f"Error logging scenario end: {e}\n")
 
     def log_step_start(self, _context: Any, step: Any) -> None:
         """Log step start.
@@ -272,13 +273,13 @@ class LoggerEnvironment:
             # Logger operation errors - non-critical
             logger = Logger.get_instance({})
             logger.warning(f"Error logging step start: {e}", traceback=traceback.format_exc(), module=__name__, class_name="LoggerEnvironment", method="log_step_start")
-            print(f"Error logging step start: {e}")
+            sys.stderr.write(f"Error logging step start: {e}\n")
         except Exception as e:  # pylint: disable=broad-exception-caught
             # Catch-all for unexpected errors from logger operations
             # NOTE: Logger.debug may raise various exceptions we cannot predict
             logger = Logger.get_instance({})
             logger.warning(f"Error logging step start: {e}", traceback=traceback.format_exc(), module=__name__, class_name="LoggerEnvironment", method="log_step_start")
-            print(f"Error logging step start: {e}")
+            sys.stderr.write(f"Error logging step start: {e}\n")
 
     def log_step_end(self, _context: Any, step: Any, status: str) -> None:
         """Log step end.
@@ -296,10 +297,10 @@ class LoggerEnvironment:
             # Logger operation errors - non-critical
             logger = Logger.get_instance({})
             logger.warning(f"Error logging step end: {e}", traceback=traceback.format_exc(), module=__name__, class_name="LoggerEnvironment", method="log_step_end")
-            print(f"Error logging step end: {e}")
+            sys.stderr.write(f"Error logging step end: {e}\n")
         except Exception as e:  # pylint: disable=broad-exception-caught
             # Catch-all for unexpected errors from logger operations
             # NOTE: Logger.debug may raise various exceptions we cannot predict
             logger = Logger.get_instance({})
             logger.warning(f"Error logging step end: {e}", traceback=traceback.format_exc(), module=__name__, class_name="LoggerEnvironment", method="log_step_end")
-            print(f"Error logging step end: {e}")
+            sys.stderr.write(f"Error logging step end: {e}\n")

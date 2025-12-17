@@ -10,6 +10,7 @@ from nemesis.domain.entities import Execution, Scenario
 from nemesis.domain.value_objects import ExecutionId
 from nemesis.domain.ports import IReporter
 from nemesis.application.use_cases import GenerateExecutionReportUseCase
+from nemesis.infrastructure.logging import Logger
 
 
 class ExecutionCoordinator:
@@ -109,7 +110,7 @@ class ExecutionCoordinator:
 
         # Log report paths
         for path in report_paths:
-            print(f"Report generated: {path}")
+            Logger.get_instance({}).info(f"Report generated: {path}")
 
         return self._current_execution
 

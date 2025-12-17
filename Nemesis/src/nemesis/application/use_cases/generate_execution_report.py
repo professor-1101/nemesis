@@ -8,6 +8,7 @@ from pathlib import Path
 
 from nemesis.domain.entities import Execution
 from nemesis.domain.ports import IReporter
+from nemesis.infrastructure.logging import Logger
 
 
 class GenerateExecutionReportUseCase:
@@ -54,6 +55,6 @@ class GenerateExecutionReportUseCase:
                     report_paths.append(report_path)
             except Exception as e:
                 # Log but don't fail entire reporting
-                print(f"Warning: Reporter {reporter.__class__.__name__} failed: {e}")
+                Logger.get_instance({}).warning(f"Reporter {reporter.__class__.__name__} failed: {e}")
 
         return report_paths

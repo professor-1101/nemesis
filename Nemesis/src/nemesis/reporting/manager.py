@@ -113,11 +113,11 @@ class ReportManager:
         """Start scenario reporting."""
         # Direct call to local reporter for immediate data collection
         if self.local_enabled and self.reporter_manager.get_local_reporter():
-            print(f"[DEBUG] ReportManager: LocalReporter available, starting scenario: {scenario.name}")
+            Logger.get_instance({}).info(f"[DEBUG] ReportManager: LocalReporter available, starting scenario: {scenario.name}")
             self.reporter_manager.get_local_reporter().start_scenario(scenario)
             self.logger.debug(f"LocalReporter started scenario: {scenario.name}")
         else:
-            print(f"[DEBUG] ReportManager: LocalReporter not available for scenario: {scenario.name}")
+            Logger.get_instance({}).info(f"[DEBUG] ReportManager: LocalReporter not available for scenario: {scenario.name}")
             self.logger.warning(f"LocalReporter not available for scenario: {scenario.name}")
 
         self.scenario_manager.start_scenario(scenario)

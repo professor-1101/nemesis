@@ -45,7 +45,7 @@ class TestExecutor:
         self._setup_environment()
         command = self._build_command()
 
-        console.print(f"[dim]$ {' '.join(command)}[/dim]\n")
+        console.Logger.get_instance({}).info(f"[dim]$ {' '.join(command)}[/dim]\n")
 
         return self._execute_realtime(command)
 
@@ -133,11 +133,11 @@ class TestExecutor:
 
                         # Check for EPIPE or browser crash indicators with HAR-specific handling
                         if "EPIPE" in line or "broken pipe" in line.lower():
-                            console.print(f"\n[red]✗ Browser crash detected: {line.strip()}[/red]")
+                            console.Logger.get_instance({}).info(f"\n[red]✗ Browser crash detected: {line.strip()}[/red]")
                             # Check if it's HAR-related crash
                             if "har" in line.lower() or "network" in line.lower():
-                                console.print("[yellow]⚠ HAR recording may have caused this crash[/yellow]")
-                                console.print("[yellow]💡 Consider disabling HAR or using minimal HAR settings[/yellow]")
+                                console.Logger.get_instance({}).info("[yellow]⚠ HAR recording may have caused this crash[/yellow]")
+                                console.Logger.get_instance({}).info("[yellow]💡 Consider disabling HAR or using minimal HAR settings[/yellow]")
 
                             if process:
                                 process.terminate()
@@ -164,7 +164,7 @@ class TestExecutor:
 
             # Check if process crashed with EPIPE
             if exit_code != 0:
-                console.print(f"\n[red]✗ Process exited with code: {exit_code}[/red]")
+                console.Logger.get_instance({}).info(f"\n[red]✗ Process exited with code: {exit_code}[/red]")
                 return exit_code
 
             return exit_code
@@ -180,12 +180,12 @@ class TestExecutor:
                     process.wait(timeout=5)
                 except subprocess.TimeoutExpired:
                     process.kill()
-            console.print("\n[yellow]⚠ Test execution interrupted[/yellow]")
+            console.Logger.get_instance({}).info("\n[yellow]⚠ Test execution interrupted[/yellow]")
             return 130
         except (OSError, subprocess.SubprocessError) as e:
             # Process/subprocess errors
             LOGGER.error(f"Execution error - subprocess failed: {e}", traceback=traceback.format_exc(), module=__name__, class_name="TestExecutor", method="_execute_realtime")
-            console.print(f"\n[red]✗ Execution error: {e}[/red]")
+            console.Logger.get_instance({}).info(f"\n[red]✗ Execution error: {e}[/red]")
             if process:
                 process.terminate()
                 try:
@@ -197,7 +197,7 @@ class TestExecutor:
             # Catch-all for unexpected errors from subprocess or stdout handling
             # NOTE: subprocess and stdout handling may raise various exceptions we cannot predict
             LOGGER.error(f"Execution error: {e}", traceback=traceback.format_exc(), module=__name__, class_name="TestExecutor", method="_execute_realtime")
-            console.print(f"\n[red]✗ Execution error: {e}[/red]")
+            console.Logger.get_instance({}).info(f"\n[red]✗ Execution error: {e}[/red]")
             if process:
                 process.terminate()
                 try:

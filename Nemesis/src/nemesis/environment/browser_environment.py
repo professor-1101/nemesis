@@ -119,18 +119,14 @@ class BrowserEnvironment:
             # Start browser with error handling
             try:
                 self.logger.info(f"Starting browser with execution_id: {execution_id}")
-                print(f"DEBUG: Starting browser with execution_id: {execution_id}")
 
                 # Check if browser manager is properly initialized
                 if not self.browser_manager:
-                    self.logger.error("Browser manager is None")
-                    print("DEBUG: Browser manager is None")
+                    self.logger.debug("Browser manager is None")
                     context.browser_crashed = True
                     return False
-
-                print("DEBUG: Browser manager is available, calling start()")
-                context.page = self.browser_manager.start(execution_id)
-                print("DEBUG: Browser started successfully, getting browser instance")
+                self.logger.debug("Browser manager is available, calling start()")
+                self.logger.debug("Browser started successfully, getting browser instance")
                 context.browser = self.browser_manager.get_browser()
 
                 # Mark browser as started
@@ -140,26 +136,23 @@ class BrowserEnvironment:
                 # Activate collectors for this scenario
                 self._activate_collectors(context)
 
-                scenario_name = getattr(scenario, 'name', 'unknown')
                 self.logger.info(f"Browser started for scenario: {scenario_name}")
-                print(f"DEBUG: Browser started for scenario: {scenario_name}")
+                self.logger.debug(f"Browser started for scenario: {scenario_name}")
                 return True
 
             except (KeyboardInterrupt, SystemExit):
                 # Always re-raise these to allow proper program termination
                 raise
             except (RuntimeError, AttributeError) as browser_error:
-                # BrowserManager or Playwright API errors
                 self.logger.error(f"Browser startup failed: {browser_error}", traceback=traceback.format_exc(), module=__name__, class_name="BrowserEnvironment", method="start_browser_for_scenario")
-                print(f"DEBUG: Browser startup failed: {browser_error}")
+                self.logger.debug(f"Browser startup failed: {browser_error}")
                 # Don't mark as crashed immediately, allow graceful fallback
                 context.browser_crashed = True
                 return False
             except Exception as browser_error:  # pylint: disable=broad-exception-caught
                 # Catch-all for unexpected errors from BrowserManager
-                # NOTE: BrowserManager.start() may raise various exceptions we cannot predict
                 self.logger.error(f"Browser startup failed: {browser_error}", traceback=traceback.format_exc(), module=__name__, class_name="BrowserEnvironment", method="start_browser_for_scenario")
-                print(f"DEBUG: Browser startup failed: {browser_error}")
+                self.logger.debug(f"Browser startup failed: {browser_error}")
                 # Don't mark as crashed immediately, allow graceful fallback
                 context.browser_crashed = True
                 return False

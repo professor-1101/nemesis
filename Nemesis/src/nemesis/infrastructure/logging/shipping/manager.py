@@ -78,18 +78,15 @@ class ShippingManager:
             # Channel file I/O errors
             logger = logging.getLogger("nemesis.shipping")
             logger.error("Channel send failed - I/O error: %s", e, exc_info=True)
-            print(f"Channel send failed: {e}")
             return False
         except (AttributeError, RuntimeError) as e:
             # Channel API errors
             logger = logging.getLogger("nemesis.shipping")
             logger.error("Channel send failed - API error: %s", e, exc_info=True)
-            print(f"Channel send failed: {e}")
             return False
         except Exception as e:  # pylint: disable=broad-exception-caught
             # Catch-all for unexpected errors from channel.send_log
             # NOTE: channel.send_log may raise various exceptions we cannot predict
             logger = logging.getLogger("nemesis.shipping")
             logger.error("Channel send failed: %s", e, exc_info=True)
-            print(f"Channel send failed: {e}")
             return False

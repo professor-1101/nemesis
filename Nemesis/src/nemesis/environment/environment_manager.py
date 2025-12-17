@@ -109,12 +109,12 @@ class EnvironmentManager:
             # Finalize reports BEFORE teardown (while context and report_manager are still available)
             # This ensures launch_id is accessible from context.report_manager
             self.logger.info(f"Checking report_manager: {self.reporting_env.report_manager is not None}")
-            print(f"[DEBUG] EnvironmentManager: Checking report_manager: {self.reporting_env.report_manager is not None}")
+            Logger.get_instance({}).info(f"[DEBUG] EnvironmentManager: Checking report_manager: {self.reporting_env.report_manager is not None}")
             
             if self.reporting_env.report_manager:
                 try:
                     self.logger.info("Finalizing reports in after_all hook...")
-                    print("[DEBUG] EnvironmentManager: Calling report_manager.finalize()")
+                    Logger.get_instance({}).info("[DEBUG] EnvironmentManager: Calling report_manager.finalize()")
                     self.reporting_env.report_manager.finalize()
                 except KeyboardInterrupt:
                     raise

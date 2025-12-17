@@ -9,6 +9,7 @@ from typing import Dict, Any, List
 from datetime import datetime
 
 from nemesis.domain.ports import ILogShipper
+from nemesis.infrastructure.logging import Logger
 
 
 class LocalFileShipper(ILogShipper):
@@ -51,7 +52,7 @@ class LocalFileShipper(ILogShipper):
             self._file.flush()
             return True
         except Exception as e:
-            print(f"[LocalFileShipper] Failed to write log: {e}")
+            Logger.get_instance({}).info(f"[LocalFileShipper] Failed to write log: {e}")
             return False
 
     def ship_batch(self, log_entries: List[Dict[str, Any]]) -> bool:
@@ -70,7 +71,7 @@ class LocalFileShipper(ILogShipper):
             self._file.flush()
             return True
         except Exception as e:
-            print(f"[LocalFileShipper] Failed to write logs: {e}")
+            Logger.get_instance({}).info(f"[LocalFileShipper] Failed to write logs: {e}")
             return False
 
     def flush(self) -> None:

@@ -11,6 +11,7 @@ from datetime import datetime
 
 from nemesis.domain.entities import Execution, Scenario, Step
 from nemesis.domain.ports import IReporter
+from nemesis.infrastructure.logging import Logger
 
 
 class JSONReporter(IReporter):
@@ -44,23 +45,23 @@ class JSONReporter(IReporter):
     def start_execution(self, execution: Execution) -> None:
         """Report execution start"""
         self._current_execution = execution
-        print(f"[JSONReporter] Started execution: {execution.execution_id}")
+        Logger.get_instance({}).info(f"[JSONReporter] Started execution: {execution.execution_id}")
 
     def end_execution(self, execution: Execution) -> None:
         """Report execution end"""
-        print(f"[JSONReporter] Ended execution: {execution.execution_id}")
-        print(f"  Scenarios: {execution.get_total_scenarios_count()}")
-        print(f"  Passed: {execution.get_passed_scenarios_count()}")
-        print(f"  Failed: {execution.get_failed_scenarios_count()}")
+        Logger.get_instance({}).info(f"[JSONReporter] Ended execution: {execution.execution_id}")
+        Logger.get_instance({}).info(f"  Scenarios: {execution.get_total_scenarios_count()}")
+        Logger.get_instance({}).info(f"  Passed: {execution.get_passed_scenarios_count()}")
+        Logger.get_instance({}).info(f"  Failed: {execution.get_failed_scenarios_count()}")
 
     def start_scenario(self, scenario: Scenario) -> None:
         """Report scenario start"""
-        print(f"[JSONReporter] Started scenario: {scenario.name}")
+        Logger.get_instance({}).info(f"[JSONReporter] Started scenario: {scenario.name}")
 
     def end_scenario(self, scenario: Scenario) -> None:
         """Report scenario end"""
         status_icon = "✓" if scenario.is_successful() else "✗"
-        print(f"[JSONReporter] {status_icon} {scenario.name} - {scenario.status}")
+        Logger.get_instance({}).info(f"[JSONReporter] {status_icon} {scenario.name} - {scenario.status}")
 
     def start_step(self, step: Step) -> None:
         """Report step start"""
@@ -109,5 +110,5 @@ class JSONReporter(IReporter):
         with open(report_path, "w", encoding="utf-8") as f:
             json.dump(report_data, f, indent=2, ensure_ascii=False)
 
-        print(f"\n[JSONReporter] Report generated: {report_path}")
+        Logger.get_instance({}).info(f"\n[JSONReporter] Report generated: {report_path}")
         return report_path

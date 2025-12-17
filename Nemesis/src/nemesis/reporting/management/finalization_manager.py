@@ -23,33 +23,33 @@ class FinalizationManager:
         console = Console()
         
         self.logger.info("FinalizationManager.finalize() called")
-        print("[DEBUG] FinalizationManager.finalize() called")
+        Logger.get_instance({}).info("[DEBUG] FinalizationManager.finalize() called")
 
         # Print step message in CLI style (independent of CLI module)
-        console.print("[dark_orange]→[/dark_orange] Finalizing reports...")
+        console.Logger.get_instance({}).info("[dark_orange]→[/dark_orange] Finalizing reports...")
 
         # Finalize local reporter - ONLY if enabled
         is_local = self.reporter_manager.is_local_enabled()
         self.logger.info(f"Local reporting enabled: {is_local}")
-        print(f"[DEBUG] Local reporting enabled: {is_local}")
+        Logger.get_instance({}).info(f"[DEBUG] Local reporting enabled: {is_local}")
         
         if is_local:
             try:
                 # Print HTML generation message in CLI style
-                console.print("[dark_orange]→[/dark_orange] Generating HTML report...")
+                console.Logger.get_instance({}).info("[dark_orange]→[/dark_orange] Generating HTML report...")
 
                 local_reporter = self.reporter_manager.get_local_reporter()
                 self.logger.info(f"Local reporter object: {local_reporter is not None}")
-                print(f"[DEBUG] Local reporter object: {local_reporter is not None}")
+                Logger.get_instance({}).info(f"[DEBUG] Local reporter object: {local_reporter is not None}")
                 
                 if local_reporter:
                     self.logger.info(f"Calling generate_report() with {len(local_reporter.execution_data.scenarios)} scenarios")
-                    print(f"[DEBUG] Calling generate_report() with {len(local_reporter.execution_data.scenarios)} scenarios")
+                    Logger.get_instance({}).info(f"[DEBUG] Calling generate_report() with {len(local_reporter.execution_data.scenarios)} scenarios")
                     local_reporter.generate_report()
                     # Clean console output is handled by LocalReporter._print_report_success()
                 else:
                     self.logger.warning("Local reporter is None, cannot generate report")
-                    print("[DEBUG] Local reporter is None, cannot generate report")
+                    Logger.get_instance({}).info("[DEBUG] Local reporter is None, cannot generate report")
             except (AttributeError, RuntimeError, OSError, IOError) as e:
                 # Local report generation errors
                 self.logger.error(f"Failed to generate local report: {e}", traceback=traceback.format_exc(), module=__name__, class_name="FinalizationManager", method="finalize")

@@ -11,6 +11,7 @@ from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 
 from nemesis.domain.ports import ILogShipper
+from nemesis.infrastructure.logging import Logger
 
 
 class SigNozShipper(ILogShipper):
@@ -206,7 +207,7 @@ class SigNozShipper(ILogShipper):
             return True
 
         except Exception as e:
-            print(f"[SigNozShipper] Failed to ship logs: {e}")
+            Logger.get_instance({}).info(f"[SigNozShipper] Failed to ship logs: {e}")
             return False
 
     def _convert_to_otlp_format(self, log: Dict[str, Any]) -> Dict[str, Any]:

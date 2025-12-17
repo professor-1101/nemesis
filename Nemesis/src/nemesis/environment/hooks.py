@@ -38,16 +38,16 @@ def before_all(context: Any) -> None:
         context: Behave context object
     """
     try:
-        print("Starting Nemesis test suite...")
+        LOGGER.info("Starting Nemesis test suite...")
 
         # Setup environment
         env_manager = _get_env_manager()
         success = env_manager.setup_environment(context)
 
         if not success:
-            print("Environment setup failed, but continuing...")
+            LOGGER.warning("Environment setup failed, but continuing...")
         else:
-            print("Environment setup completed successfully")
+            LOGGER.info("Environment setup completed successfully")
 
     except (KeyboardInterrupt, SystemExit):
         # Always re-raise these to allow proper program termination
@@ -55,13 +55,11 @@ def before_all(context: Any) -> None:
     except (AttributeError, RuntimeError, ImportError) as e:
         # Environment setup errors
         LOGGER.error(f"Critical error in before_all: {e}", traceback=traceback.format_exc(), module=__name__, function="before_all")
-        print(f"Critical error in before_all: {e}")
         raise
     except Exception as e:  # pylint: disable=broad-exception-caught
         # Catch-all for unexpected errors from Behave or environment setup
         # NOTE: Behave framework may raise various exceptions we cannot predict
         LOGGER.error(f"Critical error in before_all: {e}", traceback=traceback.format_exc(), module=__name__, function="before_all")
-        print(f"Critical error in before_all: {e}")
         raise
 
 
@@ -72,7 +70,7 @@ def after_all(context: Any) -> None:
         context: Behave context object
     """
     try:
-        print("Ending Nemesis test suite...")
+        LOGGER.info("Ending Nemesis test suite...")
 
         # Determine final status
         status = "completed"
@@ -83,7 +81,7 @@ def after_all(context: Any) -> None:
         env_manager = _get_env_manager()
         env_manager.teardown_environment(context, status)
 
-        print(f"Test suite completed with status: {status}")
+        LOGGER.info(f"Test suite completed with status: {status}")
 
     except (KeyboardInterrupt, SystemExit):
         # Always re-raise these to allow proper program termination
@@ -91,12 +89,10 @@ def after_all(context: Any) -> None:
     except (AttributeError, RuntimeError) as e:
         # Environment teardown errors - log but don't fail
         LOGGER.warning(f"Error in after_all: {e}", traceback=traceback.format_exc(), module=__name__, function="after_all")
-        print(f"Error in after_all: {e}")
     except Exception as e:  # pylint: disable=broad-exception-caught
         # Catch-all for unexpected errors from Behave or environment teardown
         # NOTE: Behave framework may raise various exceptions we cannot predict
         LOGGER.warning(f"Error in after_all: {e}", traceback=traceback.format_exc(), module=__name__, function="after_all")
-        print(f"Error in after_all: {e}")
 
 
 def before_feature(context: Any, feature: Any) -> None:
@@ -121,12 +117,10 @@ def before_feature(context: Any, feature: Any) -> None:
     except (AttributeError, RuntimeError) as e:
         # Feature setup errors - log but continue
         LOGGER.warning(f"Error in before_feature: {e}", traceback=traceback.format_exc(), module=__name__, function="before_feature")
-        print(f"Error in before_feature: {e}")
     except Exception as e:  # pylint: disable=broad-exception-caught
         # Catch-all for unexpected errors from Behave or reporting
         # NOTE: Behave framework may raise various exceptions we cannot predict
         LOGGER.warning(f"Error in before_feature: {e}", traceback=traceback.format_exc(), module=__name__, function="before_feature")
-        print(f"Error in before_feature: {e}")
 
 
 def after_feature(context: Any, feature: Any) -> None:
@@ -156,12 +150,10 @@ def after_feature(context: Any, feature: Any) -> None:
     except (AttributeError, RuntimeError) as e:
         # Feature teardown errors - log but continue
         LOGGER.warning(f"Error in after_feature: {e}", traceback=traceback.format_exc(), module=__name__, function="after_feature")
-        print(f"Error in after_feature: {e}")
     except Exception as e:  # pylint: disable=broad-exception-caught
         # Catch-all for unexpected errors from Behave or reporting
         # NOTE: Behave framework may raise various exceptions we cannot predict
         LOGGER.warning(f"Error in after_feature: {e}", traceback=traceback.format_exc(), module=__name__, function="after_feature")
-        print(f"Error in after_feature: {e}")
 
 
 def before_scenario(context: Any, scenario: Any) -> None:
@@ -176,7 +168,7 @@ def before_scenario(context: Any, scenario: Any) -> None:
 
         # Check if browser already crashed
         if hasattr(context, 'browser_crashed') and context.browser_crashed:
-            print(f"Browser already crashed, skipping scenario: {scenario.name}")
+            LOGGER.warning(f"Browser already crashed, skipping scenario: {scenario.name}")
             scenario.skip("Browser crashed in previous scenario")
             return
 
@@ -204,7 +196,6 @@ def before_scenario(context: Any, scenario: Any) -> None:
     except (AttributeError, RuntimeError) as e:
         # Scenario setup errors
         LOGGER.error(f"Error in before_scenario: {e}", traceback=traceback.format_exc(), module=__name__, function="before_scenario")
-        print(f"Error in before_scenario: {e}")
         context.browser_crashed = True
         if hasattr(scenario, 'skip'):
             scenario.skip(f"Setup failed: {e}")
@@ -212,7 +203,6 @@ def before_scenario(context: Any, scenario: Any) -> None:
         # Catch-all for unexpected errors from Behave or environment
         # NOTE: Behave framework may raise various exceptions we cannot predict
         LOGGER.error(f"Error in before_scenario: {e}", traceback=traceback.format_exc(), module=__name__, function="before_scenario")
-        print(f"Error in before_scenario: {e}")
         context.browser_crashed = True
         if hasattr(scenario, 'skip'):
             scenario.skip(f"Setup failed: {e}")
@@ -238,7 +228,7 @@ def after_scenario(context: Any, scenario: Any) -> None:
         if hasattr(context, 'browser_crashed') and context.browser_crashed:
             status = "failed"
             context.test_failed = True
-            print(f"Browser crashed during scenario: {scenario.name}")
+            LOGGER.warning(f"Browser crashed during scenario: {scenario.name}")
 
         # Stop browser for scenario (graceful - only if started)
         env_manager.browser_env.stop_browser_for_scenario(context, scenario, status)
@@ -249,7 +239,7 @@ def after_scenario(context: Any, scenario: Any) -> None:
         # Log scenario end
         env_manager.logger_env.log_scenario_end(context, scenario, status)
 
-        print(f"Scenario completed: {scenario.name} (status: {status})")
+        LOGGER.info(f"Scenario completed: {scenario.name} (status: {status})")
 
     except (KeyboardInterrupt, SystemExit):
         # Always re-raise these to allow proper program termination
@@ -257,13 +247,11 @@ def after_scenario(context: Any, scenario: Any) -> None:
     except (AttributeError, RuntimeError) as e:
         # Scenario teardown errors - log but continue
         LOGGER.warning(f"Error in after_scenario: {e}", traceback=traceback.format_exc(), module=__name__, function="after_scenario")
-        print(f"Error in after_scenario: {e}")
         # Don't mark browser as crashed here - scenario is ending anyway
     except Exception as e:  # pylint: disable=broad-exception-caught
         # Catch-all for unexpected errors from Behave or environment
         # NOTE: Behave framework may raise various exceptions we cannot predict
         LOGGER.warning(f"Error in after_scenario: {e}", traceback=traceback.format_exc(), module=__name__, function="after_scenario")
-        print(f"Error in after_scenario: {e}")
         # Don't mark browser as crashed here - scenario is ending anyway
 
 
@@ -280,18 +268,17 @@ def before_step(context: Any, step: Any) -> None:
         # LAZY BROWSER STARTUP: Start browser on-demand when first step runs
         if not getattr(context, 'browser_started', False) and not getattr(context, 'browser_crashed', False):
             try:
-                print(f"Starting browser for step: {step.step_type} {step.name}")
+                LOGGER.info(f"Starting browser for step: {step.step_type} {step.name}")
                 browser_started = env_manager.browser_env.start_browser_for_scenario(context, step)
                 if browser_started:
                     context.browser_started = True
-                    print("Browser started successfully")
+                    LOGGER.info("Browser started successfully")
                 else:
-                    print("Failed to start browser, marking as crashed")
+                    LOGGER.error("Failed to start browser, marking as crashed")
                     context.browser_crashed = True
             except (AttributeError, RuntimeError) as e:
                 # Browser startup errors
                 LOGGER.error(f"Browser startup failed: {e}", traceback=traceback.format_exc(), module=__name__, function="before_step")
-                print(f"Browser startup failed: {e}")
                 context.browser_crashed = True
             except (KeyboardInterrupt, SystemExit):
                 # Always re-raise these to allow proper program termination
@@ -309,12 +296,10 @@ def before_step(context: Any, step: Any) -> None:
     except (AttributeError, RuntimeError) as e:
         # Step setup errors - log but continue
         LOGGER.warning(f"Error in before_step: {e}", traceback=traceback.format_exc(), module=__name__, function="before_step")
-        print(f"Error in before_step: {e}")
     except Exception as e:  # pylint: disable=broad-exception-caught
         # Catch-all for unexpected errors from Behave or environment
         # NOTE: Behave framework may raise various exceptions we cannot predict
         LOGGER.warning(f"Error in before_step: {e}", traceback=traceback.format_exc(), module=__name__, function="before_step")
-        print(f"Error in before_step: {e}")
 
 
 def after_step(context: Any, step: Any) -> None:
@@ -344,9 +329,7 @@ def after_step(context: Any, step: Any) -> None:
     except (AttributeError, RuntimeError) as e:
         # Step teardown errors - log but continue
         LOGGER.warning(f"Error in after_step: {e}", traceback=traceback.format_exc(), module=__name__, function="after_step")
-        print(f"Error in after_step: {e}")
     except Exception as e:  # pylint: disable=broad-exception-caught
         # Catch-all for unexpected errors from Behave or environment
         # NOTE: Behave framework may raise various exceptions we cannot predict
         LOGGER.warning(f"Error in after_step: {e}", traceback=traceback.format_exc(), module=__name__, function="after_step")
-        print(f"Error in after_step: {e}")

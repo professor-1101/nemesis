@@ -5,6 +5,7 @@ from typing import Callable, List, Optional
 from nemesis.domain.entities import Scenario, Step
 from nemesis.domain.ports import IBrowserDriver, IReporter, ICollector
 from nemesis.application.use_cases import ExecuteTestScenarioUseCase
+from nemesis.infrastructure.logging import Logger
 
 
 class ScenarioCoordinator:
@@ -86,6 +87,6 @@ class ScenarioCoordinator:
                 artifacts[collector_name] = output_path
 
             except Exception as e:
-                print(f"Warning: Failed to collect from {collector.__class__.__name__}: {e}")
+                Logger.get_instance({}).warning(f"Failed to collect from {collector.__class__.__name__}: {e}")
 
         return artifacts
