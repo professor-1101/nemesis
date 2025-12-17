@@ -276,3 +276,19 @@ class PlaywrightBrowserDriver(IBrowserDriver):
                     pass
 
         return None
+
+    def capture_screenshot(self) -> Optional[bytes]:
+        """Capture screenshot from current active page."""
+        if not self._browser:
+            return None
+
+        try:
+            # Get all contexts and capture from first available page
+            for context in self._browser.contexts:
+                for page in context.pages:
+                    return page.screenshot()
+        except Exception:
+            # Screenshot capture may fail
+            pass
+
+        return None

@@ -116,3 +116,13 @@ class IBrowserDriver(ABC):
     def save_video(self, video_path: Path) -> Optional[Path]:
 
         ...
+
+    @abstractmethod
+    def capture_screenshot(self) -> Optional[bytes]:
+        """
+        Capture screenshot from current active page
+
+        Returns:
+            Screenshot bytes if successful, None otherwise
+        """
+        ...
