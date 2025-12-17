@@ -221,6 +221,6 @@ class TestRunTestsUseCase:
         step = Step.create("Test step", "Given")
 
         # Should not raise exception even if browser driver is not properly set up
-        use_case._capture_screenshot(step, scenario)
+        use_case.artifact_handler.capture_screenshot_on_failure(step, scenario)
 
         # No assertion needed - just verify it doesn't crash

@@ -9,6 +9,7 @@ from datetime import datetime
 from nemesis.domain.entities import Execution, Scenario, Step
 from nemesis.domain.ports import IBrowserDriver, IReporter, ICollector
 from nemesis.domain.value_objects import ExecutionId, ScenarioStatus
+from nemesis.application.services.artifact_handler import ArtifactHandler
 
 
 @dataclass
@@ -67,6 +68,13 @@ class RunTestsUseCase:
         self.collectors = collectors
         self.output_dir = Path(output_dir)
         self.output_dir.mkdir(parents=True, exist_ok=True)
+
+        # Artifact handler for screenshots, videos, traces
+        self.artifact_handler = ArtifactHandler(
+            browser_driver=browser_driver,
+            reporters=reporters,
+            output_dir=self.output_dir,
+        )
 
         # Progress tracking (for UI updates)
         self._current_execution: Optional[Execution] = None
@@ -218,53 +226,18 @@ class RunTestsUseCase:
 
             # Capture screenshot on failure
             if config.screenshot_on_failure:
-                self._capture_screenshot(step, scenario)
+                self.artifact_handler.capture_screenshot_on_failure(step, scenario)
         except Exception as e:
             # Step execution error
             step.fail(f"Step execution error: {str(e)}")
 
             # Capture screenshot on error
             if config.screenshot_on_failure:
-                self._capture_screenshot(step, scenario)
+                self.artifact_handler.capture_screenshot_on_failure(step, scenario)
 
         # 4. Report step end
         for reporter in self.reporters:
             reporter.end_step(step)
-
-    def _capture_screenshot(self, step: Step, scenario: Scenario) -> None:
-        """Capture screenshot on step failure"""
-        try:
-            screenshot_path = (
-                self.output_dir
-                / "screenshots"
-                / f"{scenario.scenario_id}_{step.step_id}.png"
-            )
-            screenshot_path.parent.mkdir(parents=True, exist_ok=True)
-
-            # Capture screenshot using browser driver interface
-            if self.browser_driver and self.browser_driver.is_running():
-                screenshot_bytes = self.browser_driver.capture_screenshot()
-
-                if screenshot_bytes:
-                    screenshot_path.write_bytes(screenshot_bytes)
-
-                    for reporter in self.reporters:
-                        reporter.attach_file(
-                            screenshot_path,
-                            description=f"Screenshot at step: {step.name}",
-                            attachment_type="image/png"
-                        )
-                        reporter.log_message(
-                            f"Screenshot captured: {screenshot_path}",
-                            level="INFO"
-                        )
-        except Exception as e:
-            # Log error but don't fail the test
-            for reporter in self.reporters:
-                reporter.log_message(
-                    f"Failed to capture screenshot: {str(e)}",
-                    level="WARNING"
-                )
 
     def get_progress(self) -> Dict[str, Any]:
         """
