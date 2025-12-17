@@ -6,6 +6,7 @@ from .browser_launcher import BrowserLauncher
 from .browser_cleanup import BrowserCleanup
 from .browser_health import BrowserHealthMonitor
 from .browser_operations import BrowserOperations
+from .browser_context_options_builder import BrowserContextOptionsBuilder
 
 __all__ = [
     'BrowserManager',
@@ -13,5 +14,6 @@ __all__ = [
     'BrowserLauncher',
     'BrowserCleanup',
     'BrowserHealthMonitor',
-    'BrowserOperations'
+    'BrowserOperations',
+    'BrowserContextOptionsBuilder'
 ]

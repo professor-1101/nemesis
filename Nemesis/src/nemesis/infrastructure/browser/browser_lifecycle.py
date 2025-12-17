@@ -19,8 +19,8 @@ from nemesis.shared.directory_manager import DirectoryManager
 from nemesis.shared.exceptions.browser_exceptions import BrowserError
 from nemesis.shared.execution_context import ExecutionContext
 from nemesis.infrastructure.logging import Logger
-from nemesis.utils.helpers.browser_helpers import get_browser_args, get_browser_type, get_viewport
-from nemesis.utils.helpers.har_helpers import add_har_path_to_options
+from nemesis.utils.helpers.browser_helpers import get_browser_args, get_browser_type
+from nemesis.infrastructure.browser.browser_context_options_builder import BrowserContextOptionsBuilder
 
 
 class BrowserLifecycle:
@@ -45,6 +45,9 @@ class BrowserLifecycle:
         self._console_collector = None
         self._network_collector = None
         self._performance_collector = None
+
+        # Context options builder
+        self._context_options_builder = BrowserContextOptionsBuilder(config)
 
     def start(self, execution_id: str) -> Page:
         """Start browser and create page synchronously."""
@@ -71,7 +74,7 @@ class BrowserLifecycle:
             )
             self.logger.debug(f"Browser launched: {browser_type_name}")
 
-            context_options = self._build_context_options(execution_id)
+            context_options = self._context_options_builder.build_options(execution_id)
             self._context = self._browser.new_context(**context_options)
             self.logger.debug("Browser context created")
 
@@ -123,10 +126,6 @@ class BrowserLifecycle:
         """Get browser launch arguments."""
         return get_browser_args(self.config)
 
-    def _get_viewport(self) -> dict[str, int]:
-        """Get viewport configuration."""
-        return get_viewport(self.config, self.logger)
-
     def _validate_browser_health(self) -> None:
         """Validate browser is responsive."""
         if not self._page:
@@ -147,51 +146,6 @@ class BrowserLifecycle:
             # Page.evaluate errors
             self.logger.error(f"Browser health check failed: {e}", traceback=traceback.format_exc(), module=__name__, class_name="BrowserLifecycle", method="_validate_browser_health")
             raise BrowserError("Browser health check failed", str(e)) from e
-
-    def _build_context_options(self, execution_id: str) -> dict[str, any]:
-        """Build context creation options."""
-        ignore_https_errors = self.config.get(
-            "playwright.context.ignore_https_errors", True
-        )
-
-        options: dict[str, any] = {
-            "viewport": self._get_viewport(),
-            "ignore_https_errors": ignore_https_errors,
-        }
-
-        # Use DirectoryManager for centralized directory management
-        directory_manager = DirectoryManager(self.config)
-
-        # Video recording - check attachments config
-        videos_enabled = directory_manager.should_create_directory("videos")
-
-        if videos_enabled:
-            # Get the videos directory path directly
-            base_path = directory_manager.get_execution_base_path(execution_id)
-            videos_dir = base_path / "videos"
-
-            # Ensure videos directory exists
-            videos_dir.mkdir(parents=True, exist_ok=True)
-
-            options["record_video_dir"] = str(videos_dir)
-            options["record_video_size"] = self._get_viewport()
-            self.logger.debug(f"Video recording enabled: {videos_dir}")
-        else:
-            self.logger.debug("Video recording disabled in attachments config")
-
-        # HAR recording - check attachments config with robust error handling
-        add_har_path_to_options(options, directory_manager, execution_id, self.logger)
-        # Add HAR-specific options for stability (using correct Playwright API) if HAR is enabled
-        if "record_har_path" in options:
-            options["record_har_mode"] = "full"  # Full HAR recording
-            options["record_har_omit_content"] = False  # Include content
-            # Note: record_har_include_responses is not a valid Playwright option
-            # Note: record_har_timeout is not a valid Playwright option
-            self.logger.debug(f"HAR recording enabled with valid options: {options.get('record_har_path')}")
-        else:
-            self.logger.debug("HAR recording disabled in attachments config")
-
-        return options
 
     def _cleanup_resources(self) -> None:
         """Internal cleanup without lock with HAR-safe shutdown."""
