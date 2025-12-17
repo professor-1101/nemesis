@@ -343,9 +343,9 @@ class BrowserLifecycle:
         """Initialize data collectors."""
         try:
             # Lazy import to avoid circular imports
-            from nemesis.collectors.console import ConsoleCollector  # pylint: disable=import-outside-toplevel
-            from nemesis.collectors.network import NetworkCollector  # pylint: disable=import-outside-toplevel
-            from nemesis.collectors.performance import PerformanceCollector  # pylint: disable=import-outside-toplevel
+            from nemesis.infrastructure.collectors.console import ConsoleCollector  # pylint: disable=import-outside-toplevel
+            from nemesis.infrastructure.collectors.network import NetworkCollector  # pylint: disable=import-outside-toplevel
+            from nemesis.infrastructure.collectors.performance import PerformanceCollector  # pylint: disable=import-outside-toplevel
 
             # Console collector
             self._console_collector = ConsoleCollector(

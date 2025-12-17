@@ -4,8 +4,8 @@ import pytest
 from pathlib import Path
 from unittest.mock import Mock, MagicMock
 
-from nemesis.collectors.console import ConsoleCollector
-from nemesis.collectors.network import NetworkCollector
+from nemesis.infrastructure.collectors.console import ConsoleCollector
+from nemesis.infrastructure.collectors.network import NetworkCollector
 
 
 class TestConsoleCollector:

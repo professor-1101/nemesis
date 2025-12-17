@@ -11,7 +11,7 @@ Comprehensive performance monitoring for Chrome/Chromium with support for:
 - Runtime metrics
 
 Usage:
-    from nemesis.collectors.performance import PerformanceCollector
+    from nemesis.infrastructure.collectors.performance import PerformanceCollector
 
     collector = PerformanceCollector(page)
     report = collector.collect_all()

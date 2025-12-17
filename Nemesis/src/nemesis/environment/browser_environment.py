@@ -6,9 +6,9 @@ from nemesis.core.config import ConfigLoader
 from nemesis.core.execution_context import ExecutionContext
 from nemesis.core.logging import Logger
 from nemesis.core.browser import BrowserManager
-from nemesis.collectors.console import ConsoleCollector
-from nemesis.collectors.network import NetworkCollector
-from nemesis.collectors.performance import PerformanceCollector
+from nemesis.infrastructure.collectors.console import ConsoleCollector
+from nemesis.infrastructure.collectors.network import NetworkCollector
+from nemesis.infrastructure.collectors.performance import PerformanceCollector
 
 
 class BrowserEnvironment:
