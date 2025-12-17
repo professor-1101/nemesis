@@ -48,9 +48,15 @@ class ReportPortalClient:
             launch_name=rp_settings["launch_name"],
             launch_description=rp_settings["launch_description"],
             launch_attributes=rp_settings["launch_attributes"],
+            debug_mode=rp_settings.get("debug_mode", False),
         )
         self.rp_feature_manager = RPFeatureManager(self.rp_client_base, self.rp_launch_manager)
-        self.rp_test_manager = RPTestManager(self.rp_client_base, self.rp_launch_manager, self.rp_feature_manager)
+        self.rp_test_manager = RPTestManager(
+            self.rp_client_base,
+            self.rp_launch_manager,
+            self.rp_feature_manager,
+            is_skipped_an_issue=rp_settings.get("is_skipped_an_issue", False)
+        )
         self.rp_step_manager = RPStepManager(
             self.rp_client_base,
             self.rp_launch_manager,

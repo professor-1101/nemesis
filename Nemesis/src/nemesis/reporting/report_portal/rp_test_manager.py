@@ -19,13 +19,14 @@ class RPTestManager:
     Handles starting and finishing test scenarios within features,
     maintaining test hierarchy for BDD-style test organization.
     """
-    def __init__(self, rp_client_base: RPClientBase, rp_launch_manager: RPLaunchManager, rp_feature_manager: RPFeatureManager) -> None:
+    def __init__(self, rp_client_base: RPClientBase, rp_launch_manager: RPLaunchManager, rp_feature_manager: RPFeatureManager, is_skipped_an_issue: bool = False) -> None:
         """Initialize ReportPortal test manager.
-        
+
         Args:
             rp_client_base: Base ReportPortal client
             rp_launch_manager: Launch manager instance
             rp_feature_manager: Feature manager instance
+            is_skipped_an_issue: Whether skipped tests should be marked as issues
         """
         self.rp_client_base = rp_client_base
         self.client: RPClient = rp_client_base.client
@@ -33,6 +34,7 @@ class RPTestManager:
         self.rp_feature_manager = rp_feature_manager
         self.logger = Logger.get_instance({})
         self.test_id: str | None = None
+        self.is_skipped_an_issue = is_skipped_an_issue
 
     @retry(max_attempts=2, delay=0.5)
     def start_test(self, name: str, test_type: str = "SCENARIO", tags: list = None, description: str = "") -> None:
@@ -108,21 +110,33 @@ class RPTestManager:
 
     @safe_execute(log_exceptions=True)
     def finish_test(self, status: str) -> None:
-        """Finish test.
+        """Finish test with optional issue marking for skipped tests.
 
         Note: test_id is kept after finishing to allow attachments.
         It will be cleared when a new test starts or launch finishes.
+
+        Args:
+            status: Test status (PASSED, FAILED, SKIPPED, etc.)
         """
         if not self.test_id or not self.rp_launch_manager.is_launch_active():
             return
 
         try:
-            self.client.finish_test_item(
-                item_id=self.test_id,
-                end_time=RPUtils.timestamp(),
-                status=status,
-                launch_uuid=self.rp_launch_manager.get_launch_id(),
-            )
+            finish_params = {
+                "item_id": self.test_id,
+                "end_time": RPUtils.timestamp(),
+                "status": status,
+                "launch_uuid": self.rp_launch_manager.get_launch_id(),
+            }
+
+            # Handle skipped tests based on is_skipped_an_issue configuration
+            if status == "SKIPPED" and not self.is_skipped_an_issue:
+                # Mark skipped tests as NOT an issue
+                finish_params["issue"] = {
+                    "issue_type": "NOT_ISSUE"
+                }
+
+            self.client.finish_test_item(**finish_params)
             # Keep test_id for potential attachments after test finish
             # It will be cleared when a new test starts or launch finishes
             # self.test_id = None

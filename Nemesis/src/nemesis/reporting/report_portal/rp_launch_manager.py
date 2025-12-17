@@ -33,6 +33,7 @@ class RPLaunchManager:
         launch_name: str,
         launch_description: str | None = None,
         launch_attributes: List[Dict[str, Any]] | None = None,
+        debug_mode: bool = False,
     ) -> None:
         self.rp_client_base = rp_client_base
         self.client: RPClient = rp_client_base.client
@@ -41,6 +42,7 @@ class RPLaunchManager:
         self.launch_name = launch_name
         self.launch_description = launch_description
         self.launch_attributes = self._normalize_attributes(launch_attributes)
+        self.debug_mode = debug_mode
 
     @staticmethod
     def _normalize_attributes(attrs: List[Dict[str, Any]] | None) -> List[Dict[str, Any]]:
@@ -71,12 +73,15 @@ class RPLaunchManager:
             return
 
         try:
+            # Use DEBUG mode if configured, otherwise DEFAULT
+            launch_mode = "DEBUG" if self.debug_mode else "DEFAULT"
+
             launch_id = self.client.start_launch(
                 name=self.launch_name,
                 start_time=self._current_timestamp_ms(),
                 description=self.launch_description,
                 attributes=self.launch_attributes,
-                mode="DEFAULT",
+                mode=launch_mode,
                 rerun=False,
             )
 

@@ -18,3 +18,5 @@ reportportal:
   step_level_reporting: true
   step_log_layout: NESTED  # SCENARIO (logs only), STEP (flat items), NESTED (hierarchical)
   max_attachment_size: 10485760  # 10MB
+  is_skipped_an_issue: false  # Mark skipped tests as issues in ReportPortal
+  debug_mode: false  # Create DEBUG launches for testing/development

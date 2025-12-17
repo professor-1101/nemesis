@@ -41,6 +41,12 @@ class RPConfigLoader:
         step_log_layout = self.config_loader.get("reporting.reportportal.step_log_layout", "NESTED")
         self.step_log_layout = self._validate_step_layout(step_log_layout)
 
+        # Skip handling: Whether skipped tests should be marked as issues
+        self.is_skipped_an_issue = self.config_loader.get("reporting.reportportal.is_skipped_an_issue", False)
+
+        # Debug mode: Creates DEBUG launches for testing/development
+        self.debug_mode = self.config_loader.get("reporting.reportportal.debug_mode", False)
+
         self._validate_config()
 
     def _validate_step_layout(self, layout: str) -> str:
@@ -95,6 +101,8 @@ class RPConfigLoader:
             - launch_description: Launch description
             - launch_attributes: Launch attributes list
             - step_log_layout: Step logging layout mode
+            - is_skipped_an_issue: Whether skipped tests are marked as issues
+            - debug_mode: Whether to create DEBUG launches
         """
         return {
             "endpoint": self.endpoint,
@@ -105,4 +113,6 @@ class RPConfigLoader:
             "launch_description": self.launch_description,
             "launch_attributes": self.launch_attributes,
             "step_log_layout": self.step_log_layout,
+            "is_skipped_an_issue": self.is_skipped_an_issue,
+            "debug_mode": self.debug_mode,
         }
