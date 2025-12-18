@@ -9,6 +9,7 @@ from rich.console import Console
 
 from nemesis.infrastructure.config import ConfigLoader
 from nemesis.infrastructure.logging import Logger
+from nemesis.utils.decorators.exception_handler import handle_exceptions
 from ..ascii_art  import print_banner, print_error, print_step, print_success
 from ..core.executor import TestExecutor
 from ..ui.tables import show_configuration_table, show_execution_summary
@@ -42,32 +43,29 @@ def _get_latest_execution_id():
         return None
 
 
+@handle_exceptions(
+    log_level="debug",
+    specific_exceptions=(OSError, IOError, ValueError, AttributeError, Exception),
+    specific_message="Failed to show report path: {error}"
+)
 def _show_report_path():
     """Show JSON report path if it exists."""
-    try:
-        # Find the most recent report directory
-        reports_dir = Path("reports")
-        if not reports_dir.exists():
-            return
+    # Find the most recent report directory
+    reports_dir = Path("reports")
+    if not reports_dir.exists():
+        return
 
-        # Get all execution directories (sorted by modification time)
-        execution_dirs = [d for d in reports_dir.iterdir() if d.is_dir()]
-        if not execution_dirs:
-            return
+    # Get all execution directories (sorted by modification time)
+    execution_dirs = [d for d in reports_dir.iterdir() if d.is_dir()]
+    if not execution_dirs:
+        return
 
-        # Get the most recent one
-        latest_dir = max(execution_dirs, key=lambda d: d.stat().st_mtime)
-        json_report = latest_dir / "reports" / "execution.json"
+    # Get the most recent one
+    latest_dir = max(execution_dirs, key=lambda d: d.stat().st_mtime)
+    json_report = latest_dir / "reports" / "execution.json"
 
-        if json_report.exists():
-            print_success(f"JSON Report: {json_report}")
-    except (OSError, IOError, ValueError, AttributeError) as e:
-        # Silently ignore errors - non-critical operation
-        LOGGER.debug(f"Failed to show report path: {e}", traceback=traceback.format_exc(), module=__name__, function="_show_report_path")
-    except Exception as e:  # pylint: disable=broad-exception-caught
-        # Catch-all for unexpected errors
-        # NOTE: Path operations may raise various exceptions we cannot predict
-        LOGGER.debug(f"Failed to show report path: {e}", traceback=traceback.format_exc(), module=__name__, function="_show_report_path")
+    if json_report.exists():
+        print_success(f"JSON Report: {json_report}")
 
 
 @click.command()
