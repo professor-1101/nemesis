@@ -11,6 +11,7 @@ from nemesis.shared.exceptions import CollectorError
 from nemesis.infrastructure.logging import Logger
 from nemesis.utils import get_path_manager
 from nemesis.utils.helpers.exception_helpers import ensure_directory_exists
+from nemesis.utils.decorators.exception_handler import handle_exceptions
 from .base_collector import BaseCollector
 
 
@@ -242,20 +243,17 @@ class NetworkCollector(ICollector, BaseCollector):
             self.page.off("requestfailed", self._bound_failed)
             self._listeners_setup = False
 
+    @handle_exceptions(
+        log_level="debug",
+        catch_exceptions=(AttributeError, RuntimeError),
+        message_template="Error detaching network listeners during dispose: {error}"
+    )
     def dispose(self) -> None:
         """Detach all network listeners explicitly."""
-        try:
-            if self._listeners_setup:
-                self.page.off("request", self._bound_request)
-                self.page.off("response", self._bound_response)
-                self.page.off("requestfailed", self._bound_failed)
-        except (AttributeError, RuntimeError) as e:
-            # Playwright page event listener errors - ignore during cleanup
-            self.logger.debug(f"Error detaching network listeners during dispose: {e}", module=__name__, class_name="NetworkCollector", method="dispose")
-        except KeyboardInterrupt:
-            raise
-        except SystemExit:
-            raise
+        if self._listeners_setup:
+            self.page.off("request", self._bound_request)
+            self.page.off("response", self._bound_response)
+            self.page.off("requestfailed", self._bound_failed)
         self._listeners_setup = False
 
     # ICollector interface implementation
