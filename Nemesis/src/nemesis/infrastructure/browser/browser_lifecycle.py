@@ -1,13 +1,8 @@
-"""Browser lifecycle management (Refactored for SRP).
+"""Browser lifecycle management.
 
-This module orchestrates browser lifecycle using composed services.
-Following SRP: Single responsibility is lifecycle orchestration.
-
-Refactored to extract 4 service classes:
-- BrowserHealthValidator: Health checking
-- VideoProcessingService: Video conversion
-- ResourceCleaner: Graceful cleanup
-- CollectorCoordinator: Collector management
+Orchestrates Playwright browser lifecycle through composed services.
+Manages browser startup, page creation, collector initialization, health validation,
+and graceful shutdown with video conversion and resource cleanup.
 """
 
 import time
@@ -32,7 +27,7 @@ from nemesis.infrastructure.logging import Logger
 from nemesis.utils.helpers.browser_helpers import get_browser_args, get_browser_type
 from nemesis.infrastructure.browser.browser_context_options_builder import BrowserContextOptionsBuilder
 
-# Extracted services (SRP compliance)
+# Composed services
 from nemesis.infrastructure.browser.browser_health_validator import BrowserHealthValidator
 from nemesis.infrastructure.browser.video_processing_service import (
     VideoProcessingService,
@@ -44,19 +39,12 @@ from nemesis.infrastructure.browser.collector_coordinator import CollectorCoordi
 
 class BrowserLifecycle:
     """
-    Orchestrates browser lifecycle using composition (Refactored for SRP).
+    Orchestrates Playwright browser lifecycle through service composition.
 
-    Responsibilities (SRP):
-    - Start browser and create page
-    - Coordinate lifecycle events
-    - Provide access to browser/page instances
-    - Close browser gracefully
-
-    This class was refactored to follow SRP by extracting 4 service classes.
-    Reduced from 424 lines to ~180 lines.
-
-    Design Pattern: Composition over inheritance
-    Architecture: Clean Architecture - coordinates infrastructure services
+    Starts browser instances, creates pages with configured contexts, initializes
+    data collectors, validates health, and ensures graceful shutdown with proper
+    resource cleanup and video conversion. Uses composed services for health
+    validation, video processing, resource cleanup, and collector coordination.
     """
 
     def __init__(self, config: ConfigLoader) -> None:
@@ -79,7 +67,7 @@ class BrowserLifecycle:
         # Context options builder
         self._context_options_builder = BrowserContextOptionsBuilder(config)
 
-        # Composed services (SRP: Each service has one responsibility)
+        # Composed services
         self._health_validator = BrowserHealthValidator()
         self._video_processor = VideoProcessingService(logger=self.logger)
         self._resource_cleaner = ResourceCleaner(logger=self.logger)
@@ -131,10 +119,10 @@ class BrowserLifecycle:
             # Create page
             self._page = self._context.new_page()
 
-            # Initialize collectors (SRP: Delegated to CollectorCoordinator)
+            # Initialize collectors
             self._collector_coordinator.initialize_collectors(self._page, execution_id)
 
-            # Health check (SRP: Delegated to BrowserHealthValidator)
+            # Health check
             self._health_validator.validate_page_exists(self._page)
             self._is_healthy = True
 
@@ -182,13 +170,14 @@ class BrowserLifecycle:
         """
         Internal cleanup with HAR-safe shutdown and video conversion.
 
-        This method orchestrates cleanup using extracted service classes.
-        SRP: Delegates specific cleanup tasks to service classes.
+        Delegates cleanup to service classes: disposes collectors, closes context with
+        HAR finalization delay, closes browser with retries, stops Playwright, then
+        converts videos after context is fully closed.
         """
         # Get video directory path before closing context
         video_dir = self._get_video_directory()
 
-        # Cleanup using ResourceCleaner service (SRP: Separation of concerns)
+        # Cleanup browser resources
         collectors = self._collector_coordinator.get_all_collectors()
         self._resource_cleaner.cleanup_all(
             browser=self._browser,
@@ -198,7 +187,7 @@ class BrowserLifecycle:
             collectors=collectors
         )
 
-        # Convert videos AFTER context closes (SRP: Delegated to VideoProcessingService)
+        # Convert videos AFTER context closes to ensure files are finalized
         if video_dir and video_dir.exists():
             time.sleep(VIDEO_FINALIZATION_DELAY)
             self._video_processor.convert_videos_in_directory(video_dir)
@@ -244,9 +233,10 @@ class BrowserLifecycle:
         """
         Close browser and cleanup resources synchronously.
 
-        Saves collector data before cleanup.
+        Saves collector data to persistent storage, then performs graceful cleanup
+        of all browser resources including context, browser, and Playwright instance.
         """
-        # Save collector data (SRP: Delegated to CollectorCoordinator)
+        # Save collector data to storage
         self._collector_coordinator.save_collector_data()
 
         # Cleanup resources

@@ -1,7 +1,7 @@
 """Collector coordination service for browser data collection.
 
-This service handles initialization and lifecycle of data collectors.
-Following SRP: Single responsibility is managing collectors.
+Initializes and manages console, network, and performance collectors attached to
+browser pages. Handles collector lifecycle from initialization to data persistence.
 """
 
 import traceback
@@ -15,16 +15,11 @@ from nemesis.shared.execution_context import ExecutionContext
 
 class CollectorCoordinator:
     """
-    Manages lifecycle of data collectors.
+    Manages lifecycle of browser data collectors.
 
-    Responsibilities (SRP):
-    - Initialize console, network, and performance collectors
-    - Provide access to collector instances
-    - Save collector data to persistent storage
-    - Handle collector errors gracefully
-
-    This class was extracted from BrowserLifecycle to follow SRP.
-    Collector management is a distinct concern from browser lifecycle.
+    Initializes console, network, and performance collectors on browser pages,
+    provides access to collector instances, and persists collected data to storage.
+    Handles all collector errors gracefully to prevent test interruption.
     """
 
     def __init__(self, logger: Logger | None = None):

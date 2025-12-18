@@ -1,7 +1,7 @@
 """Resource cleanup service for browser instances.
 
-This service handles graceful shutdown of browser resources.
-Following SRP: Single responsibility is resource cleanup and error handling.
+Handles graceful shutdown of browser resources with retry logic and error aggregation.
+Ensures HAR files and videos are finalized before closing browser contexts.
 """
 
 import time
@@ -13,7 +13,7 @@ from playwright.sync_api import Browser, BrowserContext, Page, Playwright
 from nemesis.infrastructure.logging import Logger
 
 
-# Constants (Clean Code: Extract magic values)
+# Cleanup timing and retry constants
 HAR_FINALIZATION_DELAY = 0.5  # Seconds to wait for HAR file finalization
 VIDEO_FINALIZATION_DELAY = 0.5  # Seconds to wait for video file finalization
 BROWSER_CLOSE_RETRY_DELAY = 0.2  # Seconds between browser close retries
@@ -22,17 +22,11 @@ MAX_BROWSER_CLOSE_RETRIES = 3
 
 class ResourceCleaner:
     """
-    Handles graceful resource cleanup and shutdown.
+    Manages graceful shutdown of Playwright browser resources.
 
-    Responsibilities (SRP):
-    - Clean up collectors with error handling
-    - Close browser context safely (HAR-aware)
-    - Close browser with retry logic
-    - Stop Playwright instance
-    - Aggregate cleanup errors for logging
-
-    This class was extracted from BrowserLifecycle to follow SRP.
-    Resource cleanup is a distinct concern from lifecycle management.
+    Cleans up collectors, closes browser contexts with HAR finalization delay,
+    closes browser with retry mechanism, and stops Playwright. Aggregates all
+    cleanup errors instead of throwing exceptions to ensure complete shutdown.
     """
 
     def __init__(self, logger: Logger | None = None):

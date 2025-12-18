@@ -1,7 +1,6 @@
 """Video processing service for browser artifacts.
 
-This service handles video format conversion operations.
-Following SRP: Single responsibility is video processing.
+Converts WebM video files to MP4 format for compatibility with reporting systems.
 """
 
 import subprocess
@@ -11,22 +10,17 @@ from pathlib import Path
 from nemesis.infrastructure.logging import Logger
 
 
-# Constants (Clean Code: Extract magic values)
+# Video processing constants
 VIDEO_CONVERSION_BATCH_LOG_THRESHOLD = 1
 VIDEO_FINALIZATION_DELAY = 0.5  # Seconds to wait after context close
 
 
 class VideoProcessingService:
     """
-    Handles video format conversion and media processing.
+    Converts video files from WebM to MP4 format.
 
-    Responsibilities (SRP):
-    - Convert WebM videos to MP4 format
-    - Process entire directories of videos
-    - Handle conversion errors gracefully
-
-    This class was extracted from BrowserLifecycle to follow SRP.
-    Video processing is a distinct concern from browser lifecycle.
+    Processes individual files or entire directories, handling errors gracefully
+    to prevent conversion failures from blocking browser operations.
     """
 
     def __init__(self, logger: Logger | None = None):

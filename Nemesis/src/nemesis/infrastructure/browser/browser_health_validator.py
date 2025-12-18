@@ -1,23 +1,14 @@
 """Browser health validation service.
 
-This service handles health checking and validation of browser instances.
-Following SRP: Single responsibility is to validate browser health.
+Validates browser instance health and responsiveness through page checks
+and JavaScript execution tests.
 """
 
 from playwright.sync_api import Page
 
 
 class BrowserHealthValidator:
-    """
-    Validates browser health and responsiveness.
-
-    Responsibilities (SRP):
-    - Check if page exists
-    - Validate browser is responsive
-    - Execute simple JavaScript to verify functionality
-
-    This class was extracted from BrowserLifecycle to follow SRP.
-    """
+    """Validates browser health by checking page existence and responsiveness."""
 
     @staticmethod
     def validate_page_exists(page: Page | None) -> None:
