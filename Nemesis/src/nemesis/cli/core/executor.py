@@ -73,13 +73,13 @@ class TestExecutor:
 
         # Add feature
         if self.feature:
-            # Use PathManager for centralized path management
+            # Use PathHelper for centralized path management
             try:
                 path_manager = get_path_manager(self.config)
                 features_dir = path_manager.get_features_dir()
             except (AttributeError, KeyError, RuntimeError) as e:
-                # PathManager initialization errors - fallback to config or default
-                LOGGER.debug(f"PathManager failed, using fallback: {e}", traceback=traceback.format_exc(), module=__name__, class_name="TestExecutor", method="_build_command")
+                # PathHelper initialization errors - fallback to config or default
+                LOGGER.debug(f"PathHelper failed, using fallback: {e}", traceback=traceback.format_exc(), module=__name__, class_name="TestExecutor", method="_build_command")
                 features_dir = self.config.get("features_dir", Path.cwd() / "features")
                 if isinstance(features_dir, str):
                     features_dir = Path(features_dir)

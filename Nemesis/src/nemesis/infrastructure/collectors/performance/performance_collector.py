@@ -162,8 +162,8 @@ class PerformanceCollector(ICollector):
                 "performance_metrics.json"
             )
         except (AttributeError, KeyError, RuntimeError) as e:
-            # PathManager initialization errors - fallback
-            self.logger.debug(f"PathManager failed, using fallback path: {e}", traceback=traceback.format_exc(), module=__name__, class_name="PerformanceCollector", method="_get_save_path", execution_id=execution_id)
+            # PathHelper initialization errors - fallback
+            self.logger.debug(f"PathHelper failed, using fallback path: {e}", traceback=traceback.format_exc(), module=__name__, class_name="PerformanceCollector", method="_get_save_path", execution_id=execution_id)
             file_path = Path(f"reports/{execution_id}/performance/performance_metrics.json")
             file_path.parent.mkdir(parents=True, exist_ok=True)
             return file_path

@@ -46,7 +46,7 @@ class LocalChannel:
         # Sanitize execution_id to prevent path traversal
         safe_id = re.sub(r'[^a-zA-Z0-9_-]', '_', execution_id)
 
-        # Use PathManager for centralized path management
+        # Use PathHelper for centralized path management
         try:
             from nemesis.utils import get_path_manager
             path_manager = get_path_manager()

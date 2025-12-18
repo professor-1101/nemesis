@@ -5,11 +5,11 @@ from pathlib import Path
 from typing import Optional
 
 
-class PathManager:
+class PathHelper:
     """Centralized path management with configuration support."""
 
     def __init__(self, config_loader=None):
-        """Initialize path manager.
+        """Initialize path helper.
 
         Args:
             config_loader: ConfigLoader instance for getting paths from config
@@ -60,18 +60,18 @@ class PathManager:
 
 
 # Global instance for backward compatibility
-_path_manager: Optional[PathManager] = None
+_path_manager: Optional[PathHelper] = None
 
 
-def get_path_manager(config_loader=None) -> PathManager:
+def get_path_manager(config_loader=None) -> PathHelper:
     """Get global path manager instance."""
     global _path_manager
     if _path_manager is None:
-        _path_manager = PathManager(config_loader)
+        _path_manager = PathHelper(config_loader)
     return _path_manager
 
 
-def set_path_manager(path_manager: PathManager) -> None:
+def set_path_manager(path_manager: PathHelper) -> None:
     """Set global path manager instance."""
     global _path_manager
     _path_manager = path_manager

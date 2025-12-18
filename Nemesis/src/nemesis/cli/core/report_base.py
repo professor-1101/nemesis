@@ -14,12 +14,12 @@ class ReportBase:
         """Initialize with reports directory.
 
         Args:
-            reports_dir: Optional custom reports directory, otherwise uses PathManager
+            reports_dir: Optional custom reports directory, otherwise uses PathHelper
         """
         if reports_dir:
             self.reports_dir = reports_dir
         else:
-            # Use PathManager for centralized path management
+            # Use PathHelper for centralized path management
             try:
                 path_manager = get_path_manager()
                 self.reports_dir = path_manager.get_reports_dir()
@@ -28,10 +28,10 @@ class ReportBase:
                 # NOTE: KeyboardInterrupt and SystemExit must propagate to allow graceful shutdown
                 raise
             except (AttributeError, KeyError, RuntimeError) as e:
-                # PathManager initialization errors - fallback to default
+                # PathHelper initialization errors - fallback to default
                 logger = Logger.get_instance({})
                 logger.debug(
-                    f"PathManager failed, using default reports dir: {e}",
+                    f"PathHelper failed, using default reports dir: {e}",
                     traceback=traceback.format_exc(),
                     module=__name__,
                     class_name=self.__class__.__name__,

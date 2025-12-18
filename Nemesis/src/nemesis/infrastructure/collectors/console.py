@@ -178,13 +178,13 @@ class ConsoleCollector(ICollector, BaseCollector):
     def save_to_file(self, execution_id: str, _scenario_name: str) -> Path:
         """Save console logs to file."""
         try:
-            # Use PathManager for centralized path management
+            # Use PathHelper for centralized path management
             try:
                 path_manager = get_path_manager()
                 file_path = path_manager.get_attachment_path(execution_id, "console", "console.jsonl")
             except (AttributeError, KeyError, RuntimeError) as e:
-                # PathManager initialization errors - fallback to original logic
-                self.logger.debug(f"PathManager failed, using fallback path: {e}", traceback=traceback.format_exc(), module=__name__, class_name="ConsoleCollector", method="save_to_file", execution_id=execution_id)
+                # PathHelper initialization errors - fallback to original logic
+                self.logger.debug(f"PathHelper failed, using fallback path: {e}", traceback=traceback.format_exc(), module=__name__, class_name="ConsoleCollector", method="save_to_file", execution_id=execution_id)
                 file_path = Path(f"reports/{execution_id}/console/console.jsonl")
                 ensure_directory_exists(file_path, execution_id)
             except (KeyboardInterrupt, SystemExit):  # pylint: disable=try-except-raise
