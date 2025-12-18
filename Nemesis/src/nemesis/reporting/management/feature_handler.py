@@ -1,6 +1,6 @@
 """Feature management for reporting."""
-import traceback
 from nemesis.infrastructure.logging import Logger
+from nemesis.utils.decorators.exception_handler import handle_exceptions_with_fallback
 
 
 class FeatureHandler:
@@ -11,6 +11,26 @@ class FeatureHandler:
         self.logger = Logger.get_instance({})
         self.reporter_manager = reporter_manager
 
+    @handle_exceptions_with_fallback(
+        log_level="debug",
+        specific_exceptions=(AttributeError, RuntimeError),
+        specific_message="Failed to log to local reporter: {error}",
+        fallback_message="Failed to log to local reporter: {error}"
+    )
+    def _log_to_local_reporter(self, message: str) -> None:
+        """Log message to local reporter with exception handling."""
+        self.reporter_manager.get_local_reporter().add_log(message, "INFO")
+
+    @handle_exceptions_with_fallback(
+        log_level="error",
+        specific_exceptions=(AttributeError, RuntimeError),
+        specific_message="{error}",
+        fallback_message="{error}"
+    )
+    def _call_rp_client(self, callback, error_context: str) -> None:
+        """Call ReportPortal client method with exception handling."""
+        callback()
+
     def start_feature(self, feature) -> None:
         """Start feature reporting with support for advanced tags."""
         feature_name = getattr(feature, 'name', str(feature))
@@ -20,28 +40,14 @@ class FeatureHandler:
         self.logger.feature_start(feature_name)
 
         if self.reporter_manager.is_local_enabled():
-            try:
-                self.reporter_manager.get_local_reporter().add_log(f"Feature started: {feature_name}", "INFO")
-            except (AttributeError, RuntimeError) as e:
-                # Local reporter API errors - non-critical
-                self.logger.debug(f"Failed to log feature start to local reporter: {e}", traceback=traceback.format_exc(), module=__name__, class_name="FeatureHandler", method="start_feature")
-            except Exception as e:  # pylint: disable=broad-exception-caught
-                # Catch-all for unexpected errors from local reporter
-                # NOTE: LocalReporter.add_log may raise various exceptions we cannot predict
-                self.logger.debug(f"Failed to log feature start to local reporter: {e}", traceback=traceback.format_exc(), module=__name__, class_name="FeatureHandler", method="start_feature")
+            self._log_to_local_reporter(f"Feature started: {feature_name}")
 
         if self.reporter_manager.is_rp_enabled():
-            try:
-                desc_text = '\n'.join(description) if isinstance(description, list) else description
-                # Pass tags to ReportPortal for advanced tag parsing
-                self.reporter_manager.get_rp_client().start_feature(feature_name, desc_text, tags)
-            except (AttributeError, RuntimeError) as e:
-                # ReportPortal client API errors
-                self.logger.error(f"Failed to start feature in ReportPortal: {e}", traceback=traceback.format_exc(), module=__name__, class_name="FeatureHandler", method="start_feature")
-            except Exception as e:  # pylint: disable=broad-exception-caught
-                # Catch-all for unexpected errors from ReportPortal SDK
-                # NOTE: ReportPortal SDK may raise various exceptions we cannot predict
-                self.logger.error(f"Failed to start feature in ReportPortal: {e}", traceback=traceback.format_exc(), module=__name__, class_name="FeatureHandler", method="start_feature")
+            desc_text = '\n'.join(description) if isinstance(description, list) else description
+            self._call_rp_client(
+                lambda: self.reporter_manager.get_rp_client().start_feature(feature_name, desc_text, tags),
+                "Failed to start feature in ReportPortal"
+            )
 
     def end_feature(self, feature, status: str = None) -> None:
         """End feature reporting.
@@ -69,23 +75,10 @@ class FeatureHandler:
         self.logger.feature_end(feature_name, status_str)
 
         if self.reporter_manager.is_local_enabled():
-            try:
-                self.reporter_manager.get_local_reporter().add_log(f"Feature ended: {feature_name} - Status: {status_str}", "INFO")
-            except (AttributeError, RuntimeError) as e:
-                # Local reporter API errors - non-critical
-                self.logger.debug(f"Failed to log feature end to local reporter: {e}", traceback=traceback.format_exc(), module=__name__, class_name="FeatureHandler", method="end_feature")
-            except Exception as e:  # pylint: disable=broad-exception-caught
-                # Catch-all for unexpected errors from local reporter
-                # NOTE: LocalReporter.add_log may raise various exceptions we cannot predict
-                self.logger.debug(f"Failed to log feature end to local reporter: {e}", traceback=traceback.format_exc(), module=__name__, class_name="FeatureHandler", method="end_feature")
+            self._log_to_local_reporter(f"Feature ended: {feature_name} - Status: {status_str}")
 
         if self.reporter_manager.is_rp_enabled():
-            try:
-                self.reporter_manager.get_rp_client().finish_feature(status_str)
-            except (AttributeError, RuntimeError) as e:
-                # ReportPortal client API errors
-                self.logger.error(f"Failed to finish feature in ReportPortal: {e}", traceback=traceback.format_exc(), module=__name__, class_name="FeatureHandler", method="end_feature")
-            except Exception as e:  # pylint: disable=broad-exception-caught
-                # Catch-all for unexpected errors from ReportPortal SDK
-                # NOTE: ReportPortal SDK may raise various exceptions we cannot predict
-                self.logger.error(f"Failed to finish feature in ReportPortal: {e}", traceback=traceback.format_exc(), module=__name__, class_name="FeatureHandler", method="end_feature")
+            self._call_rp_client(
+                lambda: self.reporter_manager.get_rp_client().finish_feature(status_str),
+                "Failed to finish feature in ReportPortal"
+            )

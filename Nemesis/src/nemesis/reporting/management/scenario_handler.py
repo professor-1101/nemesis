@@ -1,8 +1,7 @@
 """Scenario management for reporting."""
-import traceback
-
 from nemesis.infrastructure.logging import Logger
 from nemesis.utils.helpers.scenario_helpers import normalize_scenario_status_for_rp
+from nemesis.utils.decorators.exception_handler import handle_exceptions_with_fallback
 
 
 class ScenarioHandler:
@@ -13,6 +12,26 @@ class ScenarioHandler:
         self.logger = Logger.get_instance({})
         self.reporter_manager = reporter_manager
 
+    @handle_exceptions_with_fallback(
+        log_level="error",
+        specific_exceptions=(AttributeError, RuntimeError),
+        specific_message="Failed to call local reporter: {error}",
+        fallback_message="Failed to call local reporter: {error}"
+    )
+    def _call_local_reporter(self, callback) -> None:
+        """Call local reporter method with exception handling."""
+        callback()
+
+    @handle_exceptions_with_fallback(
+        log_level="error",
+        specific_exceptions=(AttributeError, RuntimeError),
+        specific_message="{error}",
+        fallback_message="{error}"
+    )
+    def _call_rp_client(self, callback) -> None:
+        """Call ReportPortal client method with exception handling."""
+        callback()
+
     def start_scenario(self, scenario) -> None:
         """Start scenario reporting with support for advanced tags."""
         scenario_name = getattr(scenario, 'name', str(scenario))
@@ -22,29 +41,16 @@ class ScenarioHandler:
         self.logger.scenario_start(scenario_name)
 
         if self.reporter_manager.is_local_enabled():
-            try:
+            def _start_local():
                 self.reporter_manager.get_local_reporter().start_scenario(scenario)
                 self.reporter_manager.get_local_reporter().add_log(f"Scenario started: {scenario_name}", "INFO")
-            except (AttributeError, RuntimeError) as e:
-                # Local reporter errors
-                self.logger.error(f"Failed to start scenario in local reporter: {e}", traceback=traceback.format_exc(), module=__name__, class_name="ScenarioHandler", method="start_scenario")
-            except Exception as e:  # pylint: disable=broad-exception-caught
-                # Catch-all for unexpected errors from local reporter
-                # NOTE: Local reporter may raise various exceptions we cannot predict
-                self.logger.error(f"Failed to start scenario in local reporter: {e}", traceback=traceback.format_exc(), module=__name__, class_name="ScenarioHandler", method="start_scenario")
+            self._call_local_reporter(_start_local)
 
         if self.reporter_manager.is_rp_enabled():
-            try:
-                # Pass tags and description to ReportPortal for advanced tag parsing
-                desc_text = '\n'.join(description) if isinstance(description, list) else description
-                self.reporter_manager.get_rp_client().start_test(scenario_name, "SCENARIO", tags, desc_text)
-            except (AttributeError, RuntimeError) as e:
-                # ReportPortal client errors
-                self.logger.error(f"Failed to start scenario in ReportPortal: {e}", traceback=traceback.format_exc(), module=__name__, class_name="ScenarioHandler", method="start_scenario")
-            except Exception as e:  # pylint: disable=broad-exception-caught
-                # Catch-all for unexpected errors from ReportPortal SDK
-                # NOTE: ReportPortal SDK may raise various exceptions we cannot predict
-                self.logger.error(f"Failed to start scenario in ReportPortal: {e}", traceback=traceback.format_exc(), module=__name__, class_name="ScenarioHandler", method="start_scenario")
+            desc_text = '\n'.join(description) if isinstance(description, list) else description
+            self._call_rp_client(
+                lambda: self.reporter_manager.get_rp_client().start_test(scenario_name, "SCENARIO", tags, desc_text)
+            )
 
     def end_scenario(self, scenario, status: str = None) -> None:
         """End scenario reporting.
@@ -70,27 +76,15 @@ class ScenarioHandler:
         self.logger.scenario_end(scenario_name, status_str, duration_ms)
 
         if self.reporter_manager.is_local_enabled():
-            try:
+            def _end_local():
                 self.reporter_manager.get_local_reporter().end_scenario(scenario, status_str)
                 self.reporter_manager.get_local_reporter().add_log(f"Scenario ended: {scenario_name} - Status: {status_str} - Duration: {duration_ms}ms", "INFO")
-            except (AttributeError, RuntimeError) as e:
-                # Local reporter errors
-                self.logger.error(f"Failed to finish scenario in local reporter: {e}", traceback=traceback.format_exc(), module=__name__, class_name="ScenarioHandler", method="end_scenario")
-            except Exception as e:  # pylint: disable=broad-exception-caught
-                # Catch-all for unexpected errors from local reporter
-                # NOTE: Local reporter may raise various exceptions we cannot predict
-                self.logger.error(f"Failed to finish scenario in local reporter: {e}", traceback=traceback.format_exc(), module=__name__, class_name="ScenarioHandler", method="end_scenario")
+            self._call_local_reporter(_end_local)
 
         # IMPORTANT: Finish test in ReportPortal AFTER attachments are added
         # test_id is kept even after finish_test() to allow attachments after finish
         if self.reporter_manager.is_rp_enabled():
-            try:
+            def _finish_rp():
                 self.reporter_manager.get_rp_client().finish_test(status_str)
                 self.logger.debug(f"Scenario finished in ReportPortal: {scenario_name} - {status_str}")
-            except (AttributeError, RuntimeError) as e:
-                # ReportPortal client errors
-                self.logger.error(f"Failed to finish scenario in ReportPortal: {e}", traceback=traceback.format_exc(), module=__name__, class_name="ScenarioHandler", method="end_scenario")
-            except Exception as e:  # pylint: disable=broad-exception-caught
-                # Catch-all for unexpected errors from ReportPortal SDK
-                # NOTE: ReportPortal SDK may raise various exceptions we cannot predict
-                self.logger.error(f"Failed to finish scenario in ReportPortal: {e}", traceback=traceback.format_exc(), module=__name__, class_name="ScenarioHandler", method="end_scenario")
+            self._call_rp_client(_finish_rp)
