@@ -1,6 +1,5 @@
 """Configuration loader for Nemesis."""
 import os
-import traceback
 from pathlib import Path
 from typing import Any, Dict, Optional
 
@@ -9,6 +8,7 @@ from configparser import ConfigParser
 from rich.console import Console
 
 from nemesis.infrastructure.logging import Logger
+from nemesis.utils.decorators.exception_handler import handle_exceptions_with_fallback
 
 from .defaults import get_default_config
 from .validator import ConfigValidator
@@ -88,150 +88,100 @@ class ConfigLoader:
         self._config_cache = config
         return config
 
+    @handle_exceptions_with_fallback(
+        log_level="warning",
+        specific_exceptions=(OSError, IOError, FileNotFoundError, yaml.YAMLError, UnicodeDecodeError),
+        specific_message="Failed to load playwright.yaml: {error}",
+        fallback_message="Failed to load playwright.yaml: {error}",
+        return_on_error={}
+    )
     def _load_playwright_config(self) -> Dict[str, Any]:
         """Load Playwright configuration."""
         config_file = self.config_dir / "playwright.yaml"
         if not config_file.exists():
             return {}
 
-        try:
-            with open(config_file, "r", encoding="utf-8") as f:
-                return yaml.safe_load(f) or {}
-        except (OSError, IOError, FileNotFoundError) as e:
-            # File I/O errors
-            LOGGER.warning(f"Failed to load playwright.yaml: {e}", traceback=traceback.format_exc(), module=__name__, class_name="ConfigLoader", method="_load_playwright_config", config_file=str(config_file))
-            console.print(f"[yellow]⚠ Failed to load playwright.yaml: {e}[/yellow]")
-            return {}
-        except (yaml.YAMLError, UnicodeDecodeError) as e:
-            # YAML parsing errors
-            LOGGER.warning(f"Failed to parse playwright.yaml: {e}", traceback=traceback.format_exc(), module=__name__, class_name="ConfigLoader", method="_load_playwright_config", config_file=str(config_file))
-            console.print(f"[yellow]⚠ Failed to load playwright.yaml: {e}[/yellow]")
-            return {}
-        except Exception as e:  # pylint: disable=broad-exception-caught
-            # Catch-all for unexpected errors
-            # NOTE: YAML library may raise various exceptions we cannot predict
-            LOGGER.warning(f"Failed to load playwright.yaml: {e}", traceback=traceback.format_exc(), module=__name__, class_name="ConfigLoader", method="_load_playwright_config", config_file=str(config_file))
-            console.print(f"[yellow]⚠ Failed to load playwright.yaml: {e}[/yellow]")
-            return {}
+        with open(config_file, "r", encoding="utf-8") as f:
+            return yaml.safe_load(f) or {}
 
+    @handle_exceptions_with_fallback(
+        log_level="warning",
+        specific_exceptions=(OSError, IOError, FileNotFoundError, yaml.YAMLError, UnicodeDecodeError),
+        specific_message="Failed to load reportportal.yaml: {error}",
+        fallback_message="Failed to load reportportal.yaml: {error}",
+        return_on_error={}
+    )
     def _load_reportportal_config(self) -> Dict[str, Any]:
         """Load ReportPortal configuration."""
         config_file = self.config_dir / "reportportal.yaml"
         if not config_file.exists():
             return {}
 
-        try:
-            with open(config_file, "r", encoding="utf-8") as f:
-                config = yaml.safe_load(f) or {}
-                # Apply environment variable substitution
-                config = self._substitute_env_vars(config)
-                return config
-        except (OSError, IOError, FileNotFoundError) as e:
-            # File I/O errors
-            LOGGER.warning(f"Failed to load reportportal.yaml: {e}", traceback=traceback.format_exc(), module=__name__, class_name="ConfigLoader", method="_load_reportportal_config", config_file=str(config_file))
-            console.print(f"[yellow]⚠ Failed to load reportportal.yaml: {e}[/yellow]")
-            return {}
-        except (yaml.YAMLError, UnicodeDecodeError) as e:
-            # YAML parsing errors
-            LOGGER.warning(f"Failed to parse reportportal.yaml: {e}", traceback=traceback.format_exc(), module=__name__, class_name="ConfigLoader", method="_load_reportportal_config", config_file=str(config_file))
-            console.print(f"[yellow]⚠ Failed to load reportportal.yaml: {e}[/yellow]")
-            return {}
-        except Exception as e:  # pylint: disable=broad-exception-caught
-            # Catch-all for unexpected errors
-            # NOTE: YAML library may raise various exceptions we cannot predict
-            LOGGER.warning(f"Failed to load reportportal.yaml: {e}", traceback=traceback.format_exc(), module=__name__, class_name="ConfigLoader", method="_load_reportportal_config", config_file=str(config_file))
-            console.print(f"[yellow]⚠ Failed to load reportportal.yaml: {e}[/yellow]")
-            return {}
+        with open(config_file, "r", encoding="utf-8") as f:
+            config = yaml.safe_load(f) or {}
+            # Apply environment variable substitution
+            config = self._substitute_env_vars(config)
+            return config
 
+    @handle_exceptions_with_fallback(
+        log_level="warning",
+        specific_exceptions=(OSError, IOError, FileNotFoundError, ValueError, TypeError),
+        specific_message="Failed to load behave.ini: {error}",
+        fallback_message="Failed to load behave.ini: {error}",
+        return_on_error={}
+    )
     def _load_behave_config(self) -> Dict[str, Any]:
         """Load Behave configuration from behave.ini."""
         config_file = self.config_dir / "behave.ini"
         if not config_file.exists():
             return {}
 
-        try:
-            parser = ConfigParser()
-            parser.read(config_file)
+        parser = ConfigParser()
+        parser.read(config_file)
 
-            config = {}
-            if parser.has_section("behave"):
-                config["behave"] = dict(parser.items("behave"))
-            if parser.has_section("behave.userdata"):
-                config["userdata"] = dict(parser.items("behave.userdata"))
-            if parser.has_section("report_portal"):
-                config["report_portal"] = dict(parser.items("report_portal"))
+        config = {}
+        if parser.has_section("behave"):
+            config["behave"] = dict(parser.items("behave"))
+        if parser.has_section("behave.userdata"):
+            config["userdata"] = dict(parser.items("behave.userdata"))
+        if parser.has_section("report_portal"):
+            config["report_portal"] = dict(parser.items("report_portal"))
 
-            return config
-        except (OSError, IOError, FileNotFoundError) as e:
-            # File I/O errors
-            LOGGER.warning(f"Failed to load behave.ini: {e}", traceback=traceback.format_exc(), module=__name__, class_name="ConfigLoader", method="_load_behave_config", config_file=str(config_file))
-            console.print(f"[yellow]⚠ Failed to load behave.ini: {e}[/yellow]")
-            return {}
-        except (ValueError, TypeError) as e:
-            # ConfigParser parsing errors
-            LOGGER.warning(f"Failed to parse behave.ini: {e}", traceback=traceback.format_exc(), module=__name__, class_name="ConfigLoader", method="_load_behave_config", config_file=str(config_file))
-            console.print(f"[yellow]⚠ Failed to load behave.ini: {e}[/yellow]")
-            return {}
-        except Exception as e:  # pylint: disable=broad-exception-caught
-            # Catch-all for unexpected errors
-            # NOTE: ConfigParser may raise various exceptions we cannot predict
-            LOGGER.warning(f"Failed to load behave.ini: {e}", traceback=traceback.format_exc(), module=__name__, class_name="ConfigLoader", method="_load_behave_config", config_file=str(config_file))
-            console.print(f"[yellow]⚠ Failed to load behave.ini: {e}[/yellow]")
-            return {}
+        return config
 
+    @handle_exceptions_with_fallback(
+        log_level="warning",
+        specific_exceptions=(OSError, IOError, FileNotFoundError, yaml.YAMLError, UnicodeDecodeError),
+        specific_message="Failed to load logging.yaml: {error}",
+        fallback_message="Failed to load logging.yaml: {error}",
+        return_on_error={}
+    )
     def _load_logging_config(self) -> Dict[str, Any]:
         """Load logging configuration."""
         config_file = self.config_dir / "logging.yaml"
         if not config_file.exists():
             return {}
 
-        try:
-            with open(config_file, "r", encoding="utf-8") as f:
-                config = yaml.safe_load(f) or {}
-                config = self._substitute_env_vars(config)
-                return config
-        except (OSError, IOError, FileNotFoundError) as e:
-            # File I/O errors
-            LOGGER.warning(f"Failed to load logging.yaml: {e}", traceback=traceback.format_exc(), module=__name__, class_name="ConfigLoader", method="_load_logging_config", config_file=str(config_file))
-            console.print(f"[yellow]⚠ Failed to load logging.yaml: {e}[/yellow]")
-            return {}
-        except (yaml.YAMLError, UnicodeDecodeError) as e:
-            # YAML parsing errors
-            LOGGER.warning(f"Failed to parse logging.yaml: {e}", traceback=traceback.format_exc(), module=__name__, class_name="ConfigLoader", method="_load_logging_config", config_file=str(config_file))
-            console.print(f"[yellow]⚠ Failed to load logging.yaml: {e}[/yellow]")
-            return {}
-        except Exception as e:  # pylint: disable=broad-exception-caught
-            # Catch-all for unexpected errors
-            # NOTE: YAML library may raise various exceptions we cannot predict
-            LOGGER.warning(f"Failed to load logging.yaml: {e}", traceback=traceback.format_exc(), module=__name__, class_name="ConfigLoader", method="_load_logging_config", config_file=str(config_file))
-            console.print(f"[yellow]⚠ Failed to load logging.yaml: {e}[/yellow]")
-            return {}
+        with open(config_file, "r", encoding="utf-8") as f:
+            config = yaml.safe_load(f) or {}
+            config = self._substitute_env_vars(config)
+            return config
 
+    @handle_exceptions_with_fallback(
+        log_level="warning",
+        specific_exceptions=(OSError, IOError, FileNotFoundError, yaml.YAMLError, UnicodeDecodeError),
+        specific_message="Failed to load reporting.yaml: {error}",
+        fallback_message="Failed to load reporting.yaml: {error}",
+        return_on_error={}
+    )
     def _load_reporting_config(self) -> Dict[str, Any]:
         """Load reporting configuration."""
         config_file = self.config_dir / "reporting.yaml"
         if not config_file.exists():
             return {}
 
-        try:
-            with open(config_file, "r", encoding="utf-8") as f:
-                return yaml.safe_load(f) or {}
-        except (OSError, IOError, FileNotFoundError) as e:
-            # File I/O errors
-            LOGGER.warning(f"Failed to load reporting.yaml: {e}", traceback=traceback.format_exc(), module=__name__, class_name="ConfigLoader", method="_load_reporting_config", config_file=str(config_file))
-            console.print(f"[yellow]⚠ Failed to load reporting.yaml: {e}[/yellow]")
-            return {}
-        except (yaml.YAMLError, UnicodeDecodeError) as e:
-            # YAML parsing errors
-            LOGGER.warning(f"Failed to parse reporting.yaml: {e}", traceback=traceback.format_exc(), module=__name__, class_name="ConfigLoader", method="_load_reporting_config", config_file=str(config_file))
-            console.print(f"[yellow]⚠ Failed to load reporting.yaml: {e}[/yellow]")
-            return {}
-        except Exception as e:  # pylint: disable=broad-exception-caught
-            # Catch-all for unexpected errors
-            # NOTE: YAML library may raise various exceptions we cannot predict
-            LOGGER.warning(f"Failed to load reporting.yaml: {e}", traceback=traceback.format_exc(), module=__name__, class_name="ConfigLoader", method="_load_reporting_config", config_file=str(config_file))
-            console.print(f"[yellow]⚠ Failed to load reporting.yaml: {e}[/yellow]")
-            return {}
+        with open(config_file, "r", encoding="utf-8") as f:
+            return yaml.safe_load(f) or {}
 
 
     def _substitute_env_vars(self, config: Any) -> Any:

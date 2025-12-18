@@ -12,6 +12,7 @@ from nemesis.shared.exceptions import CollectorError
 from nemesis.infrastructure.logging import Logger
 from nemesis.utils import get_path_manager
 from nemesis.utils.helpers.exception_helpers import ensure_directory_exists
+from nemesis.utils.decorators.exception_handler import handle_exceptions
 from .base_collector import BaseCollector
 
 
@@ -87,59 +88,55 @@ class ConsoleCollector(ICollector, BaseCollector):
             self.logger.error(f"Failed to setup console listener: {e}", traceback=traceback.format_exc(), module=__name__, class_name="ConsoleCollector", method="_setup_listener")
             raise CollectorError("Failed to setup console listener", str(e)) from e
 
+    @handle_exceptions(
+        log_level="debug",
+        catch_exceptions=(AttributeError, RuntimeError),
+        message_template="Failed to log console message: {error}"
+    )
     def _on_console_message(self, msg: ConsoleMessage) -> None:
         """Handle console message event."""
-        try:
-            msg_type = msg.type
-            msg_text = msg.text
+        msg_type = msg.type
+        msg_text = msg.text
 
-            # Check ignore patterns first
-            for pattern in self.ignore_patterns:
-                if pattern.search(msg_text):
-                    self.logger.debug(f"Ignoring console message by pattern: [{msg_type.upper()}] {msg_text[:100]}...")
-                    return
-
-            if msg_type not in self.filter_levels:
+        # Check ignore patterns first
+        for pattern in self.ignore_patterns:
+            if pattern.search(msg_text):
+                self.logger.debug(f"Ignoring console message by pattern: [{msg_type.upper()}] {msg_text[:100]}...")
                 return
 
-            # Check log limit with FIFO behavior
-            with self._lock:
-                # Remove oldest if at limit (FIFO)
-                if len(self.logs) >= self.MAX_LOGS:
-                    self.logs.pop(0)  # Remove oldest log
-                    if len(self.logs) == self.MAX_LOGS - 1:  # Log only once
-                        self.logger.warning(
-                            f"Console log limit reached ({self.MAX_LOGS}), "
-                            "using FIFO behavior"
-                        )
+        if msg_type not in self.filter_levels:
+            return
 
-                # Truncate long messages
-                text = msg_text
-                if len(text) > self.MAX_MESSAGE_LENGTH:
-                    text = text[:self.MAX_MESSAGE_LENGTH] + "... [truncated]"
+        # Check log limit with FIFO behavior
+        with self._lock:
+            # Remove oldest if at limit (FIFO)
+            if len(self.logs) >= self.MAX_LOGS:
+                self.logs.pop(0)  # Remove oldest log
+                if len(self.logs) == self.MAX_LOGS - 1:  # Log only once
+                    self.logger.warning(
+                        f"Console log limit reached ({self.MAX_LOGS}), "
+                        "using FIFO behavior"
+                    )
 
-                log_entry = {
-                    "type": msg_type,
-                    "text": text,
-                    "location": self._format_location(msg.location),
-                    "timestamp": self._get_timestamp(),
-                }
+            # Truncate long messages
+            text = msg_text
+            if len(text) > self.MAX_MESSAGE_LENGTH:
+                text = text[:self.MAX_MESSAGE_LENGTH] + "... [truncated]"
 
-                self.logs.append(log_entry)
+            log_entry = {
+                "type": msg_type,
+                "text": text,
+                "location": self._format_location(msg.location),
+                "timestamp": self._get_timestamp(),
+            }
 
-            # Log to framework logger
-            if msg_type == "error":
-                self.logger.error(f"Console Error: {text[:200]}")
-            elif msg_type == "warning":
-                self.logger.warning(f"Console Warning: {text[:200]}")
+            self.logs.append(log_entry)
 
-        except (AttributeError, RuntimeError) as e:
-            # Message processing errors - log but don't fail
-            self.logger.debug(f"Failed to log console message: {e}", traceback=traceback.format_exc(), module=__name__, class_name="ConsoleCollector", method="_on_console_message")
-        except KeyboardInterrupt:
-            raise
-        except SystemExit:
-            raise
+        # Log to framework logger
+        if msg_type == "error":
+            self.logger.error(f"Console Error: {text[:200]}")
+        elif msg_type == "warning":
+            self.logger.warning(f"Console Warning: {text[:200]}")
 
     def _format_location(self, location: dict[str, Any]) -> str:
         """Format location info as readable string."""
@@ -244,18 +241,15 @@ class ConsoleCollector(ICollector, BaseCollector):
             self.page.off("console", self._bound_handler)
             self._listener_active = False
 
+    @handle_exceptions(
+        log_level="debug",
+        catch_exceptions=(AttributeError, RuntimeError),
+        message_template="Error detaching console listener during dispose: {error}"
+    )
     def dispose(self) -> None:
         """Detach listeners and clear resources explicitly."""
-        try:
-            if self._listener_active:
-                self.page.off("console", self._bound_handler)
-        except (AttributeError, RuntimeError) as e:
-            # Playwright page event listener errors - ignore during cleanup
-            self.logger.debug(f"Error detaching console listener during dispose: {e}", module=__name__, class_name="ConsoleCollector", method="dispose")
-        except KeyboardInterrupt:
-            raise
-        except SystemExit:
-            raise
+        if self._listener_active:
+            self.page.off("console", self._bound_handler)
         self._listener_active = False
 
     # ICollector interface implementation

@@ -15,7 +15,8 @@ from .exceptions import (
     CollectorError,
 )
 from .execution_context import ExecutionContext
-from .directory_service import DirectoryService
+# DirectoryService removed from __init__ to avoid circular import
+# Import directly: from nemesis.shared.directory_service import DirectoryService
 
 __all__ = [
     # Exceptions
@@ -33,5 +34,5 @@ __all__ = [
     "CollectorError",
     # Utilities
     "ExecutionContext",
-    "DirectoryService",
+    # DirectoryService excluded - import directly to avoid circular dependency
 ]
