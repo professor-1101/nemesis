@@ -3,6 +3,7 @@ import traceback
 from typing import Any, TYPE_CHECKING
 
 from nemesis.infrastructure.logging import Logger
+from nemesis.utils.decorators.exception_handler import handle_exceptions_with_fallback
 
 # Import hooks from specialized modules
 from .feature_hooks import before_feature, after_feature
@@ -71,36 +72,31 @@ def before_all(context: Any) -> None:
         raise
 
 
+@handle_exceptions_with_fallback(
+    logger=LOGGER,
+    log_level="warning",
+    specific_exceptions=(AttributeError, RuntimeError),
+    specific_message="Error in after_all: {error}",
+    fallback_message="Error in after_all: {error}"
+)
 def after_all(context: Any) -> None:
     """Cleanup after all tests.
 
     Args:
         context: Behave context object
     """
-    try:
-        LOGGER.info("Ending Nemesis test suite...")
+    LOGGER.info("Ending Nemesis test suite...")
 
-        # Determine final status
-        status = "completed"
-        if hasattr(context, 'test_failed') and context.test_failed:
-            status = "failed"
+    # Determine final status
+    status = "completed"
+    if hasattr(context, 'test_failed') and context.test_failed:
+        status = "failed"
 
-        # Teardown environment
-        env_manager = _get_env_manager()
-        env_manager.teardown_environment(context, status)
+    # Teardown environment
+    env_manager = _get_env_manager()
+    env_manager.teardown_environment(context, status)
 
-        LOGGER.info(f"Test suite completed with status: {status}")
-
-    except (KeyboardInterrupt, SystemExit):
-        # Always re-raise these to allow proper program termination
-        raise
-    except (AttributeError, RuntimeError) as e:
-        # Environment teardown errors - log but don't fail
-        LOGGER.warning(f"Error in after_all: {e}", traceback=traceback.format_exc(), module=__name__, function="after_all")
-    except Exception as e:  # pylint: disable=broad-exception-caught
-        # Catch-all for unexpected errors from Behave or environment teardown
-        # NOTE: Behave framework may raise various exceptions we cannot predict
-        LOGGER.warning(f"Error in after_all: {e}", traceback=traceback.format_exc(), module=__name__, function="after_all")
+    LOGGER.info(f"Test suite completed with status: {status}")
 
 
 # Re-export hooks from specialized modules for Behave to discover

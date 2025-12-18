@@ -3,6 +3,7 @@ import traceback
 from typing import Any
 
 from nemesis.infrastructure.logging import Logger
+from nemesis.utils.decorators.exception_handler import handle_exceptions_with_fallback
 
 
 LOGGER = Logger.get_instance({})
@@ -63,6 +64,13 @@ def before_scenario(context: Any, scenario: Any) -> None:
             scenario.skip(f"Setup failed: {e}")
 
 
+@handle_exceptions_with_fallback(
+    logger=LOGGER,
+    log_level="warning",
+    specific_exceptions=(AttributeError, RuntimeError),
+    specific_message="Error in after_scenario: {error}",
+    fallback_message="Error in after_scenario: {error}"
+)
 def after_scenario(context: Any, scenario: Any) -> None:
     """After each scenario.
 
@@ -70,44 +78,30 @@ def after_scenario(context: Any, scenario: Any) -> None:
         context: Behave context object
         scenario: Behave scenario object
     """
-    try:
-        # Lazy import to avoid circular dependency
-        from .environment_manager import EnvironmentCoordinator  # pylint: disable=import-outside-toplevel
+    # Lazy import to avoid circular dependency
+    from .environment_manager import EnvironmentCoordinator  # pylint: disable=import-outside-toplevel
 
-        env_manager = context.env_manager if hasattr(context, 'env_manager') else EnvironmentCoordinator()
+    env_manager = context.env_manager if hasattr(context, 'env_manager') else EnvironmentCoordinator()
 
-        # Determine scenario status
-        status = "passed"
-        if scenario.status == 'failed':
-            status = "failed"
-            context.test_failed = True
+    # Determine scenario status
+    status = "passed"
+    if scenario.status == 'failed':
+        status = "failed"
+        context.test_failed = True
 
-        # Check if browser crashed during scenario
-        if hasattr(context, 'browser_crashed') and context.browser_crashed:
-            status = "failed"
-            context.test_failed = True
-            LOGGER.warning(f"Browser crashed during scenario: {scenario.name}")
+    # Check if browser crashed during scenario
+    if hasattr(context, 'browser_crashed') and context.browser_crashed:
+        status = "failed"
+        context.test_failed = True
+        LOGGER.warning(f"Browser crashed during scenario: {scenario.name}")
 
-        # Stop browser for scenario (graceful - only if started)
-        env_manager.browser_env.stop_browser_for_scenario(context, scenario, status)
+    # Stop browser for scenario (graceful - only if started)
+    env_manager.browser_env.stop_browser_for_scenario(context, scenario, status)
 
-        # End scenario reporting
-        env_manager.reporting_env.end_scenario(context, scenario, status)
+    # End scenario reporting
+    env_manager.reporting_env.end_scenario(context, scenario, status)
 
-        # Log scenario end
-        env_manager.logger_env.log_scenario_end(context, scenario, status)
+    # Log scenario end
+    env_manager.logger_env.log_scenario_end(context, scenario, status)
 
-        LOGGER.info(f"Scenario completed: {scenario.name} (status: {status})")
-
-    except (KeyboardInterrupt, SystemExit):
-        # Always re-raise these to allow proper program termination
-        raise
-    except (AttributeError, RuntimeError) as e:
-        # Scenario teardown errors - log but continue
-        LOGGER.warning(f"Error in after_scenario: {e}", traceback=traceback.format_exc(), module=__name__, function="after_scenario")
-        # Don't mark browser as crashed here - scenario is ending anyway
-    except Exception as e:  # pylint: disable=broad-exception-caught
-        # Catch-all for unexpected errors from Behave or environment
-        # NOTE: Behave framework may raise various exceptions we cannot predict
-        LOGGER.warning(f"Error in after_scenario: {e}", traceback=traceback.format_exc(), module=__name__, function="after_scenario")
-        # Don't mark browser as crashed here - scenario is ending anyway
+    LOGGER.info(f"Scenario completed: {scenario.name} (status: {status})")
