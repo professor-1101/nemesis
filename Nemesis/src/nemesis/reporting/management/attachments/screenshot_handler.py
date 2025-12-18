@@ -3,11 +3,11 @@
 from nemesis.infrastructure.logging import Logger
 
 
-class ScreenshotManager:
-    """Manages screenshot attachments."""
+class ScreenshotHandler:
+    """Handles screenshot attachments."""
 
     def __init__(self, reporter_manager, execution_manager):
-        """Initialize screenshot manager."""
+        """Initialize screenshot handler."""
         self.logger = Logger.get_instance({})
         self.reporter_manager = reporter_manager
         self.execution_manager = execution_manager

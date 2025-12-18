@@ -37,7 +37,7 @@ class VideoProcessingService:
         Convert all WebM videos in directory to MP4.
 
         This ensures videos are converted for BOTH local storage AND ReportPortal.
-        Videos converted here will be in MP4 format when VideoManager.attach_video()
+        Videos converted here will be in MP4 format when VideoHandler.attach_video()
         is called, or will be ready for direct RP upload.
 
         Args:

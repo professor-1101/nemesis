@@ -8,11 +8,11 @@ from nemesis.infrastructure.logging import Logger
 from nemesis.shared.execution_context import ExecutionContext
 
 
-class ExecutionManager:
-    """Manages execution directory and ID with config-driven structure."""
+class ExecutionHandler:
+    """Handles execution directory and ID with config-driven structure."""
 
     def __init__(self, config: ConfigLoader):
-        """Initialize execution manager.
+        """Initialize execution handler.
 
         Args:
             config: Centralized config loader

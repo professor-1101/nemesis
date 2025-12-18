@@ -4,7 +4,7 @@ from typing import Any, Optional
 
 from nemesis.infrastructure.config import ConfigLoader
 from nemesis.infrastructure.logging import Logger
-from nemesis.reporting.manager import ReportManager
+from nemesis.reporting.coordinator import ReportCoordinator
 from nemesis.reporting.attachments import AttachmentHandler
 from nemesis.infrastructure.environment.scenario_attachment_handler import ScenarioAttachmentHandler
 
@@ -20,7 +20,7 @@ class ReportingEnvironment:
         """
         self.config = config
         self.logger = Logger.get_instance({})
-        self.report_manager: Optional[ReportManager] = None
+        self.report_manager: Optional[ReportCoordinator] = None
         self.attachment_handler: Optional[AttachmentHandler] = None
         self.attachment_handler_instance: Optional[ScenarioAttachmentHandler] = None
 
@@ -42,7 +42,7 @@ class ReportingEnvironment:
                 return True
 
             # Initialize report manager
-            self.report_manager = ReportManager(context)
+            self.report_manager = ReportCoordinator(context)
             context.report_manager = self.report_manager
 
             # Initialize attachment handler
@@ -60,12 +60,12 @@ class ReportingEnvironment:
         except SystemExit:
             raise
         except (AttributeError, RuntimeError, ImportError) as e:
-            # ReportManager or AttachmentHandler initialization errors
+            # ReportCoordinator or AttachmentHandler initialization errors
             self.logger.warning(f"Reporting environment setup failed: {e}", traceback=traceback.format_exc(), module=__name__, class_name="ReportingEnvironment", method="setup")
             return False
         except Exception as e:  # pylint: disable=broad-exception-caught
-            # Catch-all for unexpected errors from ReportManager initialization
-            # NOTE: ReportManager or AttachmentHandler may raise various exceptions we cannot predict
+            # Catch-all for unexpected errors from ReportCoordinator initialization
+            # NOTE: ReportCoordinator or AttachmentHandler may raise various exceptions we cannot predict
             self.logger.warning(f"Reporting environment setup failed: {e}", traceback=traceback.format_exc(), module=__name__, class_name="ReportingEnvironment", method="setup")
             return False
 
@@ -81,7 +81,7 @@ class ReportingEnvironment:
 
             # Finalize reports
             if self.report_manager:
-                # Note: ReportManager has finalize() method, not finalize_reports()
+                # Note: ReportCoordinator has finalize() method, not finalize_reports()
                 # Finalization happens in CLI _finalize_reports(), not here
                 pass
 
@@ -92,7 +92,7 @@ class ReportingEnvironment:
             self.logger.error(f"Error during reporting teardown: {e}", traceback=traceback.format_exc(), module=__name__, class_name="ReportingEnvironment", method="teardown")
         except Exception as e:  # pylint: disable=broad-exception-caught
             # Catch-all for unexpected errors from reporting teardown operations
-            # NOTE: ReportManager teardown may raise various exceptions we cannot predict
+            # NOTE: ReportCoordinator teardown may raise various exceptions we cannot predict
             self.logger.error(f"Error during reporting teardown: {e}", traceback=traceback.format_exc(), module=__name__, class_name="ReportingEnvironment", method="teardown")
 
     def start_test_suite(self, _context: Any) -> None:
@@ -110,7 +110,7 @@ class ReportingEnvironment:
             # ReportPortal or local reporter API errors
             self.logger.warning(f"Error starting test suite reporting: {e}", traceback=traceback.format_exc(), module=__name__, class_name="ReportingEnvironment", method="start_test_suite")
         except Exception as e:  # pylint: disable=broad-exception-caught
-            # Catch-all for unexpected errors from ReportManager.start_test_suite
+            # Catch-all for unexpected errors from ReportCoordinator.start_test_suite
             # NOTE: ReportPortal SDK may raise various exceptions we cannot predict
             self.logger.warning(f"Error starting test suite reporting: {e}", traceback=traceback.format_exc(), module=__name__, class_name="ReportingEnvironment", method="start_test_suite")
 
@@ -130,7 +130,7 @@ class ReportingEnvironment:
             # ReportPortal or local reporter API errors
             self.logger.warning(f"Error ending test suite reporting: {e}", traceback=traceback.format_exc(), module=__name__, class_name="ReportingEnvironment", method="end_test_suite")
         except Exception as e:  # pylint: disable=broad-exception-caught
-            # Catch-all for unexpected errors from ReportManager.end_test_suite
+            # Catch-all for unexpected errors from ReportCoordinator.end_test_suite
             # NOTE: ReportPortal SDK may raise various exceptions we cannot predict
             self.logger.warning(f"Error ending test suite reporting: {e}", traceback=traceback.format_exc(), module=__name__, class_name="ReportingEnvironment", method="end_test_suite")
 
@@ -150,7 +150,7 @@ class ReportingEnvironment:
             # ReportPortal or local reporter API errors
             self.logger.warning(f"Error starting feature reporting: {e}", traceback=traceback.format_exc(), module=__name__, class_name="ReportingEnvironment", method="start_feature")
         except Exception as e:  # pylint: disable=broad-exception-caught
-            # Catch-all for unexpected errors from ReportManager.start_feature
+            # Catch-all for unexpected errors from ReportCoordinator.start_feature
             # NOTE: ReportPortal SDK may raise various exceptions we cannot predict
             self.logger.warning(f"Error starting feature reporting: {e}", traceback=traceback.format_exc(), module=__name__, class_name="ReportingEnvironment", method="start_feature")
 
@@ -171,7 +171,7 @@ class ReportingEnvironment:
             # ReportPortal or local reporter API errors
             self.logger.warning(f"Error ending feature reporting: {e}", traceback=traceback.format_exc(), module=__name__, class_name="ReportingEnvironment", method="end_feature")
         except Exception as e:  # pylint: disable=broad-exception-caught
-            # Catch-all for unexpected errors from ReportManager.end_feature
+            # Catch-all for unexpected errors from ReportCoordinator.end_feature
             # NOTE: ReportPortal SDK may raise various exceptions we cannot predict
             self.logger.warning(f"Error ending feature reporting: {e}", traceback=traceback.format_exc(), module=__name__, class_name="ReportingEnvironment", method="end_feature")
 
@@ -193,7 +193,7 @@ class ReportingEnvironment:
             # ReportPortal or local reporter API errors
             self.logger.warning(f"Error starting scenario reporting: {e}", traceback=traceback.format_exc(), module=__name__, class_name="ReportingEnvironment", method="start_scenario")
         except Exception as e:  # pylint: disable=broad-exception-caught
-            # Catch-all for unexpected errors from ReportManager.start_scenario
+            # Catch-all for unexpected errors from ReportCoordinator.start_scenario
             # NOTE: ReportPortal SDK may raise various exceptions we cannot predict
             self.logger.warning(f"Error starting scenario reporting: {e}", traceback=traceback.format_exc(), module=__name__, class_name="ReportingEnvironment", method="start_scenario")
 
@@ -248,7 +248,7 @@ class ReportingEnvironment:
             # ReportPortal or local reporter API errors
             self.logger.warning(f"Error ending scenario reporting: {e}", traceback=traceback.format_exc(), module=__name__, class_name="ReportingEnvironment", method="end_scenario")
         except Exception as e:  # pylint: disable=broad-exception-caught
-            # Catch-all for unexpected errors from ReportManager.end_scenario
+            # Catch-all for unexpected errors from ReportCoordinator.end_scenario
             # NOTE: ReportPortal SDK may raise various exceptions we cannot predict
             self.logger.warning(f"Error ending scenario reporting: {e}", traceback=traceback.format_exc(), module=__name__, class_name="ReportingEnvironment", method="end_scenario")
 
@@ -267,7 +267,7 @@ class ReportingEnvironment:
             # ReportPortal or local reporter API errors
             self.logger.warning(f"Error starting step reporting: {e}", traceback=traceback.format_exc(), module=__name__, class_name="ReportingEnvironment", method="start_step")
         except Exception as e:  # pylint: disable=broad-exception-caught
-            # Catch-all for unexpected errors from ReportManager.start_step
+            # Catch-all for unexpected errors from ReportCoordinator.start_step
             # NOTE: ReportPortal SDK may raise various exceptions we cannot predict
             self.logger.warning(f"Error starting step reporting: {e}", traceback=traceback.format_exc(), module=__name__, class_name="ReportingEnvironment", method="start_step")
 
@@ -287,10 +287,10 @@ class ReportingEnvironment:
             # ReportPortal or local reporter API errors
             self.logger.warning(f"Error ending step reporting: {e}", traceback=traceback.format_exc(), module=__name__, class_name="ReportingEnvironment", method="end_step")
         except Exception as e:  # pylint: disable=broad-exception-caught
-            # Catch-all for unexpected errors from ReportManager.end_step
+            # Catch-all for unexpected errors from ReportCoordinator.end_step
             # NOTE: ReportPortal SDK may raise various exceptions we cannot predict
             self.logger.warning(f"Error ending step reporting: {e}", traceback=traceback.format_exc(), module=__name__, class_name="ReportingEnvironment", method="end_step")
 
-    def get_report_manager(self) -> Optional[ReportManager]:
+    def get_report_manager(self) -> Optional[ReportCoordinator]:
         """Get report manager instance."""
         return self.report_manager

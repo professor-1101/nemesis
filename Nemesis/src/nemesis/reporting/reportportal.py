@@ -6,12 +6,12 @@ from nemesis.infrastructure.config import ConfigLoader
 from nemesis.infrastructure.logging import Logger
 from .report_portal.rp_config_loader import RPConfigLoader
 from .report_portal.rp_client_base import RPClientBase
-from .report_portal.rp_launch_manager import RPLaunchManager
-from .report_portal.rp_feature_manager import RPFeatureManager
-from .report_portal.rp_test_manager import RPTestManager
-from .report_portal.rp_step_manager import RPStepManager
+from .report_portal.rp_launch_coordinator import RPLaunchCoordinator
+from .report_portal.rp_feature_handler import RPFeatureHandler
+from .report_portal.rp_test_handler import RPTestHandler
+from .report_portal.rp_step_handler import RPStepHandler
 from .report_portal.rp_logger import RPLogger
-from .report_portal.rp_attachment_manager import RPAttachmentManager
+from .report_portal.rp_attachment_handler import RPAttachmentHandler
 
 class ReportPortalClient:
     """ReportPortal client with BDD-optimized formatting."""
@@ -43,28 +43,28 @@ class ReportPortalClient:
         )
         self.rp_client_base._validate_connection() # Initial connection validation
 
-        self.rp_launch_manager = RPLaunchManager(
+        self.rp_launch_manager = RPLaunchCoordinator(
             rp_client_base=self.rp_client_base,
             launch_name=rp_settings["launch_name"],
             launch_description=rp_settings["launch_description"],
             launch_attributes=rp_settings["launch_attributes"],
             debug_mode=rp_settings.get("debug_mode", False),
         )
-        self.rp_feature_manager = RPFeatureManager(self.rp_client_base, self.rp_launch_manager)
-        self.rp_test_manager = RPTestManager(
+        self.rp_feature_manager = RPFeatureHandler(self.rp_client_base, self.rp_launch_manager)
+        self.rp_test_manager = RPTestHandler(
             self.rp_client_base,
             self.rp_launch_manager,
             self.rp_feature_manager,
             is_skipped_an_issue=rp_settings.get("is_skipped_an_issue", False)
         )
-        self.rp_step_manager = RPStepManager(
+        self.rp_step_manager = RPStepHandler(
             self.rp_client_base,
             self.rp_launch_manager,
             self.rp_test_manager,
             rp_settings.get("step_log_layout", "NESTED")
         )
         self.rp_logger = RPLogger(self.rp_client_base, self.rp_launch_manager, self.rp_feature_manager, self.rp_test_manager, self.rp_step_manager)
-        self.rp_attachment_manager = RPAttachmentManager(self.rp_client_base, self.rp_launch_manager, self.rp_feature_manager, self.rp_test_manager, self.rp_step_manager)
+        self.rp_attachment_manager = RPAttachmentHandler(self.rp_client_base, self.rp_launch_manager, self.rp_feature_manager, self.rp_test_manager, self.rp_step_manager)
 
         # Only start launch if not already started (check RPClient internal state)
         # RPClient may already have a launch_id from a previous initialization

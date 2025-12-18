@@ -4,8 +4,8 @@ from pathlib import Path
 from .base_handler import BaseAttachmentHandler
 
 
-class MetricsManager(BaseAttachmentHandler):
-    """Manages metrics attachments."""
+class MetricsHandler(BaseAttachmentHandler):
+    """Handles metrics attachments."""
 
     def attach_metrics(self, metrics_path: Path, metric_type: str) -> None:
         """Attach metrics file (local storage + optional ReportPortal upload)."""
@@ -27,25 +27,25 @@ class MetricsManager(BaseAttachmentHandler):
                 self._store_attachment_locally(metrics_path, metric_type_clean + "s")
         except (AttributeError, RuntimeError) as e:
             # Local reporter API errors - non-critical
-            self.logger.debug(f"Failed to handle local metrics attachment - API error: {e}", traceback=traceback.format_exc(), module=__name__, class_name="MetricsManager", method="attach_metrics")
+            self.logger.debug(f"Failed to handle local metrics attachment - API error: {e}", traceback=traceback.format_exc(), module=__name__, class_name="MetricsHandler", method="attach_metrics")
         except (OSError, IOError) as e:
             # File I/O errors from _store_attachment_locally (re-raised)
-            self.logger.debug(f"Failed to handle local metrics attachment - I/O error: {e}", traceback=traceback.format_exc(), module=__name__, class_name="MetricsManager", method="attach_metrics")
+            self.logger.debug(f"Failed to handle local metrics attachment - I/O error: {e}", traceback=traceback.format_exc(), module=__name__, class_name="MetricsHandler", method="attach_metrics")
         except Exception as e:  # pylint: disable=broad-exception-caught
             # Catch-all for unexpected errors from local reporter or file operations
             # NOTE: Local reporter or file operations may raise various exceptions we cannot predict
-            self.logger.debug(f"Failed to handle local metrics attachment: {e}", traceback=traceback.format_exc(), module=__name__, class_name="MetricsManager", method="attach_metrics")
+            self.logger.debug(f"Failed to handle local metrics attachment: {e}", traceback=traceback.format_exc(), module=__name__, class_name="MetricsHandler", method="attach_metrics")
 
         if self.reporter_manager.is_rp_enabled():
             try:
                 self.reporter_manager.get_rp_client().attach_file(metrics_path, desc, "metrics")
             except (AttributeError, RuntimeError) as e:
                 # ReportPortal attachment API errors - non-critical
-                self.logger.debug(f"Failed to attach metrics to ReportPortal - API error: {e}", traceback=traceback.format_exc(), module=__name__, class_name="MetricsManager", method="attach_metrics")
+                self.logger.debug(f"Failed to attach metrics to ReportPortal - API error: {e}", traceback=traceback.format_exc(), module=__name__, class_name="MetricsHandler", method="attach_metrics")
             except Exception as e:  # pylint: disable=broad-exception-caught
                 # Catch-all for unexpected errors from ReportPortal SDK
                 # NOTE: ReportPortal SDK may raise various exceptions we cannot predict
-                self.logger.debug(f"Failed to attach metrics to ReportPortal: {e}", traceback=traceback.format_exc(), module=__name__, class_name="MetricsManager", method="attach_metrics")
+                self.logger.debug(f"Failed to attach metrics to ReportPortal: {e}", traceback=traceback.format_exc(), module=__name__, class_name="MetricsHandler", method="attach_metrics")
 
     def attach_file(self, file_path: Path, description: str = "", attachment_type: str = "") -> None:
         """Attach file to reports with optional attachment_type for filtering.
@@ -76,11 +76,11 @@ class MetricsManager(BaseAttachmentHandler):
                 self.reporter_manager.get_rp_client().attach_file(file_path, description, attachment_type)
             except (AttributeError, RuntimeError) as e:
                 # ReportPortal attachment API errors - non-critical
-                self.logger.debug(f"Failed to attach file to RP - API error: {e}", traceback=traceback.format_exc(), module=__name__, class_name="MetricsManager", method="attach_file")
+                self.logger.debug(f"Failed to attach file to RP - API error: {e}", traceback=traceback.format_exc(), module=__name__, class_name="MetricsHandler", method="attach_file")
             except Exception as e:  # pylint: disable=broad-exception-caught
                 # Catch-all for unexpected errors from ReportPortal SDK
                 # NOTE: ReportPortal SDK may raise various exceptions we cannot predict
-                self.logger.debug(f"Failed to attach file to RP: {e}", traceback=traceback.format_exc(), module=__name__, class_name="MetricsManager", method="attach_file")
+                self.logger.debug(f"Failed to attach file to RP: {e}", traceback=traceback.format_exc(), module=__name__, class_name="MetricsHandler", method="attach_file")
 
     def log_message(self, message: str, level: str = "INFO") -> None:
         """Log message to reports."""
@@ -89,19 +89,19 @@ class MetricsManager(BaseAttachmentHandler):
                 self.reporter_manager.get_local_reporter().add_log(message, level)
             except (AttributeError, RuntimeError) as e:
                 # Local reporter API errors - non-critical
-                self.logger.debug(f"Failed to add log to local reporter: {e}", traceback=traceback.format_exc(), module=__name__, class_name="MetricsManager", method="log_message")
+                self.logger.debug(f"Failed to add log to local reporter: {e}", traceback=traceback.format_exc(), module=__name__, class_name="MetricsHandler", method="log_message")
             except Exception as e:  # pylint: disable=broad-exception-caught
                 # Catch-all for unexpected errors from local reporter
                 # NOTE: LocalReporter.add_log may raise various exceptions we cannot predict
-                self.logger.debug(f"Failed to add log to local reporter: {e}", traceback=traceback.format_exc(), module=__name__, class_name="MetricsManager", method="log_message")
+                self.logger.debug(f"Failed to add log to local reporter: {e}", traceback=traceback.format_exc(), module=__name__, class_name="MetricsHandler", method="log_message")
 
         if self.reporter_manager.is_rp_enabled():
             try:
                 self.reporter_manager.get_rp_client().log_message(message, level)
             except (AttributeError, RuntimeError) as e:
                 # ReportPortal API errors - non-critical
-                self.logger.debug(f"Failed to log message to RP - API error: {e}", traceback=traceback.format_exc(), module=__name__, class_name="MetricsManager", method="log_message")
+                self.logger.debug(f"Failed to log message to RP - API error: {e}", traceback=traceback.format_exc(), module=__name__, class_name="MetricsHandler", method="log_message")
             except Exception as e:  # pylint: disable=broad-exception-caught
                 # Catch-all for unexpected errors from ReportPortal SDK
                 # NOTE: ReportPortal SDK may raise various exceptions we cannot predict
-                self.logger.debug(f"Failed to log message to RP: {e}", traceback=traceback.format_exc(), module=__name__, class_name="MetricsManager", method="log_message")
+                self.logger.debug(f"Failed to log message to RP: {e}", traceback=traceback.format_exc(), module=__name__, class_name="MetricsHandler", method="log_message")

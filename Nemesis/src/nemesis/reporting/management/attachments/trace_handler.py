@@ -4,8 +4,8 @@ from pathlib import Path
 from .base_handler import BaseAttachmentHandler
 
 
-class TraceManager(BaseAttachmentHandler):
-    """Manages trace attachments."""
+class TraceHandler(BaseAttachmentHandler):
+    """Handles trace attachments."""
 
     def attach_trace(self, trace_path: Path) -> None:
         """Attach a Playwright trace (local storage + optional ReportPortal upload)."""

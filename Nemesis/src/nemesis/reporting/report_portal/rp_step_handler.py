@@ -8,12 +8,12 @@ from reportportal_client import RPClient
 from nemesis.utils.decorators import retry, safe_execute
 from nemesis.infrastructure.logging import Logger
 from .rp_client_base import RPClientBase
-from .rp_launch_manager import RPLaunchManager
-from .rp_test_manager import RPTestManager
+from .rp_launch_coordinator import RPLaunchCoordinator
+from .rp_test_handler import RPTestHandler
 from .rp_utils import RPUtils
 
-class RPStepManager:
-    """Manages ReportPortal step lifecycle within tests.
+class RPStepHandler:
+    """Handles ReportPortal step lifecycle within tests.
 
     Handles starting and finishing steps (BDD steps) within test scenarios,
     maintaining step hierarchy for detailed test execution tracking.
@@ -26,8 +26,8 @@ class RPStepManager:
     def __init__(
         self,
         rp_client_base: RPClientBase,
-        rp_launch_manager: RPLaunchManager,
-        rp_test_manager: RPTestManager,
+        rp_launch_manager: RPLaunchCoordinator,
+        rp_test_manager: RPTestHandler,
         step_log_layout: str = "NESTED"
     ) -> None:
         """Initialize ReportPortal step manager.
@@ -46,7 +46,7 @@ class RPStepManager:
         self.step_id: str | None = None
         self.step_log_layout = step_log_layout.upper()
 
-        self.logger.info(f"RPStepManager initialized with layout: {self.step_log_layout}")
+        self.logger.info(f"RPStepHandler initialized with layout: {self.step_log_layout}")
 
     def should_create_step_item(self) -> bool:
         """Check if step should be created as test item based on layout.

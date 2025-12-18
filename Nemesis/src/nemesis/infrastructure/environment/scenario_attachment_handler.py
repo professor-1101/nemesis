@@ -5,13 +5,13 @@ from typing import Any, Optional
 
 from nemesis.infrastructure.logging import Logger
 from nemesis.infrastructure.environment.collector_content_logger import CollectorContentLogger
-from nemesis.reporting.manager import ReportManager
+from nemesis.reporting.coordinator import ReportCoordinator
 
 
 class ScenarioAttachmentHandler:
     """Handles attachment of videos and collector data for scenarios."""
 
-    def __init__(self, report_manager: Optional[ReportManager]) -> None:
+    def __init__(self, report_manager: Optional[ReportCoordinator]) -> None:
         """Initialize scenario attachment handler.
 
         Args:

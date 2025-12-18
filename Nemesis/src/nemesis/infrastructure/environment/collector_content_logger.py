@@ -5,13 +5,13 @@ from pathlib import Path
 from typing import Optional
 
 from nemesis.infrastructure.logging import Logger
-from nemesis.reporting.manager import ReportManager
+from nemesis.reporting.coordinator import ReportCoordinator
 
 
 class CollectorContentLogger:
     """Logs collector file contents to ReportPortal for filtering and dashboards."""
 
-    def __init__(self, report_manager: Optional[ReportManager]) -> None:
+    def __init__(self, report_manager: Optional[ReportCoordinator]) -> None:
         """Initialize collector content logger.
 
         Args:

@@ -3,10 +3,10 @@
 from reportportal_client import RPClient
 from nemesis.infrastructure.logging import Logger
 from .rp_client_base import RPClientBase
-from .rp_launch_manager import RPLaunchManager
-from .rp_feature_manager import RPFeatureManager
-from .rp_test_manager import RPTestManager
-from .rp_step_manager import RPStepManager
+from .rp_launch_coordinator import RPLaunchCoordinator
+from .rp_feature_handler import RPFeatureHandler
+from .rp_test_handler import RPTestHandler
+from .rp_step_handler import RPStepHandler
 
 
 class RPBaseHandler:
@@ -19,10 +19,10 @@ class RPBaseHandler:
     def __init__(
         self,
         rp_client_base: RPClientBase,
-        rp_launch_manager: RPLaunchManager,
-        rp_feature_manager: RPFeatureManager,
-        rp_test_manager: RPTestManager,
-        rp_step_manager: RPStepManager
+        rp_launch_manager: RPLaunchCoordinator,
+        rp_feature_manager: RPFeatureHandler,
+        rp_test_manager: RPTestHandler,
+        rp_step_manager: RPStepHandler
     ) -> None:
         """Initialize base manager with shared dependencies.
 

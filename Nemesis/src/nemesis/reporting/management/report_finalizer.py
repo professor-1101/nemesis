@@ -9,11 +9,11 @@ from rich.console import Console
 from nemesis.infrastructure.logging import Logger
 
 
-class FinalizationManager:
-    """Manages report finalization."""
+class ReportFinalizer:
+    """Finalizes and completes reporting activities."""
 
     def __init__(self, reporter_manager, execution_manager):
-        """Initialize finalization manager."""
+        """Initialize report finalizer."""
         self.logger = Logger.get_instance({})
         self.reporter_manager = reporter_manager
         self.execution_manager = execution_manager
@@ -22,8 +22,8 @@ class FinalizationManager:
         """Finalize all reporting."""
         console = Console()
         
-        self.logger.info("FinalizationManager.finalize() called")
-        Logger.get_instance({}).info("[DEBUG] FinalizationManager.finalize() called")
+        self.logger.info("ReportFinalizer.finalize() called")
+        Logger.get_instance({}).info("[DEBUG] ReportFinalizer.finalize() called")
 
         # Print step message in CLI style (independent of CLI module)
         console.Logger.get_instance({}).info("[dark_orange]→[/dark_orange] Finalizing reports...")
@@ -52,11 +52,11 @@ class FinalizationManager:
                     Logger.get_instance({}).info("[DEBUG] Local reporter is None, cannot generate report")
             except (AttributeError, RuntimeError, OSError, IOError) as e:
                 # Local report generation errors
-                self.logger.error(f"Failed to generate local report: {e}", traceback=traceback.format_exc(), module=__name__, class_name="FinalizationManager", method="finalize")
+                self.logger.error(f"Failed to generate local report: {e}", traceback=traceback.format_exc(), module=__name__, class_name="ReportFinalizer", method="finalize")
             except Exception as e:  # pylint: disable=broad-exception-caught
                 # Catch-all for unexpected errors from local reporter
                 # NOTE: Local reporter may raise various exceptions we cannot predict
-                self.logger.error(f"Failed to generate local report: {e}", traceback=traceback.format_exc(), module=__name__, class_name="FinalizationManager", method="finalize")
+                self.logger.error(f"Failed to generate local report: {e}", traceback=traceback.format_exc(), module=__name__, class_name="ReportFinalizer", method="finalize")
         else:
             self.logger.info("Local reporting disabled, skipping HTML report generation")
 
@@ -77,11 +77,11 @@ class FinalizationManager:
                                 self.logger.info(f"Retrieved launch_id from EnvironmentCoordinator: {launch_id}")
                         except (AttributeError, ImportError) as get_error:
                             # Non-critical: failed to get launch_id from EnvironmentCoordinator
-                            self.logger.debug(f"Could not get launch_id from EnvironmentCoordinator: {get_error}", module=__name__, class_name="FinalizationManager", method="finalize")
+                            self.logger.debug(f"Could not get launch_id from EnvironmentCoordinator: {get_error}", module=__name__, class_name="ReportFinalizer", method="finalize")
                         except Exception as get_error:  # pylint: disable=broad-exception-caught
                             # Catch-all for unexpected errors from EnvironmentCoordinator access
                             # NOTE: EnvironmentCoordinator import or access may raise various exceptions
-                            self.logger.debug(f"Could not get launch_id from EnvironmentCoordinator: {get_error}", module=__name__, class_name="FinalizationManager", method="finalize")
+                            self.logger.debug(f"Could not get launch_id from EnvironmentCoordinator: {get_error}", module=__name__, class_name="ReportFinalizer", method="finalize")
 
                     if launch_id:
                         launch_url = rp_client.get_launch_url()
@@ -114,40 +114,40 @@ class FinalizationManager:
                             self._finish_launch_direct_api(rp_client.rp_client_base, launch_id)
                         except (AttributeError, RuntimeError) as terminate_error:
                             # ReportPortal client termination errors
-                            self.logger.error(f"Error terminating RP client: {terminate_error}", traceback=traceback.format_exc(), module=__name__, class_name="FinalizationManager", method="finalize")
+                            self.logger.error(f"Error terminating RP client: {terminate_error}", traceback=traceback.format_exc(), module=__name__, class_name="ReportFinalizer", method="finalize")
                             # Even if terminate fails, try direct API call as fallback
                             try:
                                 self._finish_launch_direct_api(rp_client.rp_client_base, launch_id)
                             except (requests.RequestException, OSError, IOError) as direct_api_error:
                                 # Direct API call network errors
-                                self.logger.warning(f"Direct API finish_launch also failed: {direct_api_error}", traceback=traceback.format_exc(), module=__name__, class_name="FinalizationManager", method="finalize")
+                                self.logger.warning(f"Direct API finish_launch also failed: {direct_api_error}", traceback=traceback.format_exc(), module=__name__, class_name="ReportFinalizer", method="finalize")
                             except Exception as direct_api_error:  # pylint: disable=broad-exception-caught
                                 # Catch-all for unexpected errors from direct API call
                                 # NOTE: Direct API call may raise various exceptions we cannot predict
-                                self.logger.warning(f"Direct API finish_launch also failed: {direct_api_error}", traceback=traceback.format_exc(), module=__name__, class_name="FinalizationManager", method="finalize")
+                                self.logger.warning(f"Direct API finish_launch also failed: {direct_api_error}", traceback=traceback.format_exc(), module=__name__, class_name="ReportFinalizer", method="finalize")
                         except Exception as terminate_error:  # pylint: disable=broad-exception-caught
                             # Catch-all for unexpected errors from RP client termination
                             # NOTE: ReportPortal SDK may raise various exceptions we cannot predict
-                            self.logger.error(f"Error terminating RP client: {terminate_error}", traceback=traceback.format_exc(), module=__name__, class_name="FinalizationManager", method="finalize")
+                            self.logger.error(f"Error terminating RP client: {terminate_error}", traceback=traceback.format_exc(), module=__name__, class_name="ReportFinalizer", method="finalize")
                             # Even if terminate fails, try direct API call as fallback
                             try:
                                 self._finish_launch_direct_api(rp_client.rp_client_base, launch_id)
                             except (requests.RequestException, OSError, IOError) as direct_api_error:
                                 # Direct API call network errors
-                                self.logger.warning(f"Direct API finish_launch also failed: {direct_api_error}", traceback=traceback.format_exc(), module=__name__, class_name="FinalizationManager", method="finalize")
+                                self.logger.warning(f"Direct API finish_launch also failed: {direct_api_error}", traceback=traceback.format_exc(), module=__name__, class_name="ReportFinalizer", method="finalize")
                             except Exception as direct_api_error:  # pylint: disable=broad-exception-caught
                                 # Catch-all for unexpected errors from direct API call
                                 # NOTE: Direct API call may raise various exceptions we cannot predict
-                                self.logger.warning(f"Direct API finish_launch also failed: {direct_api_error}", traceback=traceback.format_exc(), module=__name__, class_name="FinalizationManager", method="finalize")
+                                self.logger.warning(f"Direct API finish_launch also failed: {direct_api_error}", traceback=traceback.format_exc(), module=__name__, class_name="ReportFinalizer", method="finalize")
 
                     self.logger.info("ReportPortal finalized")
             except (AttributeError, RuntimeError) as e:
                 # ReportPortal finalization errors
-                self.logger.error(f"ReportPortal finalization failed: {e}", traceback=traceback.format_exc(), module=__name__, class_name="FinalizationManager", method="finalize")
+                self.logger.error(f"ReportPortal finalization failed: {e}", traceback=traceback.format_exc(), module=__name__, class_name="ReportFinalizer", method="finalize")
             except Exception as e:  # pylint: disable=broad-exception-caught
                 # Catch-all for unexpected errors from ReportPortal finalization
                 # NOTE: ReportPortal SDK may raise various exceptions we cannot predict
-                self.logger.error(f"ReportPortal finalization failed: {e}", traceback=traceback.format_exc(), module=__name__, class_name="FinalizationManager", method="finalize")
+                self.logger.error(f"ReportPortal finalization failed: {e}", traceback=traceback.format_exc(), module=__name__, class_name="ReportFinalizer", method="finalize")
 
         if self.execution_manager:
             self.logger.info(f"Reports saved to: {self.execution_manager.get_execution_path()}")
@@ -207,12 +207,12 @@ class FinalizationManager:
 
         except (requests.RequestException, OSError, IOError, ValueError) as e:
             # Network or request errors - don't raise, this is a fallback method
-            self.logger.warning(f"Direct API finish_launch failed (non-critical): {e}", traceback=traceback.format_exc(), module=__name__, class_name="FinalizationManager", method="_finish_launch_direct_api")
+            self.logger.warning(f"Direct API finish_launch failed (non-critical): {e}", traceback=traceback.format_exc(), module=__name__, class_name="ReportFinalizer", method="_finish_launch_direct_api")
         except Exception as e:  # pylint: disable=broad-exception-caught
             # Catch-all for unexpected errors from direct API call
             # NOTE: This is a fallback method, so we don't raise
             # Direct API call may raise various exceptions we cannot predict
-            self.logger.warning(f"Direct API finish_launch failed (non-critical): {e}", traceback=traceback.format_exc(), module=__name__, class_name="FinalizationManager", method="_finish_launch_direct_api")
+            self.logger.warning(f"Direct API finish_launch failed (non-critical): {e}", traceback=traceback.format_exc(), module=__name__, class_name="ReportFinalizer", method="_finish_launch_direct_api")
 
     def is_healthy(self) -> bool:
         """Check if at least one reporter is active."""

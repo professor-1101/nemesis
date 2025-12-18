@@ -16,7 +16,7 @@ class ReportingCoordinator:
     - Delegate reporting calls to all reporters
     - Handle reporter failures gracefully
 
-    This replaces part of the old god class ReportManager.
+    This replaces part of the old god class ReportCoordinator.
     """
 
     def __init__(self, reporters: List[IReporter], logger: ILogger):

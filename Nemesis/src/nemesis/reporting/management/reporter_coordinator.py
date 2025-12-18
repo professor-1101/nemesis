@@ -8,11 +8,11 @@ from nemesis.reporting.local import LocalReporter
 from nemesis.reporting.reportportal import ReportPortalClient
 
 
-class ReporterManager:
-    """Manages all reporters with config-driven initialization."""
+class ReporterCoordinator:
+    """Coordinates all reporters with config-driven initialization."""
 
     def __init__(self, config: ConfigLoader, execution_manager: Optional[Any] = None, skip_rp_init: bool = False):
-        """Initialize reporter manager.
+        """Initialize reporter coordinator.
 
         Args:
             config: Centralized config loader
@@ -45,11 +45,11 @@ class ReporterManager:
                     self.logger.info(f"Local reporter initialized with execution_id: {execution_id}")
                 except (AttributeError, RuntimeError, OSError, IOError) as e:
                     # Local reporter initialization errors
-                    self.logger.error(f"Local reporter init failed: {e}", traceback=traceback.format_exc(), module=__name__, class_name="ReporterManager", method="_initialize_reporters")
+                    self.logger.error(f"Local reporter init failed: {e}", traceback=traceback.format_exc(), module=__name__, class_name="ReporterCoordinator", method="_initialize_reporters")
                 except Exception as e:  # pylint: disable=broad-exception-caught
                     # Catch-all for unexpected errors from LocalReporter initialization
                     # NOTE: LocalReporter may raise various exceptions we cannot predict
-                    self.logger.error(f"Local reporter init failed: {e}", traceback=traceback.format_exc(), module=__name__, class_name="ReporterManager", method="_initialize_reporters")
+                    self.logger.error(f"Local reporter init failed: {e}", traceback=traceback.format_exc(), module=__name__, class_name="ReporterCoordinator", method="_initialize_reporters")
             else:
                 self.logger.warning("Local reporting enabled but no execution manager available")
 
@@ -72,11 +72,11 @@ class ReporterManager:
                             return
                 except (ImportError, AttributeError) as e:
                     # Non-critical: failed to get existing ReportPortal client from EnvironmentCoordinator
-                    self.logger.debug(f"Could not get existing ReportPortal client - import/attribute error: {e}", module=__name__, class_name="ReporterManager", method="_initialize_reporters")
+                    self.logger.debug(f"Could not get existing ReportPortal client - import/attribute error: {e}", module=__name__, class_name="ReporterCoordinator", method="_initialize_reporters")
                 except Exception as e:  # pylint: disable=broad-exception-caught
                     # Catch-all for unexpected errors from EnvironmentCoordinator access
                     # NOTE: EnvironmentCoordinator import or access may raise various exceptions
-                    self.logger.debug(f"Could not get existing ReportPortal client: {e}", module=__name__, class_name="ReporterManager", method="_initialize_reporters")
+                    self.logger.debug(f"Could not get existing ReportPortal client: {e}", module=__name__, class_name="ReporterCoordinator", method="_initialize_reporters")
 
                 # If EnvironmentCoordinator doesn't have the client (cross-process), create new client
                 # but it will reuse saved launch_id from file (handled in ReportPortalClient.__init__)
@@ -90,12 +90,12 @@ class ReporterManager:
                         self.rp_client = None
                 except (AttributeError, RuntimeError, ImportError) as e:
                     # ReportPortal client initialization errors
-                    self.logger.warning(f"Failed to create ReportPortal client for finalization: {e}", traceback=traceback.format_exc(), module=__name__, class_name="ReporterManager", method="_initialize_reporters")
+                    self.logger.warning(f"Failed to create ReportPortal client for finalization: {e}", traceback=traceback.format_exc(), module=__name__, class_name="ReporterCoordinator", method="_initialize_reporters")
                     self.rp_client = None
                 except Exception as e:  # pylint: disable=broad-exception-caught
                     # Catch-all for unexpected errors from ReportPortalClient initialization
                     # NOTE: ReportPortalClient may raise various exceptions we cannot predict
-                    self.logger.warning(f"Failed to create ReportPortal client for finalization: {e}", traceback=traceback.format_exc(), module=__name__, class_name="ReporterManager", method="_initialize_reporters")
+                    self.logger.warning(f"Failed to create ReportPortal client for finalization: {e}", traceback=traceback.format_exc(), module=__name__, class_name="ReporterCoordinator", method="_initialize_reporters")
                     self.rp_client = None
                 return
 
@@ -115,13 +115,13 @@ class ReporterManager:
 
             except (AttributeError, RuntimeError, ImportError) as e:
                 # ReportPortal initialization errors
-                self.logger.error(f"ReportPortal init failed: {e}", traceback=traceback.format_exc(), module=__name__, class_name="ReporterManager", method="_initialize_reporters")
+                self.logger.error(f"ReportPortal init failed: {e}", traceback=traceback.format_exc(), module=__name__, class_name="ReporterCoordinator", method="_initialize_reporters")
                 self.logger.warning("Continuing without ReportPortal")
                 self.rp_client = None
             except Exception as e:  # pylint: disable=broad-exception-caught
                 # Catch-all for unexpected errors from ReportPortalClient initialization
                 # NOTE: ReportPortalClient may raise various exceptions we cannot predict
-                self.logger.error(f"ReportPortal init failed: {e}", traceback=traceback.format_exc(), module=__name__, class_name="ReporterManager", method="_initialize_reporters")
+                self.logger.error(f"ReportPortal init failed: {e}", traceback=traceback.format_exc(), module=__name__, class_name="ReporterCoordinator", method="_initialize_reporters")
                 self.logger.warning("Continuing without ReportPortal")
                 self.rp_client = None
 

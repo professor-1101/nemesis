@@ -3,11 +3,11 @@ import traceback
 from nemesis.infrastructure.logging import Logger
 
 
-class FeatureManager:
-    """Manages feature reporting."""
+class FeatureHandler:
+    """Handles feature reporting."""
 
     def __init__(self, reporter_manager):
-        """Initialize feature manager."""
+        """Initialize feature handler."""
         self.logger = Logger.get_instance({})
         self.reporter_manager = reporter_manager
 
@@ -24,11 +24,11 @@ class FeatureManager:
                 self.reporter_manager.get_local_reporter().add_log(f"Feature started: {feature_name}", "INFO")
             except (AttributeError, RuntimeError) as e:
                 # Local reporter API errors - non-critical
-                self.logger.debug(f"Failed to log feature start to local reporter: {e}", traceback=traceback.format_exc(), module=__name__, class_name="FeatureManager", method="start_feature")
+                self.logger.debug(f"Failed to log feature start to local reporter: {e}", traceback=traceback.format_exc(), module=__name__, class_name="FeatureHandler", method="start_feature")
             except Exception as e:  # pylint: disable=broad-exception-caught
                 # Catch-all for unexpected errors from local reporter
                 # NOTE: LocalReporter.add_log may raise various exceptions we cannot predict
-                self.logger.debug(f"Failed to log feature start to local reporter: {e}", traceback=traceback.format_exc(), module=__name__, class_name="FeatureManager", method="start_feature")
+                self.logger.debug(f"Failed to log feature start to local reporter: {e}", traceback=traceback.format_exc(), module=__name__, class_name="FeatureHandler", method="start_feature")
 
         if self.reporter_manager.is_rp_enabled():
             try:
@@ -37,11 +37,11 @@ class FeatureManager:
                 self.reporter_manager.get_rp_client().start_feature(feature_name, desc_text, tags)
             except (AttributeError, RuntimeError) as e:
                 # ReportPortal client API errors
-                self.logger.error(f"Failed to start feature in ReportPortal: {e}", traceback=traceback.format_exc(), module=__name__, class_name="FeatureManager", method="start_feature")
+                self.logger.error(f"Failed to start feature in ReportPortal: {e}", traceback=traceback.format_exc(), module=__name__, class_name="FeatureHandler", method="start_feature")
             except Exception as e:  # pylint: disable=broad-exception-caught
                 # Catch-all for unexpected errors from ReportPortal SDK
                 # NOTE: ReportPortal SDK may raise various exceptions we cannot predict
-                self.logger.error(f"Failed to start feature in ReportPortal: {e}", traceback=traceback.format_exc(), module=__name__, class_name="FeatureManager", method="start_feature")
+                self.logger.error(f"Failed to start feature in ReportPortal: {e}", traceback=traceback.format_exc(), module=__name__, class_name="FeatureHandler", method="start_feature")
 
     def end_feature(self, feature, status: str = None) -> None:
         """End feature reporting.
@@ -73,19 +73,19 @@ class FeatureManager:
                 self.reporter_manager.get_local_reporter().add_log(f"Feature ended: {feature_name} - Status: {status_str}", "INFO")
             except (AttributeError, RuntimeError) as e:
                 # Local reporter API errors - non-critical
-                self.logger.debug(f"Failed to log feature end to local reporter: {e}", traceback=traceback.format_exc(), module=__name__, class_name="FeatureManager", method="end_feature")
+                self.logger.debug(f"Failed to log feature end to local reporter: {e}", traceback=traceback.format_exc(), module=__name__, class_name="FeatureHandler", method="end_feature")
             except Exception as e:  # pylint: disable=broad-exception-caught
                 # Catch-all for unexpected errors from local reporter
                 # NOTE: LocalReporter.add_log may raise various exceptions we cannot predict
-                self.logger.debug(f"Failed to log feature end to local reporter: {e}", traceback=traceback.format_exc(), module=__name__, class_name="FeatureManager", method="end_feature")
+                self.logger.debug(f"Failed to log feature end to local reporter: {e}", traceback=traceback.format_exc(), module=__name__, class_name="FeatureHandler", method="end_feature")
 
         if self.reporter_manager.is_rp_enabled():
             try:
                 self.reporter_manager.get_rp_client().finish_feature(status_str)
             except (AttributeError, RuntimeError) as e:
                 # ReportPortal client API errors
-                self.logger.error(f"Failed to finish feature in ReportPortal: {e}", traceback=traceback.format_exc(), module=__name__, class_name="FeatureManager", method="end_feature")
+                self.logger.error(f"Failed to finish feature in ReportPortal: {e}", traceback=traceback.format_exc(), module=__name__, class_name="FeatureHandler", method="end_feature")
             except Exception as e:  # pylint: disable=broad-exception-caught
                 # Catch-all for unexpected errors from ReportPortal SDK
                 # NOTE: ReportPortal SDK may raise various exceptions we cannot predict
-                self.logger.error(f"Failed to finish feature in ReportPortal: {e}", traceback=traceback.format_exc(), module=__name__, class_name="FeatureManager", method="end_feature")
+                self.logger.error(f"Failed to finish feature in ReportPortal: {e}", traceback=traceback.format_exc(), module=__name__, class_name="FeatureHandler", method="end_feature")

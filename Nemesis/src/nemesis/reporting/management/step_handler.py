@@ -4,11 +4,11 @@ import traceback
 from nemesis.infrastructure.logging import Logger
 
 
-class StepManager:
-    """Manages step reporting."""
+class StepHandler:
+    """Handles step reporting."""
 
     def __init__(self, reporter_manager):
-        """Initialize step manager."""
+        """Initialize step handler."""
         self.logger = Logger.get_instance({})
         self.reporter_manager = reporter_manager
 

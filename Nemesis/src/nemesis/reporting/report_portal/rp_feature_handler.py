@@ -7,16 +7,16 @@ from reportportal_client import RPClient
 from nemesis.utils.decorators import retry, safe_execute
 from nemesis.infrastructure.logging import Logger
 from .rp_client_base import RPClientBase
-from .rp_launch_manager import RPLaunchManager
+from .rp_launch_coordinator import RPLaunchCoordinator
 from .rp_utils import RPUtils
 
-class RPFeatureManager:
-    """Manages ReportPortal feature (test suite) lifecycle.
+class RPFeatureHandler:
+    """Handles ReportPortal feature (test suite) lifecycle.
     
     Handles starting and finishing features within a launch, maintaining
     feature hierarchy for test organization.
     """
-    def __init__(self, rp_client_base: RPClientBase, rp_launch_manager: RPLaunchManager) -> None:
+    def __init__(self, rp_client_base: RPClientBase, rp_launch_manager: RPLaunchCoordinator) -> None:
         """Initialize ReportPortal feature manager.
         
         Args:

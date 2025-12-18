@@ -5,8 +5,8 @@ from nemesis.utils.video_converter import convert_to_mp4
 from .base_handler import BaseAttachmentHandler
 
 
-class VideoManager(BaseAttachmentHandler):
-    """Manages video attachments."""
+class VideoHandler(BaseAttachmentHandler):
+    """Handles video attachments."""
 
     def _convert_video(self, video_path: Path) -> Path:
         """

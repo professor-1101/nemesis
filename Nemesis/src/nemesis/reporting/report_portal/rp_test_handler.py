@@ -9,17 +9,17 @@ from nemesis.utils.decorators import retry, safe_execute
 from nemesis.shared.exceptions import ReportPortalError
 from nemesis.infrastructure.logging import Logger
 from .rp_client_base import RPClientBase
-from .rp_launch_manager import RPLaunchManager
-from .rp_feature_manager import RPFeatureManager
+from .rp_launch_coordinator import RPLaunchCoordinator
+from .rp_feature_handler import RPFeatureHandler
 from .rp_utils import RPUtils
 
-class RPTestManager:
-    """Manages ReportPortal test (scenario) lifecycle.
+class RPTestHandler:
+    """Handles ReportPortal test (scenario) lifecycle.
     
     Handles starting and finishing test scenarios within features,
     maintaining test hierarchy for BDD-style test organization.
     """
-    def __init__(self, rp_client_base: RPClientBase, rp_launch_manager: RPLaunchManager, rp_feature_manager: RPFeatureManager, is_skipped_an_issue: bool = False) -> None:
+    def __init__(self, rp_client_base: RPClientBase, rp_launch_manager: RPLaunchCoordinator, rp_feature_manager: RPFeatureHandler, is_skipped_an_issue: bool = False) -> None:
         """Initialize ReportPortal test manager.
 
         Args:

@@ -9,7 +9,7 @@ from nemesis.utils.decorators import retry
 from .rp_base_handler import RPBaseHandler
 from .rp_utils import RPUtils
 
-class RPAttachmentManager(RPBaseHandler):
+class RPAttachmentHandler(RPBaseHandler):
     """Manages file attachments for ReportPortal test items.
     
     Handles file validation, size limits, and attachment to the appropriate

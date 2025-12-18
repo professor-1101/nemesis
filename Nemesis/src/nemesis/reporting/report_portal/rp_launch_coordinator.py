@@ -16,7 +16,7 @@ from nemesis.utils.decorators import retry
 from .rp_client_base import RPClientBase
 
 
-class RPLaunchManager:
+class RPLaunchCoordinator:
     """
     Manager for ReportPortal launches.
 
@@ -108,11 +108,11 @@ class RPLaunchManager:
                     self.logger.debug(f"Stored launch_id in EnvironmentCoordinator: {self.launch_id}")
             except (AttributeError, ImportError) as store_error:
                 # Non-critical: failed to store launch_id in EnvironmentCoordinator
-                self.logger.debug(f"Failed to store launch_id in EnvironmentCoordinator (non-critical): {store_error}", module=__name__, class_name="RPLaunchManager", method="start_launch")
+                self.logger.debug(f"Failed to store launch_id in EnvironmentCoordinator (non-critical): {store_error}", module=__name__, class_name="RPLaunchCoordinator", method="start_launch")
             except Exception as store_error:  # pylint: disable=broad-exception-caught
                 # Catch-all for unexpected errors from EnvironmentCoordinator access
                 # NOTE: EnvironmentCoordinator import or access may raise various exceptions
-                self.logger.debug(f"Failed to store launch_id in EnvironmentCoordinator (non-critical): {store_error}", module=__name__, class_name="RPLaunchManager", method="start_launch")
+                self.logger.debug(f"Failed to store launch_id in EnvironmentCoordinator (non-critical): {store_error}", module=__name__, class_name="RPLaunchCoordinator", method="start_launch")
 
         except (AttributeError, RuntimeError, TypeError) as e:
             # ReportPortal SDK errors
@@ -191,12 +191,12 @@ class RPLaunchManager:
                     )
                 except (AttributeError, RuntimeError, TypeError) as finish_error:
                     # If finish_launch failed, re-raise the error
-                    self.logger.error(f"Failed to finish launch via RPClient: {finish_error}", traceback=traceback.format_exc(), module=__name__, class_name="RPLaunchManager", method="finish_launch")
+                    self.logger.error(f"Failed to finish launch via RPClient: {finish_error}", traceback=traceback.format_exc(), module=__name__, class_name="RPLaunchCoordinator", method="finish_launch")
                     raise
                 except Exception as finish_error:  # pylint: disable=broad-exception-caught
                     # Catch-all for unexpected errors from RPClient
                     # NOTE: ReportPortal SDK may raise various exceptions we cannot predict
-                    self.logger.error(f"Failed to finish launch via RPClient: {finish_error}", traceback=traceback.format_exc(), module=__name__, class_name="RPLaunchManager", method="finish_launch")
+                    self.logger.error(f"Failed to finish launch via RPClient: {finish_error}", traceback=traceback.format_exc(), module=__name__, class_name="RPLaunchCoordinator", method="finish_launch")
                     raise
             else:
                 # Client already has the correct launch_id
@@ -227,21 +227,21 @@ class RPLaunchManager:
                     self.logger.debug("Cleared launch_id from EnvironmentCoordinator")
             except (AttributeError, ImportError) as cleanup_error:
                 # Non-critical: failed to clear launch_id from EnvironmentCoordinator
-                self.logger.debug(f"Failed to clear launch_id from EnvironmentCoordinator (non-critical): {cleanup_error}", module=__name__, class_name="RPLaunchManager", method="finish_launch")
+                self.logger.debug(f"Failed to clear launch_id from EnvironmentCoordinator (non-critical): {cleanup_error}", module=__name__, class_name="RPLaunchCoordinator", method="finish_launch")
             except Exception as cleanup_error:  # pylint: disable=broad-exception-caught
                 # Catch-all for unexpected errors from EnvironmentCoordinator access
                 # NOTE: EnvironmentCoordinator import or access may raise various exceptions
-                self.logger.debug(f"Failed to clear launch_id from EnvironmentCoordinator (non-critical): {cleanup_error}", module=__name__, class_name="RPLaunchManager", method="finish_launch")
+                self.logger.debug(f"Failed to clear launch_id from EnvironmentCoordinator (non-critical): {cleanup_error}", module=__name__, class_name="RPLaunchCoordinator", method="finish_launch")
 
             self.logger.debug(f"Launch {finished_launch_id} finalized and cleared")
 
         except (AttributeError, RuntimeError, TypeError) as e:
             # ReportPortal SDK errors
-            self.logger.error(f"Failed to finish launch: {e}", traceback=traceback.format_exc(), module=__name__, class_name="RPLaunchManager", method="finish_launch")
+            self.logger.error(f"Failed to finish launch: {e}", traceback=traceback.format_exc(), module=__name__, class_name="RPLaunchCoordinator", method="finish_launch")
         except Exception as e:  # pylint: disable=broad-exception-caught
             # Catch-all for unexpected errors from ReportPortal SDK
             # NOTE: ReportPortal SDK may raise various exceptions we cannot predict
-            self.logger.error(f"Failed to finish launch: {e}", traceback=traceback.format_exc(), module=__name__, class_name="RPLaunchManager", method="finish_launch")
+            self.logger.error(f"Failed to finish launch: {e}", traceback=traceback.format_exc(), module=__name__, class_name="RPLaunchCoordinator", method="finish_launch")
 
     @retry(max_attempts=2, delay=0.5)
     def rerun_launch(self, launch_id: str) -> None:
@@ -256,8 +256,8 @@ class RPLaunchManager:
             self.logger.info(f"Launch rerun marked: {launch_id}")
         except (AttributeError, RuntimeError, TypeError) as e:
             # ReportPortal SDK errors
-            self.logger.error(f"Failed to mark rerun launch: {e}", traceback=traceback.format_exc(), module=__name__, class_name="RPLaunchManager", method="rerun_launch")
+            self.logger.error(f"Failed to mark rerun launch: {e}", traceback=traceback.format_exc(), module=__name__, class_name="RPLaunchCoordinator", method="rerun_launch")
         except Exception as e:  # pylint: disable=broad-exception-caught
             # Catch-all for unexpected errors from ReportPortal SDK
             # NOTE: ReportPortal SDK may raise various exceptions we cannot predict
-            self.logger.error(f"Failed to mark rerun launch: {e}", traceback=traceback.format_exc(), module=__name__, class_name="RPLaunchManager", method="rerun_launch")
+            self.logger.error(f"Failed to mark rerun launch: {e}", traceback=traceback.format_exc(), module=__name__, class_name="RPLaunchCoordinator", method="rerun_launch")

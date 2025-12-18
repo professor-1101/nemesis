@@ -8,13 +8,13 @@ from nemesis.infrastructure.collectors.performance.performance_collector import 
 from nemesis.infrastructure.browser import BrowserService
 from nemesis.infrastructure.config import ConfigLoader
 from nemesis.infrastructure.logging import Logger
-from nemesis.reporting.manager import ReportManager
+from nemesis.reporting.coordinator import ReportCoordinator
 
 __all__ = [
     "BrowserService",
     "ConfigLoader",
     "Logger",
-    "ReportManager",
+    "ReportCoordinator",
     "ConsoleCollector",
     "NetworkCollector",
     "PerformanceCollector",

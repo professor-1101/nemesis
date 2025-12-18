@@ -173,7 +173,7 @@ class RPLogger(RPBaseHandler):
                 item_id=item_id,
             )
 
-            # Note: attachment logic will be handled by RPAttachmentManager.
+            # Note: attachment logic will be handled by RPAttachmentHandler.
             # For now, just logging the message. The facade will call attach_file.
             # if attachment_path and attachment_path.exists():
             #     self.attach_file(attachment_path, f"Attachment for {exception_type}")

@@ -59,7 +59,7 @@ class RPClientBase:
 
     def is_healthy(self) -> bool:
         """Check if client is healthy."""
-        # This will be more meaningful when launch_id is managed by RPLaunchManager
+        # This will be more meaningful when launch_id is managed by RPLaunchCoordinator
         # For now, it just means client instance exists and connection was validated.
         return self.client is not None
 

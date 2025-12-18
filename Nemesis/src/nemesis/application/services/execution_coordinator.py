@@ -1,6 +1,6 @@
 """Execution Coordinator - Manages test execution lifecycle
 
-This replaces the god class responsibilities from the old ReportManager.
+This replaces the god class responsibilities from the old ReportCoordinator.
 """
 
 from typing import Optional, Dict, Any

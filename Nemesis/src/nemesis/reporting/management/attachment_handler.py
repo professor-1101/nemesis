@@ -1,20 +1,20 @@
 """Attachment management for reporting."""
 
-from nemesis.reporting.management.attachments.screenshot_manager import ScreenshotManager
-from nemesis.reporting.management.attachments.video_manager import VideoManager
-from nemesis.reporting.management.attachments.trace_manager import TraceManager
-from nemesis.reporting.management.attachments.metrics_manager import MetricsManager
+from nemesis.reporting.management.attachments.screenshot_handler import ScreenshotHandler
+from nemesis.reporting.management.attachments.video_handler import VideoHandler
+from nemesis.reporting.management.attachments.trace_handler import TraceHandler
+from nemesis.reporting.management.attachments.metrics_handler import MetricsHandler
 
 
-class AttachmentManager:
-    """Manages file attachments."""
+class AttachmentHandler:
+    """Handles file attachments for reporting."""
 
     def __init__(self, reporter_manager, execution_manager):
-        """Initialize attachment manager."""
-        self.screenshot_manager = ScreenshotManager(reporter_manager, execution_manager)
-        self.video_manager = VideoManager(reporter_manager, execution_manager)
-        self.trace_manager = TraceManager(reporter_manager, execution_manager)
-        self.metrics_manager = MetricsManager(reporter_manager, execution_manager)
+        """Initialize attachment handler."""
+        self.screenshot_manager = ScreenshotHandler(reporter_manager, execution_manager)
+        self.video_manager = VideoHandler(reporter_manager, execution_manager)
+        self.trace_manager = TraceHandler(reporter_manager, execution_manager)
+        self.metrics_manager = MetricsHandler(reporter_manager, execution_manager)
 
     def attach_screenshot(self, screenshot: bytes, name: str) -> None:
         """Attach screenshot to reports."""
