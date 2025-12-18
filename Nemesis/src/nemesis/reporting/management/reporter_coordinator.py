@@ -6,6 +6,7 @@ from nemesis.infrastructure.config import ConfigLoader
 from nemesis.infrastructure.logging import Logger
 from nemesis.reporting.local import LocalReporter
 from nemesis.reporting.reportportal import ReportPortalClient
+from nemesis.utils.decorators.exception_handler import handle_exceptions_with_fallback
 
 
 class ReporterCoordinator:
@@ -29,27 +30,85 @@ class ReporterCoordinator:
 
         self._initialize_reporters()
 
+    @handle_exceptions_with_fallback(
+        log_level="error",
+        specific_exceptions=(AttributeError, RuntimeError, OSError, IOError, Exception),
+        specific_message="Local reporter init failed: {error}",
+        fallback_message="Local reporter init failed: {error}",
+        return_on_error=None
+    )
+    def _init_local_reporter(self) -> Optional[LocalReporter]:
+        """Initialize local reporter with exception handling."""
+        execution_id = self.execution_manager.get_execution_id()
+        execution_path = self.execution_manager.get_execution_path()
+
+        reporter = LocalReporter(execution_id, execution_path)
+        self.logger.info(f"Local reporter initialized with execution_id: {execution_id}")
+        return reporter
+
+    @handle_exceptions_with_fallback(
+        log_level="debug",
+        specific_exceptions=(ImportError, AttributeError, Exception),
+        specific_message="Could not get existing ReportPortal client: {error}",
+        fallback_message="Could not get existing ReportPortal client: {error}",
+        return_on_error=None
+    )
+    def _get_existing_rp_client(self) -> Optional[ReportPortalClient]:
+        """Get existing RP client from EnvironmentCoordinator."""
+        from nemesis.infrastructure.environment.hooks import _get_env_manager  # pylint: disable=import-outside-toplevel
+        env_manager = _get_env_manager()
+        if env_manager and hasattr(env_manager, 'reporting_env') and env_manager.reporting_env.report_manager:
+            existing_rp_client = env_manager.reporting_env.report_manager.reporter_manager.get_rp_client()
+            if existing_rp_client:
+                self.logger.info("Using existing ReportPortal client from EnvironmentCoordinator")
+                return existing_rp_client
+        return None
+
+    @handle_exceptions_with_fallback(
+        log_level="warning",
+        specific_exceptions=(AttributeError, RuntimeError, ImportError, Exception),
+        specific_message="Failed to create ReportPortal client for finalization: {error}",
+        fallback_message="Failed to create ReportPortal client for finalization: {error}",
+        return_on_error=None
+    )
+    def _create_rp_client_for_finalization(self) -> Optional[ReportPortalClient]:
+        """Create new RP client for finalization phase."""
+        self.logger.info("Creating new ReportPortalClient for finalization (will reuse saved launch_id)")
+        client = ReportPortalClient(self.config)
+        if client.launch_id:
+            self.logger.info(f"ReportPortal client initialized with saved launch_id: {client.launch_id}")
+            return client
+        else:
+            self.logger.warning("ReportPortal client created but no launch_id found")
+            return None
+
+    @handle_exceptions_with_fallback(
+        log_level="error",
+        specific_exceptions=(AttributeError, RuntimeError, ImportError, Exception),
+        specific_message="ReportPortal init failed: {error}",
+        fallback_message="ReportPortal init failed: {error}",
+        return_on_error=None
+    )
+    def _init_rp_client(self) -> Optional[ReportPortalClient]:
+        """Initialize ReportPortal client with exception handling."""
+        client = ReportPortalClient(self.config)
+
+        if client.launch_id:
+            self.logger.info(f"ReportPortal initialized - Launch: {client.launch_id}")
+
+            launch_url = client.get_launch_url()
+            if launch_url:
+                self.logger.info(f"ReportPortal URL: {launch_url}")
+            return client
+        else:
+            raise RuntimeError("Launch ID not obtained")
+
     def _initialize_reporters(self) -> None:
         """Initialize enabled reporters with graceful degradation."""
         # Initialize local reporter
         if self.config.get("reporting.local.enabled", True):
             if self.execution_manager:
-                try:
-                    execution_id = self.execution_manager.get_execution_id()
-                    execution_path = self.execution_manager.get_execution_path()
-
-                    self.local_reporter = LocalReporter(
-                        execution_id,
-                        execution_path
-                    )
-                    self.logger.info(f"Local reporter initialized with execution_id: {execution_id}")
-                except (AttributeError, RuntimeError, OSError, IOError) as e:
-                    # Local reporter initialization errors
-                    self.logger.error(f"Local reporter init failed: {e}", traceback=traceback.format_exc(), module=__name__, class_name="ReporterCoordinator", method="_initialize_reporters")
-                except Exception as e:  # pylint: disable=broad-exception-caught
-                    # Catch-all for unexpected errors from LocalReporter initialization
-                    # NOTE: LocalReporter may raise various exceptions we cannot predict
-                    self.logger.error(f"Local reporter init failed: {e}", traceback=traceback.format_exc(), module=__name__, class_name="ReporterCoordinator", method="_initialize_reporters")
+                self.local_reporter = self._init_local_reporter()
             else:
                 self.logger.warning("Local reporting enabled but no execution manager available")
 
@@ -61,69 +120,20 @@ class ReporterCoordinator:
                 # We're in finalization phase - ReportPortal was already initialized
                 # Try to get existing client from EnvironmentCoordinator first
                 self.logger.info("Skipping ReportPortal initialization in finalization - will use existing client")
-                try:
-                    from nemesis.infrastructure.environment.hooks import _get_env_manager  # pylint: disable=import-outside-toplevel
-                    env_manager = _get_env_manager()
-                    if env_manager and hasattr(env_manager, 'reporting_env') and env_manager.reporting_env.report_manager:
-                        existing_rp_client = env_manager.reporting_env.report_manager.reporter_manager.get_rp_client()
-                        if existing_rp_client:
-                            self.rp_client = existing_rp_client
-                            self.logger.info("Using existing ReportPortal client from EnvironmentCoordinator")
-                            return
-                except (ImportError, AttributeError) as e:
-                    # Non-critical: failed to get existing ReportPortal client from EnvironmentCoordinator
-                    self.logger.debug(f"Could not get existing ReportPortal client - import/attribute error: {e}", module=__name__, class_name="ReporterCoordinator", method="_initialize_reporters")
-                except Exception as e:  # pylint: disable=broad-exception-caught
-                    # Catch-all for unexpected errors from EnvironmentCoordinator access
-                    # NOTE: EnvironmentCoordinator import or access may raise various exceptions
-                    self.logger.debug(f"Could not get existing ReportPortal client: {e}", module=__name__, class_name="ReporterCoordinator", method="_initialize_reporters")
+
+                existing_client = self._get_existing_rp_client()
+                if existing_client:
+                    self.rp_client = existing_client
+                    return
 
                 # If EnvironmentCoordinator doesn't have the client (cross-process), create new client
                 # but it will reuse saved launch_id from file (handled in ReportPortalClient.__init__)
-                try:
-                    self.logger.info("Creating new ReportPortalClient for finalization (will reuse saved launch_id)")
-                    self.rp_client = ReportPortalClient(self.config)
-                    if self.rp_client.launch_id:
-                        self.logger.info(f"ReportPortal client initialized with saved launch_id: {self.rp_client.launch_id}")
-                    else:
-                        self.logger.warning("ReportPortal client created but no launch_id found")
-                        self.rp_client = None
-                except (AttributeError, RuntimeError, ImportError) as e:
-                    # ReportPortal client initialization errors
-                    self.logger.warning(f"Failed to create ReportPortal client for finalization: {e}", traceback=traceback.format_exc(), module=__name__, class_name="ReporterCoordinator", method="_initialize_reporters")
-                    self.rp_client = None
-                except Exception as e:  # pylint: disable=broad-exception-caught
-                    # Catch-all for unexpected errors from ReportPortalClient initialization
-                    # NOTE: ReportPortalClient may raise various exceptions we cannot predict
-                    self.logger.warning(f"Failed to create ReportPortal client for finalization: {e}", traceback=traceback.format_exc(), module=__name__, class_name="ReporterCoordinator", method="_initialize_reporters")
-                    self.rp_client = None
+                self.rp_client = self._create_rp_client_for_finalization()
                 return
 
-            try:
-                self.rp_client = ReportPortalClient(self.config)
-
-                if self.rp_client.launch_id:
-                    self.logger.info(
-                        f"ReportPortal initialized - Launch: {self.rp_client.launch_id}"
-                    )
-
-                    launch_url = self.rp_client.get_launch_url()
-                    if launch_url:
-                        self.logger.info(f"ReportPortal URL: {launch_url}")
-                else:
-                    raise RuntimeError("Launch ID not obtained")
-
-            except (AttributeError, RuntimeError, ImportError) as e:
-                # ReportPortal initialization errors
-                self.logger.error(f"ReportPortal init failed: {e}", traceback=traceback.format_exc(), module=__name__, class_name="ReporterCoordinator", method="_initialize_reporters")
+            self.rp_client = self._init_rp_client()
+            if not self.rp_client:
                 self.logger.warning("Continuing without ReportPortal")
-                self.rp_client = None
-            except Exception as e:  # pylint: disable=broad-exception-caught
-                # Catch-all for unexpected errors from ReportPortalClient initialization
-                # NOTE: ReportPortalClient may raise various exceptions we cannot predict
-                self.logger.error(f"ReportPortal init failed: {e}", traceback=traceback.format_exc(), module=__name__, class_name="ReporterCoordinator", method="_initialize_reporters")
-                self.logger.warning("Continuing without ReportPortal")
-                self.rp_client = None
 
     def get_local_reporter(self) -> Optional[LocalReporter]:
         """Get local reporter."""
