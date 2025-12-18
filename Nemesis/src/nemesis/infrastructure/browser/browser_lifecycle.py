@@ -26,6 +26,7 @@ from nemesis.shared.execution_context import ExecutionContext
 from nemesis.infrastructure.logging import Logger
 from nemesis.utils.helpers.browser_helpers import get_browser_args, get_browser_type
 from nemesis.infrastructure.browser.browser_context_options_builder import BrowserContextOptionsBuilder
+from nemesis.utils.decorators.exception_handler import handle_exceptions
 
 # Composed services
 from nemesis.infrastructure.browser.browser_health_validator import BrowserHealthValidator
@@ -198,6 +199,13 @@ class BrowserLifecycle:
         self._browser = None
         self._playwright = None
 
+    @handle_exceptions(
+        log_level="debug",
+        catch_exceptions=(AttributeError, KeyError, RuntimeError),
+        message_template="Failed to get video directory path: {error}",
+        default_return=None,
+        include_traceback=False
+    )
     def _get_video_directory(self) -> Path | None:
         """
         Get video directory path for current execution.
@@ -205,29 +213,32 @@ class BrowserLifecycle:
         Returns:
             Path to video directory or None if unavailable
         """
-        try:
-            if not self._context:
-                return None
-
-            import os  # pylint: disable=import-outside-toplevel
-            execution_id = os.environ.get('NEMESIS_EXECUTION_ID')
-            if not execution_id:
-                execution_id = ExecutionContext.get_execution_id()
-
-            directory_manager = DirectoryService(self.config)
-            base_path = directory_manager.get_execution_base_path(execution_id)
-            return base_path / "videos"
-
-        except (KeyboardInterrupt, SystemExit):
-            raise
-        except (AttributeError, KeyError, RuntimeError) as e:
-            self.logger.debug(
-                f"Failed to get video directory path: {e}",
-                module=__name__,
-                class_name="BrowserLifecycle",
-                method="_get_video_directory"
-            )
+        if not self._context:
             return None
+
+        import os  # pylint: disable=import-outside-toplevel
+        execution_id = os.environ.get('NEMESIS_EXECUTION_ID')
+        if not execution_id:
+            execution_id = ExecutionContext.get_execution_id()
+
+        directory_manager = DirectoryService(self.config)
+        base_path = directory_manager.get_execution_base_path(execution_id)
+        return base_path / "videos"
+
+    @handle_exceptions(
+        log_level="error",
+        catch_exceptions=(RuntimeError, AttributeError),
+        message_template="Browser cleanup error: {error}",
+        reraise=False
+    )
+    def _safe_close(self) -> None:
+        """
+        Safely close browser with exception handling.
+
+        Used by managed_browser context manager to ensure cleanup even if errors occur.
+        Logs errors but does not raise to allow graceful degradation.
+        """
+        self.close()
 
     def close(self) -> None:
         """
@@ -275,18 +286,8 @@ class BrowserLifecycle:
             )
             raise
         finally:
-            try:
-                self.close()
-            except (KeyboardInterrupt, SystemExit):
-                raise
-            except (RuntimeError, AttributeError) as e:
-                self.logger.error(
-                    f"Browser cleanup error: {e}",
-                    traceback=traceback.format_exc(),
-                    module=__name__,
-                    class_name="BrowserLifecycle",
-                    method="managed_browser"
-                )
+            # Use safe close to handle cleanup errors gracefully
+            self._safe_close()
 
     @property
     def is_healthy(self) -> bool:
