@@ -4,7 +4,7 @@ import traceback
 from typing import Any, Optional
 
 from nemesis.infrastructure.logging import Logger
-from nemesis.environment.collector_content_logger import CollectorContentLogger
+from nemesis.infrastructure.environment.collector_content_logger import CollectorContentLogger
 from nemesis.reporting.manager import ReportManager
 
 

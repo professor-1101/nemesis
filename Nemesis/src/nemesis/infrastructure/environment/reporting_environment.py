@@ -6,7 +6,7 @@ from nemesis.infrastructure.config import ConfigLoader
 from nemesis.infrastructure.logging import Logger
 from nemesis.reporting.manager import ReportManager
 from nemesis.reporting.attachments import AttachmentHandler
-from nemesis.environment.scenario_attachment_handler import ScenarioAttachmentHandler
+from nemesis.infrastructure.environment.scenario_attachment_handler import ScenarioAttachmentHandler
 
 
 class ReportingEnvironment:
