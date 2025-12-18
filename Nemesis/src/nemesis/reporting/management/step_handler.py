@@ -1,7 +1,6 @@
 """Step management for reporting."""
-import traceback
-
 from nemesis.infrastructure.logging import Logger
+from nemesis.utils.decorators.exception_handler import handle_exceptions_with_fallback
 
 
 class StepHandler:
@@ -12,6 +11,26 @@ class StepHandler:
         self.logger = Logger.get_instance({})
         self.reporter_manager = reporter_manager
 
+    @handle_exceptions_with_fallback(
+        log_level="debug",
+        specific_exceptions=(AttributeError, RuntimeError),
+        specific_message="Failed to call local reporter: {error}",
+        fallback_message="Failed to call local reporter: {error}"
+    )
+    def _call_local_reporter(self, callback) -> None:
+        """Call local reporter method with exception handling."""
+        callback()
+
+    @handle_exceptions_with_fallback(
+        log_level="debug",
+        specific_exceptions=(AttributeError, RuntimeError),
+        specific_message="Failed to call ReportPortal: {error}",
+        fallback_message="Failed to call ReportPortal: {error}"
+    )
+    def _call_rp_client(self, callback) -> None:
+        """Call ReportPortal client method with exception handling."""
+        callback()
+
     def start_step(self, step) -> None:
         """Start step reporting."""
         step_name = getattr(step, 'name', str(step))
@@ -19,27 +38,15 @@ class StepHandler:
         self.logger.step_start(step_name)
 
         if self.reporter_manager.is_rp_enabled():
-            try:
-                self.reporter_manager.get_rp_client().start_step(step_name)
-            except (AttributeError, RuntimeError) as e:
-                # ReportPortal client errors - non-critical, log as debug
-                self.logger.debug(f"Failed to start step in ReportPortal: {e}", module=__name__, class_name="StepManager", method="start_step")
-            except Exception as e:  # pylint: disable=broad-exception-caught
-                # Catch-all for unexpected errors from ReportPortal SDK
-                # NOTE: ReportPortal SDK may raise various exceptions we cannot predict
-                self.logger.debug(f"Failed to start step in ReportPortal: {e}", module=__name__, class_name="StepManager", method="start_step")
+            self._call_rp_client(
+                lambda: self.reporter_manager.get_rp_client().start_step(step_name)
+            )
 
         if self.reporter_manager.is_local_enabled():
-            try:
+            def _start_local():
                 self.reporter_manager.get_local_reporter().start_step(step)
                 self.reporter_manager.get_local_reporter().add_log(f"Step started: {step_name}", "INFO")
-            except (AttributeError, RuntimeError) as e:
-                # Local reporter errors - non-critical, log as debug
-                self.logger.debug(f"Failed to start step in local reporter: {e}", module=__name__, class_name="StepManager", method="start_step")
-            except Exception as e:  # pylint: disable=broad-exception-caught
-                # Catch-all for unexpected errors from local reporter
-                # NOTE: Local reporter may raise various exceptions we cannot predict
-                self.logger.debug(f"Failed to start step in local reporter: {e}", module=__name__, class_name="StepManager", method="start_step")
+            self._call_local_reporter(_start_local)
 
     def end_step(self, step, duration: float = 0.0) -> None:
         """End step reporting."""
@@ -61,24 +68,12 @@ class StepHandler:
         self.logger.step_end(step_name, status_str, duration_ms)
 
         if self.reporter_manager.is_local_enabled():
-            try:
+            def _end_local():
                 self.reporter_manager.get_local_reporter().end_step(step, status_str)
                 self.reporter_manager.get_local_reporter().add_log(f"Step ended: {step_name} - Status: {status_str} - Duration: {duration_ms}ms", "INFO")
-            except (AttributeError, RuntimeError) as e:
-                # Local reporter errors - non-critical, log as debug
-                self.logger.debug(f"Failed to add step to local reporter: {e}", traceback=traceback.format_exc(), module=__name__, class_name="StepManager", method="end_step")
-            except Exception as e:  # pylint: disable=broad-exception-caught
-                # Catch-all for unexpected errors from local reporter
-                # NOTE: Local reporter may raise various exceptions we cannot predict
-                self.logger.debug(f"Failed to add step to local reporter: {e}", traceback=traceback.format_exc(), module=__name__, class_name="StepManager", method="end_step")
+            self._call_local_reporter(_end_local)
 
         if self.reporter_manager.is_rp_enabled():
-            try:
-                self.reporter_manager.get_rp_client().finish_step(status_str)
-            except (AttributeError, RuntimeError) as e:
-                # ReportPortal client errors - non-critical, log as debug
-                self.logger.debug(f"Failed to finish step in ReportPortal: {e}", traceback=traceback.format_exc(), module=__name__, class_name="StepManager", method="end_step")
-            except Exception as e:  # pylint: disable=broad-exception-caught
-                # Catch-all for unexpected errors from ReportPortal SDK
-                # NOTE: ReportPortal SDK may raise various exceptions we cannot predict
-                self.logger.debug(f"Failed to finish step in ReportPortal: {e}", traceback=traceback.format_exc(), module=__name__, class_name="StepManager", method="end_step")
+            self._call_rp_client(
+                lambda: self.reporter_manager.get_rp_client().finish_step(status_str)
+            )
