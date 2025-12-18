@@ -8,9 +8,8 @@ from pathlib import Path
 
 from nemesis.domain.entities import Execution, Scenario
 from nemesis.domain.value_objects import ExecutionId
-from nemesis.domain.ports import IReporter
+from nemesis.domain.ports import IReporter, ILogger
 from nemesis.application.use_cases import GenerateExecutionReportUseCase
-from nemesis.infrastructure.logging import Logger
 
 
 class ExecutionCoordinator:
@@ -25,16 +24,18 @@ class ExecutionCoordinator:
     This is NOT a god class - it has ONE clear responsibility: execution lifecycle.
     """
 
-    def __init__(self, reporters: list[IReporter], output_dir: Path):
+    def __init__(self, reporters: list[IReporter], output_dir: Path, logger: ILogger):
         """
         Initialize coordinator
 
         Args:
             reporters: List of reporters
             output_dir: Base directory for reports
+            logger: Logger implementation (Dependency Injection)
         """
         self.reporters = reporters
         self.output_dir = output_dir
+        self.logger = logger
         self._current_execution: Optional[Execution] = None
 
     def start_execution(
@@ -102,7 +103,7 @@ class ExecutionCoordinator:
             reporter.end_execution(self._current_execution)
 
         # Generate reports using Use Case
-        report_use_case = GenerateExecutionReportUseCase(self.reporters)
+        report_use_case = GenerateExecutionReportUseCase(self.reporters, self.logger)
         execution_dir = self.output_dir / str(self._current_execution.execution_id)
         execution_dir.mkdir(parents=True, exist_ok=True)
 
@@ -110,7 +111,7 @@ class ExecutionCoordinator:
 
         # Log report paths
         for path in report_paths:
-            Logger.get_instance({}).info(f"Report generated: {path}")
+            self.logger.info(f"Report generated: {path}")
 
         return self._current_execution
 

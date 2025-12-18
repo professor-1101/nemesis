@@ -9,12 +9,14 @@ DDD Pattern: Ports (Hexagonal Architecture)
 - IReporter: Interface for test reporting
 - ICollector: Interface for data collection
 - ILogShipper: Interface for log shipping
+- ILogger: Interface for logging operations
 """
 
 from .browser_driver import IBrowserDriver, IBrowser, IPage
 from .reporter import IReporter
 from .collector import ICollector
 from .log_shipper import ILogShipper
+from .logger import ILogger
 
 __all__ = [
     "IBrowserDriver",
@@ -23,4 +25,5 @@ __all__ = [
     "IReporter",
     "ICollector",
     "ILogShipper",
+    "ILogger",
 ]

@@ -12,6 +12,7 @@ from datetime import datetime, timezone
 from nemesis.domain.entities import Execution, Scenario, Step
 from nemesis.domain.value_objects import ScenarioStatus, StepStatus
 from nemesis.infrastructure import PlaywrightBrowserDriver, ConsoleReporter, JSONReporter
+from nemesis.infrastructure.logging import Logger
 from nemesis.application import ScenarioCoordinator
 
 
@@ -75,10 +76,12 @@ class TestFrameworkIntegrationWithMock:
 
         # Create scenario coordinator
         reporters = [ConsoleReporter()]
+        logger = Logger.get_instance({})
         coordinator = ScenarioCoordinator(
             browser_driver=driver,
             reporters=reporters,
-            collectors=[]
+            collectors=[],
+            logger=logger
         )
 
         # Execute scenario lifecycle

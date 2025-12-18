@@ -3,9 +3,10 @@
 from typing import Dict, Any, Optional
 from .core.logger import Logger as NewLogger
 from .factory import get_factory
+from nemesis.domain.ports import ILogger
 
 
-class Logger:
+class Logger(ILogger):
     """Legacy Logger wrapper for backward compatibility."""
 
     _instance: Optional['Logger'] = None

@@ -4,8 +4,7 @@ from typing import List
 from pathlib import Path
 
 from nemesis.domain.entities import Scenario, Step
-from nemesis.domain.ports import IReporter
-from nemesis.infrastructure.logging import Logger
+from nemesis.domain.ports import IReporter, ILogger
 
 
 class ReportingCoordinator:
@@ -20,14 +19,16 @@ class ReportingCoordinator:
     This replaces part of the old god class ReportManager.
     """
 
-    def __init__(self, reporters: List[IReporter]):
+    def __init__(self, reporters: List[IReporter], logger: ILogger):
         """
         Initialize with reporters
 
         Args:
             reporters: List of reporter implementations (Dependency Injection)
+            logger: Logger implementation (Dependency Injection)
         """
         self.reporters = reporters
+        self.logger = logger
 
     def start_scenario(self, scenario: Scenario) -> None:
         """Report scenario start to all reporters"""
@@ -35,7 +36,7 @@ class ReportingCoordinator:
             try:
                 reporter.start_scenario(scenario)
             except Exception as e:
-                Logger.get_instance({}).warning(f"Reporter {reporter.__class__.__name__} failed: {e}")
+                self.logger.warning(f"Reporter {reporter.__class__.__name__} failed: {e}")
 
     def end_scenario(self, scenario: Scenario) -> None:
         """Report scenario end to all reporters"""
@@ -43,7 +44,7 @@ class ReportingCoordinator:
             try:
                 reporter.end_scenario(scenario)
             except Exception as e:
-                Logger.get_instance({}).warning(f"Reporter {reporter.__class__.__name__} failed: {e}")
+                self.logger.warning(f"Reporter {reporter.__class__.__name__} failed: {e}")
 
     def start_step(self, step: Step) -> None:
         """Report step start to all reporters"""
@@ -51,7 +52,7 @@ class ReportingCoordinator:
             try:
                 reporter.start_step(step)
             except Exception as e:
-                Logger.get_instance({}).warning(f"Reporter {reporter.__class__.__name__} failed: {e}")
+                self.logger.warning(f"Reporter {reporter.__class__.__name__} failed: {e}")
 
     def end_step(self, step: Step) -> None:
         """Report step end to all reporters"""
@@ -59,7 +60,7 @@ class ReportingCoordinator:
             try:
                 reporter.end_step(step)
             except Exception as e:
-                Logger.get_instance({}).warning(f"Reporter {reporter.__class__.__name__} failed: {e}")
+                self.logger.warning(f"Reporter {reporter.__class__.__name__} failed: {e}")
 
     def attach_file(
         self,
@@ -72,7 +73,7 @@ class ReportingCoordinator:
             try:
                 reporter.attach_file(file_path, description, attachment_type)
             except Exception as e:
-                Logger.get_instance({}).warning(f"Reporter {reporter.__class__.__name__} failed: {e}")
+                self.logger.warning(f"Reporter {reporter.__class__.__name__} failed: {e}")
 
     def log_message(self, message: str, level: str = "INFO") -> None:
         """Log message to all reporters"""
@@ -80,4 +81,4 @@ class ReportingCoordinator:
             try:
                 reporter.log_message(message, level)
             except Exception as e:
-                Logger.get_instance({}).warning(f"Reporter {reporter.__class__.__name__} failed: {e}")
+                self.logger.warning(f"Reporter {reporter.__class__.__name__} failed: {e}")

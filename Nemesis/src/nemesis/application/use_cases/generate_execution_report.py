@@ -7,8 +7,7 @@ from typing import List
 from pathlib import Path
 
 from nemesis.domain.entities import Execution
-from nemesis.domain.ports import IReporter
-from nemesis.infrastructure.logging import Logger
+from nemesis.domain.ports import IReporter, ILogger
 
 
 class GenerateExecutionReportUseCase:
@@ -25,14 +24,16 @@ class GenerateExecutionReportUseCase:
     - Depends on Ports (IReporter), not implementations
     """
 
-    def __init__(self, reporters: List[IReporter]):
+    def __init__(self, reporters: List[IReporter], logger: ILogger):
         """
         Initialize with reporters
 
         Args:
             reporters: List of reporter implementations
+            logger: Logger implementation (Dependency Injection)
         """
         self.reporters = reporters
+        self.logger = logger
 
     def execute(self, execution: Execution, output_dir: Path) -> List[Path]:
         """
@@ -55,6 +56,6 @@ class GenerateExecutionReportUseCase:
                     report_paths.append(report_path)
             except Exception as e:
                 # Log but don't fail entire reporting
-                Logger.get_instance({}).warning(f"Reporter {reporter.__class__.__name__} failed: {e}")
+                self.logger.warning(f"Reporter {reporter.__class__.__name__} failed: {e}")
 
         return report_paths

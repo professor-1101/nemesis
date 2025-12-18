@@ -3,9 +3,8 @@
 from typing import Callable, List, Optional
 
 from nemesis.domain.entities import Scenario, Step
-from nemesis.domain.ports import IBrowserDriver, IReporter, ICollector
+from nemesis.domain.ports import IBrowserDriver, IReporter, ICollector, ILogger
 from nemesis.application.use_cases import ExecuteTestScenarioUseCase
-from nemesis.infrastructure.logging import Logger
 
 
 class ScenarioCoordinator:
@@ -26,6 +25,7 @@ class ScenarioCoordinator:
         browser_driver: IBrowserDriver,
         reporters: List[IReporter],
         collectors: List[ICollector],
+        logger: ILogger,
     ):
         """
         Initialize coordinator
@@ -34,10 +34,12 @@ class ScenarioCoordinator:
             browser_driver: Browser driver (Dependency Injection)
             reporters: List of reporters
             collectors: List of collectors
+            logger: Logger implementation (Dependency Injection)
         """
         self.browser_driver = browser_driver
         self.reporters = reporters
         self.collectors = collectors
+        self.logger = logger
 
     def execute_scenario(
         self,
@@ -87,6 +89,6 @@ class ScenarioCoordinator:
                 artifacts[collector_name] = output_path
 
             except Exception as e:
-                Logger.get_instance({}).warning(f"Failed to collect from {collector.__class__.__name__}: {e}")
+                self.logger.warning(f"Failed to collect from {collector.__class__.__name__}: {e}")
 
         return artifacts
