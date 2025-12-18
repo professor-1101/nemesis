@@ -30,7 +30,7 @@ class LogContext:
         return result
 
 
-class ContextManager:
+class LoggingContextHandler:
     """Manages log context and correlation IDs."""
 
     def __init__(self):

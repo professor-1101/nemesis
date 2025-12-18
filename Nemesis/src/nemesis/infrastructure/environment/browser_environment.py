@@ -5,7 +5,7 @@ from typing import Any, Optional
 from nemesis.infrastructure.config import ConfigLoader
 from nemesis.shared.execution_context import ExecutionContext
 from nemesis.infrastructure.logging import Logger
-from nemesis.infrastructure.browser import BrowserManager
+from nemesis.infrastructure.browser import BrowserService
 from nemesis.infrastructure.collectors.console import ConsoleCollector
 from nemesis.infrastructure.collectors.network import NetworkCollector
 from nemesis.infrastructure.collectors.performance import PerformanceCollector
@@ -22,7 +22,7 @@ class BrowserEnvironment:
         """
         self.config = config
         self.logger = Logger.get_instance({})
-        self.browser_manager: Optional[BrowserManager] = None
+        self.browser_manager: Optional[BrowserService] = None
         self.collectors = {}
 
     def setup(self, context: Any) -> bool:
@@ -38,7 +38,7 @@ class BrowserEnvironment:
             self.logger.info("Setting up browser environment...")
 
             # Initialize browser manager
-            self.browser_manager = BrowserManager(self.config)
+            self.browser_manager = BrowserService(self.config)
             context.browser_manager = self.browser_manager
 
             # Browser will be started in before_scenario, not here
@@ -59,8 +59,8 @@ class BrowserEnvironment:
             self.logger.error(f"Browser environment setup failed: {e}", traceback=traceback.format_exc(), module=__name__, class_name="BrowserEnvironment", method="setup")
             return False
         except Exception as e:  # pylint: disable=broad-exception-caught
-            # Catch-all for unexpected errors from BrowserManager or collectors
-            # NOTE: BrowserManager may raise various exceptions we cannot predict
+            # Catch-all for unexpected errors from BrowserService or collectors
+            # NOTE: BrowserService may raise various exceptions we cannot predict
             self.logger.error(f"Browser environment setup failed: {e}", traceback=traceback.format_exc(), module=__name__, class_name="BrowserEnvironment", method="setup")
             return False
 
@@ -150,7 +150,7 @@ class BrowserEnvironment:
                 context.browser_crashed = True
                 return False
             except Exception as browser_error:  # pylint: disable=broad-exception-caught
-                # Catch-all for unexpected errors from BrowserManager
+                # Catch-all for unexpected errors from BrowserService
                 self.logger.error(f"Browser startup failed: {browser_error}", traceback=traceback.format_exc(), module=__name__, class_name="BrowserEnvironment", method="start_browser_for_scenario")
                 self.logger.debug(f"Browser startup failed: {browser_error}")
                 # Don't mark as crashed immediately, allow graceful fallback
@@ -167,8 +167,8 @@ class BrowserEnvironment:
             context.browser_crashed = True
             return False
         except Exception as e:  # pylint: disable=broad-exception-caught
-            # Catch-all for unexpected errors from BrowserManager
-            # NOTE: BrowserManager.start() may raise various exceptions we cannot predict
+            # Catch-all for unexpected errors from BrowserService
+            # NOTE: BrowserService.start() may raise various exceptions we cannot predict
             self.logger.error(f"Failed to start browser for scenario: {e}", traceback=traceback.format_exc(), module=__name__, class_name="BrowserEnvironment", method="start_browser_for_scenario")
             # Mark browser as crashed
             context.browser_crashed = True
@@ -261,6 +261,6 @@ class BrowserEnvironment:
             # Collector stop errors - log but continue
             self.logger.warning(f"Error stopping collectors: {e}", traceback=traceback.format_exc(), module=__name__, class_name="BrowserEnvironment", method="_stop_collectors")
 
-    def get_browser_manager(self) -> Optional[BrowserManager]:
+    def get_browser_manager(self) -> Optional[BrowserService]:
         """Get browser manager instance."""
         return self.browser_manager

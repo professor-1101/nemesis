@@ -20,7 +20,7 @@ from playwright.sync_api import (
 )
 
 from nemesis.infrastructure.config import ConfigLoader
-from nemesis.shared.directory_manager import DirectoryManager
+from nemesis.shared.directory_service import DirectoryService
 from nemesis.shared.exceptions.browser_exceptions import BrowserError
 from nemesis.shared.execution_context import ExecutionContext
 from nemesis.infrastructure.logging import Logger
@@ -214,7 +214,7 @@ class BrowserLifecycle:
             if not execution_id:
                 execution_id = ExecutionContext.get_execution_id()
 
-            directory_manager = DirectoryManager(self.config)
+            directory_manager = DirectoryService(self.config)
             base_path = directory_manager.get_execution_base_path(execution_id)
             return base_path / "videos"
 

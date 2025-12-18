@@ -13,7 +13,7 @@ from .step_hooks import before_step, after_step
 # hooks -> environment_manager -> reporting_environment -> reporting.manager ->
 # reporting.management.reporter_manager -> hooks (cyclic!)
 if TYPE_CHECKING:
-    from .environment_manager import EnvironmentManager
+    from .environment_manager import EnvironmentCoordinator
 
 LOGGER = Logger.get_instance({})
 
@@ -26,13 +26,13 @@ def _get_env_manager() -> Any:
     """Get or create environment manager instance.
 
     Returns:
-        EnvironmentManager instance
+        EnvironmentCoordinator instance
     """
     global _env_manager
     if _env_manager is None:
         # Lazy import to avoid cyclic dependency at module load time
-        from .environment_manager import EnvironmentManager  # pylint: disable=import-outside-toplevel
-        _env_manager = EnvironmentManager()
+        from .environment_manager import EnvironmentCoordinator  # pylint: disable=import-outside-toplevel
+        _env_manager = EnvironmentCoordinator()
     return _env_manager
 
 

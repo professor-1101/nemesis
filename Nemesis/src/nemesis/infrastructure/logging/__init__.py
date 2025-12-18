@@ -2,7 +2,7 @@
 
 from .factory import create_test_logger, create_framework_logger, get_factory
 from .config.settings import LoggingConfig
-from .context.manager import ContextManager
+from .context.handler import LoggingContextHandler
 from .models.log_entry import LogEntry
 from .legacy_wrapper import Logger
 
@@ -11,7 +11,7 @@ __all__ = [
     "create_framework_logger",
     "get_factory",
     "LoggingConfig",
-    "ContextManager",
+    "LoggingContextHandler",
     "LogEntry",
     "Logger"  # For backward compatibility
 ]

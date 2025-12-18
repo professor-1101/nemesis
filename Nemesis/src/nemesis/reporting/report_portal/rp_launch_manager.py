@@ -96,23 +96,23 @@ class RPLaunchManager:
 
             self.logger.info(f"ReportPortal launch started: {self.launch_id}")
 
-            # Store launch_id in EnvironmentManager for cross-process access
+            # Store launch_id in EnvironmentCoordinator for cross-process access
             try:
                 from nemesis.infrastructure.environment.hooks import _get_env_manager  # pylint: disable=import-outside-toplevel
                 env_manager = _get_env_manager()
                 if env_manager:
-                    # Store launch_id in EnvironmentManager instance
+                    # Store launch_id in EnvironmentCoordinator instance
                     if not hasattr(env_manager, 'rp_launch_id'):
                         env_manager.rp_launch_id = None
                     env_manager.rp_launch_id = self.launch_id
-                    self.logger.debug(f"Stored launch_id in EnvironmentManager: {self.launch_id}")
+                    self.logger.debug(f"Stored launch_id in EnvironmentCoordinator: {self.launch_id}")
             except (AttributeError, ImportError) as store_error:
-                # Non-critical: failed to store launch_id in EnvironmentManager
-                self.logger.debug(f"Failed to store launch_id in EnvironmentManager (non-critical): {store_error}", module=__name__, class_name="RPLaunchManager", method="start_launch")
+                # Non-critical: failed to store launch_id in EnvironmentCoordinator
+                self.logger.debug(f"Failed to store launch_id in EnvironmentCoordinator (non-critical): {store_error}", module=__name__, class_name="RPLaunchManager", method="start_launch")
             except Exception as store_error:  # pylint: disable=broad-exception-caught
-                # Catch-all for unexpected errors from EnvironmentManager access
-                # NOTE: EnvironmentManager import or access may raise various exceptions
-                self.logger.debug(f"Failed to store launch_id in EnvironmentManager (non-critical): {store_error}", module=__name__, class_name="RPLaunchManager", method="start_launch")
+                # Catch-all for unexpected errors from EnvironmentCoordinator access
+                # NOTE: EnvironmentCoordinator import or access may raise various exceptions
+                self.logger.debug(f"Failed to store launch_id in EnvironmentCoordinator (non-critical): {store_error}", module=__name__, class_name="RPLaunchManager", method="start_launch")
 
         except (AttributeError, RuntimeError, TypeError) as e:
             # ReportPortal SDK errors
@@ -217,21 +217,21 @@ class RPLaunchManager:
             if target_launch_id == self.launch_id:
                 self.launch_id = None
 
-            # Clear launch_id from EnvironmentManager
+            # Clear launch_id from EnvironmentCoordinator
             try:
                 from nemesis.infrastructure.environment.hooks import _get_env_manager  # pylint: disable=import-outside-toplevel
                 env_manager = _get_env_manager()
                 if env_manager and hasattr(env_manager, 'rp_launch_id'):
                     if env_manager.rp_launch_id == finished_launch_id:
                         env_manager.rp_launch_id = None
-                    self.logger.debug("Cleared launch_id from EnvironmentManager")
+                    self.logger.debug("Cleared launch_id from EnvironmentCoordinator")
             except (AttributeError, ImportError) as cleanup_error:
-                # Non-critical: failed to clear launch_id from EnvironmentManager
-                self.logger.debug(f"Failed to clear launch_id from EnvironmentManager (non-critical): {cleanup_error}", module=__name__, class_name="RPLaunchManager", method="finish_launch")
+                # Non-critical: failed to clear launch_id from EnvironmentCoordinator
+                self.logger.debug(f"Failed to clear launch_id from EnvironmentCoordinator (non-critical): {cleanup_error}", module=__name__, class_name="RPLaunchManager", method="finish_launch")
             except Exception as cleanup_error:  # pylint: disable=broad-exception-caught
-                # Catch-all for unexpected errors from EnvironmentManager access
-                # NOTE: EnvironmentManager import or access may raise various exceptions
-                self.logger.debug(f"Failed to clear launch_id from EnvironmentManager (non-critical): {cleanup_error}", module=__name__, class_name="RPLaunchManager", method="finish_launch")
+                # Catch-all for unexpected errors from EnvironmentCoordinator access
+                # NOTE: EnvironmentCoordinator import or access may raise various exceptions
+                self.logger.debug(f"Failed to clear launch_id from EnvironmentCoordinator (non-critical): {cleanup_error}", module=__name__, class_name="RPLaunchManager", method="finish_launch")
 
             self.logger.debug(f"Launch {finished_launch_id} finalized and cleared")
 

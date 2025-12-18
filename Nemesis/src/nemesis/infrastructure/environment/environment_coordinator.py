@@ -12,7 +12,7 @@ from .reporting_environment import ReportingEnvironment
 from .logger_environment import LoggerEnvironment
 
 
-class EnvironmentManager:
+class EnvironmentCoordinator:
     """Centralized environment manager for test setup and teardown."""
 
     def __init__(self, config_dir: Optional[Path] = None) -> None:
@@ -81,14 +81,14 @@ class EnvironmentManager:
             raise
         except (AttributeError, RuntimeError, ImportError) as e:
             # Environment setup errors - allow graceful degradation
-            self.logger.critical(f"Critical error in environment setup: {e}", traceback=traceback.format_exc(), module=__name__, class_name="EnvironmentManager", method="setup_environment")
+            self.logger.critical(f"Critical error in environment setup: {e}", traceback=traceback.format_exc(), module=__name__, class_name="EnvironmentCoordinator", method="setup_environment")
             # Don't fail completely - allow graceful degradation
             self.initialized = True
             return True
         except Exception as e:  # pylint: disable=broad-exception-caught
             # Catch-all for unexpected errors from config or environment setup
             # NOTE: ConfigLoader and sub-environments may raise various exceptions we cannot predict
-            self.logger.critical(f"Critical error in environment setup: {e}", traceback=traceback.format_exc(), module=__name__, class_name="EnvironmentManager", method="setup_environment")
+            self.logger.critical(f"Critical error in environment setup: {e}", traceback=traceback.format_exc(), module=__name__, class_name="EnvironmentCoordinator", method="setup_environment")
             # Don't fail completely - allow graceful degradation
             self.initialized = True
             return True
@@ -109,12 +109,12 @@ class EnvironmentManager:
             # Finalize reports BEFORE teardown (while context and report_manager are still available)
             # This ensures launch_id is accessible from context.report_manager
             self.logger.info(f"Checking report_manager: {self.reporting_env.report_manager is not None}")
-            Logger.get_instance({}).info(f"[DEBUG] EnvironmentManager: Checking report_manager: {self.reporting_env.report_manager is not None}")
+            Logger.get_instance({}).info(f"[DEBUG] EnvironmentCoordinator: Checking report_manager: {self.reporting_env.report_manager is not None}")
             
             if self.reporting_env.report_manager:
                 try:
                     self.logger.info("Finalizing reports in after_all hook...")
-                    Logger.get_instance({}).info("[DEBUG] EnvironmentManager: Calling report_manager.finalize()")
+                    Logger.get_instance({}).info("[DEBUG] EnvironmentCoordinator: Calling report_manager.finalize()")
                     self.reporting_env.report_manager.finalize()
                 except KeyboardInterrupt:
                     raise
@@ -122,11 +122,11 @@ class EnvironmentManager:
                     raise
                 except (AttributeError, RuntimeError) as finalize_error:
                     # Report finalization errors
-                    self.logger.error(f"Error during report finalization: {finalize_error}", traceback=traceback.format_exc(), module=__name__, class_name="EnvironmentManager", method="teardown_environment")
+                    self.logger.error(f"Error during report finalization: {finalize_error}", traceback=traceback.format_exc(), module=__name__, class_name="EnvironmentCoordinator", method="teardown_environment")
                 except Exception as finalize_error:  # pylint: disable=broad-exception-caught
                     # Catch-all for unexpected errors from report finalization
                     # NOTE: ReportPortal SDK may raise various exceptions we cannot predict
-                    self.logger.error(f"Error during report finalization: {finalize_error}", traceback=traceback.format_exc(), module=__name__, class_name="EnvironmentManager", method="teardown_environment")
+                    self.logger.error(f"Error during report finalization: {finalize_error}", traceback=traceback.format_exc(), module=__name__, class_name="EnvironmentCoordinator", method="teardown_environment")
 
             # Teardown in reverse order
             self.reporting_env.teardown(context, status)
@@ -142,11 +142,11 @@ class EnvironmentManager:
             raise
         except (AttributeError, RuntimeError) as e:
             # Environment teardown errors
-            self.logger.error(f"Error during environment teardown: {e}", traceback=traceback.format_exc(), module=__name__, class_name="EnvironmentManager", method="teardown_environment")
+            self.logger.error(f"Error during environment teardown: {e}", traceback=traceback.format_exc(), module=__name__, class_name="EnvironmentCoordinator", method="teardown_environment")
         except Exception as e:  # pylint: disable=broad-exception-caught
             # Catch-all for unexpected errors from teardown operations
             # NOTE: Teardown operations may raise various exceptions we cannot predict
-            self.logger.error(f"Error during environment teardown: {e}", traceback=traceback.format_exc(), module=__name__, class_name="EnvironmentManager", method="teardown_environment")
+            self.logger.error(f"Error during environment teardown: {e}", traceback=traceback.format_exc(), module=__name__, class_name="EnvironmentCoordinator", method="teardown_environment")
 
     def _start_test_suite(self, context: Any) -> None:
         """Start test suite reporting."""
@@ -162,11 +162,11 @@ class EnvironmentManager:
 
         except (AttributeError, RuntimeError) as e:
             # Test suite start errors - log but continue
-            self.logger.warning(f"Error starting test suite: {e}", traceback=traceback.format_exc(), module=__name__, class_name="EnvironmentManager", method="_start_test_suite")
+            self.logger.warning(f"Error starting test suite: {e}", traceback=traceback.format_exc(), module=__name__, class_name="EnvironmentCoordinator", method="_start_test_suite")
         except Exception as e:  # pylint: disable=broad-exception-caught
             # Catch-all for unexpected errors from reporting setup
             # NOTE: Reporting environment may raise various exceptions we cannot predict
-            self.logger.warning(f"Error starting test suite: {e}", traceback=traceback.format_exc(), module=__name__, class_name="EnvironmentManager", method="_start_test_suite")
+            self.logger.warning(f"Error starting test suite: {e}", traceback=traceback.format_exc(), module=__name__, class_name="EnvironmentCoordinator", method="_start_test_suite")
 
     def _end_test_suite(self, context: Any, status: str) -> None:
         """End test suite reporting."""
@@ -179,11 +179,11 @@ class EnvironmentManager:
 
         except (AttributeError, RuntimeError) as e:
             # Test suite end errors - log but continue
-            self.logger.warning(f"Error ending test suite: {e}", traceback=traceback.format_exc(), module=__name__, class_name="EnvironmentManager", method="_end_test_suite")
+            self.logger.warning(f"Error ending test suite: {e}", traceback=traceback.format_exc(), module=__name__, class_name="EnvironmentCoordinator", method="_end_test_suite")
         except Exception as e:  # pylint: disable=broad-exception-caught
             # Catch-all for unexpected errors from reporting teardown
             # NOTE: Reporting environment may raise various exceptions we cannot predict
-            self.logger.warning(f"Error ending test suite: {e}", traceback=traceback.format_exc(), module=__name__, class_name="EnvironmentManager", method="_end_test_suite")
+            self.logger.warning(f"Error ending test suite: {e}", traceback=traceback.format_exc(), module=__name__, class_name="EnvironmentCoordinator", method="_end_test_suite")
 
     def get_browser_manager(self) -> Any:
         """Get browser manager instance."""

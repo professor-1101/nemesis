@@ -1,6 +1,6 @@
 """Environment management package for Nemesis framework."""
 
-from .environment_manager import EnvironmentManager
+from .environment_coordinator import EnvironmentCoordinator
 from .browser_environment import BrowserEnvironment
 from .reporting_environment import ReportingEnvironment
 from .logger_environment import LoggerEnvironment
@@ -10,7 +10,7 @@ from .hooks import (
 )
 
 __all__ = [
-    "EnvironmentManager",
+    "EnvironmentCoordinator",
     "BrowserEnvironment",
     "ReportingEnvironment",
     "LoggerEnvironment",

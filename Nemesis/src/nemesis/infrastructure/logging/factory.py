@@ -3,9 +3,9 @@
 from typing import Optional
 
 from .core.logger import Logger, LoggerConfig
-from .context.manager import ContextManager
+from .context.handler import LoggingContextHandler
 from .severity.mapper import SeverityMapper
-from .shipping.manager import ShippingManager
+from .shipping.shipper import LogShipper
 from .config.settings import LoggingConfig
 
 
@@ -14,7 +14,7 @@ class LoggerFactory:
 
     def __init__(self):
         """Initialize factory with shared components."""
-        self._context_manager = ContextManager()
+        self._context_manager = LoggingContextHandler()
         self._severity_mapper = SeverityMapper()
         self._shipping_managers = {}
 
@@ -62,16 +62,16 @@ class LoggerFactory:
             shipping_manager=shipping_manager
         )
 
-    def _get_shipping_manager(self, config: LoggingConfig) -> ShippingManager:
+    def _get_shipping_manager(self, config: LoggingConfig) -> LogShipper:
         """Get or create shipping manager for configuration."""
         config_key = f"{config.service_name}_{config.module}"
 
         if config_key not in self._shipping_managers:
-            self._shipping_managers[config_key] = ShippingManager(config)
+            self._shipping_managers[config_key] = LogShipper(config)
 
         return self._shipping_managers[config_key]
 
-    def get_context_manager(self) -> ContextManager:
+    def get_context_manager(self) -> LoggingContextHandler:
         """Get shared context manager."""
         return self._context_manager
 

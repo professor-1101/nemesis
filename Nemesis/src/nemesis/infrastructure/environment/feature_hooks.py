@@ -17,9 +17,9 @@ def before_feature(context: Any, feature: Any) -> None:
     """
     try:
         # Lazy import to avoid circular dependency
-        from .environment_manager import EnvironmentManager  # pylint: disable=import-outside-toplevel
+        from .environment_manager import EnvironmentCoordinator  # pylint: disable=import-outside-toplevel
 
-        env_manager = context.env_manager if hasattr(context, 'env_manager') else EnvironmentManager()
+        env_manager = context.env_manager if hasattr(context, 'env_manager') else EnvironmentCoordinator()
 
         # Start feature reporting
         env_manager.reporting_env.start_feature(context, feature)
@@ -48,9 +48,9 @@ def after_feature(context: Any, feature: Any) -> None:
     """
     try:
         # Lazy import to avoid circular dependency
-        from .environment_manager import EnvironmentManager  # pylint: disable=import-outside-toplevel
+        from .environment_manager import EnvironmentCoordinator  # pylint: disable=import-outside-toplevel
 
-        env_manager = context.env_manager if hasattr(context, 'env_manager') else EnvironmentManager()
+        env_manager = context.env_manager if hasattr(context, 'env_manager') else EnvironmentCoordinator()
 
         # Determine feature status
         status = "passed"

@@ -65,23 +65,23 @@ class FinalizationManager:
             try:
                 rp_client = self.reporter_manager.get_rp_client()
                 if rp_client:
-                    # Get launch_id from rp_client or EnvironmentManager
+                    # Get launch_id from rp_client or EnvironmentCoordinator
                     launch_id = rp_client.launch_id
                     if not launch_id:
-                        # Try to get from EnvironmentManager (for cross-process access)
+                        # Try to get from EnvironmentCoordinator (for cross-process access)
                         try:
                             from nemesis.infrastructure.environment.hooks import _get_env_manager  # pylint: disable=import-outside-toplevel
                             env_manager = _get_env_manager()
                             if env_manager and hasattr(env_manager, 'rp_launch_id') and env_manager.rp_launch_id:
                                 launch_id = env_manager.rp_launch_id
-                                self.logger.info(f"Retrieved launch_id from EnvironmentManager: {launch_id}")
+                                self.logger.info(f"Retrieved launch_id from EnvironmentCoordinator: {launch_id}")
                         except (AttributeError, ImportError) as get_error:
-                            # Non-critical: failed to get launch_id from EnvironmentManager
-                            self.logger.debug(f"Could not get launch_id from EnvironmentManager: {get_error}", module=__name__, class_name="FinalizationManager", method="finalize")
+                            # Non-critical: failed to get launch_id from EnvironmentCoordinator
+                            self.logger.debug(f"Could not get launch_id from EnvironmentCoordinator: {get_error}", module=__name__, class_name="FinalizationManager", method="finalize")
                         except Exception as get_error:  # pylint: disable=broad-exception-caught
-                            # Catch-all for unexpected errors from EnvironmentManager access
-                            # NOTE: EnvironmentManager import or access may raise various exceptions
-                            self.logger.debug(f"Could not get launch_id from EnvironmentManager: {get_error}", module=__name__, class_name="FinalizationManager", method="finalize")
+                            # Catch-all for unexpected errors from EnvironmentCoordinator access
+                            # NOTE: EnvironmentCoordinator import or access may raise various exceptions
+                            self.logger.debug(f"Could not get launch_id from EnvironmentCoordinator: {get_error}", module=__name__, class_name="FinalizationManager", method="finalize")
 
                     if launch_id:
                         launch_url = rp_client.get_launch_url()

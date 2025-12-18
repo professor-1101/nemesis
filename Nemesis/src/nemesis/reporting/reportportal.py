@@ -70,7 +70,7 @@ class ReportPortalClient:
         # RPClient may already have a launch_id from a previous initialization
         existing_launch_id = getattr(self.rp_client_base.client, 'launch_id', None)
 
-        # Also check if launch_id was stored in EnvironmentManager (for finalization phase)
+        # Also check if launch_id was stored in EnvironmentCoordinator (for finalization phase)
         saved_launch_id = None
         if not existing_launch_id and not self.rp_launch_manager.launch_id:
             try:
@@ -78,17 +78,17 @@ class ReportPortalClient:
                 env_manager = _get_env_manager()
                 if env_manager and hasattr(env_manager, 'rp_launch_id') and env_manager.rp_launch_id:
                     saved_launch_id = env_manager.rp_launch_id
-                    self.logger.info(f"Found launch_id in EnvironmentManager: {saved_launch_id}")
+                    self.logger.info(f"Found launch_id in EnvironmentCoordinator: {saved_launch_id}")
             except (ImportError, AttributeError) as load_error:
-                # Non-critical: failed to get launch_id from EnvironmentManager
-                self.logger.debug(f"Failed to get launch_id from EnvironmentManager: {load_error}", module=__name__, class_name="ReportPortalClient", method="__init__")
+                # Non-critical: failed to get launch_id from EnvironmentCoordinator
+                self.logger.debug(f"Failed to get launch_id from EnvironmentCoordinator: {load_error}", module=__name__, class_name="ReportPortalClient", method="__init__")
             except (KeyboardInterrupt, SystemExit):
                 # Allow program interruption to propagate
                 raise
             except Exception as load_error:  # pylint: disable=broad-exception-caught
-                # Catch-all for unexpected errors from EnvironmentManager access
-                # NOTE: EnvironmentManager import or access may raise various exceptions we cannot predict
-                self.logger.debug(f"Failed to get launch_id from EnvironmentManager: {load_error}", module=__name__, class_name="ReportPortalClient", method="__init__")
+                # Catch-all for unexpected errors from EnvironmentCoordinator access
+                # NOTE: EnvironmentCoordinator import or access may raise various exceptions we cannot predict
+                self.logger.debug(f"Failed to get launch_id from EnvironmentCoordinator: {load_error}", module=__name__, class_name="ReportPortalClient", method="__init__")
 
         if not existing_launch_id and not self.rp_launch_manager.launch_id and not saved_launch_id:
             self.rp_launch_manager.start_launch()
@@ -97,11 +97,11 @@ class ReportPortalClient:
             self.rp_launch_manager.launch_id = existing_launch_id
             self.logger.info(f"Reusing existing ReportPortal launch: {existing_launch_id}")
         elif saved_launch_id:
-            # Reuse saved launch_id from EnvironmentManager (from previous process or same process)
+            # Reuse saved launch_id from EnvironmentCoordinator (from previous process or same process)
             self.rp_launch_manager.launch_id = saved_launch_id
             # Note: Cannot set client.launch_id directly (it's read-only property)
             # But RPClient will use the launch_id from finish_launch call
-            self.logger.info(f"Reusing launch_id from EnvironmentManager: {saved_launch_id}")
+            self.logger.info(f"Reusing launch_id from EnvironmentCoordinator: {saved_launch_id}")
 
     def start_launch(self) -> None:
         """Start launch - only if not already started."""

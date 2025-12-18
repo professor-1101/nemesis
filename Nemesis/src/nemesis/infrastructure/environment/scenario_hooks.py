@@ -17,9 +17,9 @@ def before_scenario(context: Any, scenario: Any) -> None:
     """
     try:
         # Lazy import to avoid circular dependency
-        from .environment_manager import EnvironmentManager  # pylint: disable=import-outside-toplevel
+        from .environment_manager import EnvironmentCoordinator  # pylint: disable=import-outside-toplevel
 
-        env_manager = context.env_manager if hasattr(context, 'env_manager') else EnvironmentManager()
+        env_manager = context.env_manager if hasattr(context, 'env_manager') else EnvironmentCoordinator()
 
         # Check if browser already crashed
         if hasattr(context, 'browser_crashed') and context.browser_crashed:
@@ -72,9 +72,9 @@ def after_scenario(context: Any, scenario: Any) -> None:
     """
     try:
         # Lazy import to avoid circular dependency
-        from .environment_manager import EnvironmentManager  # pylint: disable=import-outside-toplevel
+        from .environment_manager import EnvironmentCoordinator  # pylint: disable=import-outside-toplevel
 
-        env_manager = context.env_manager if hasattr(context, 'env_manager') else EnvironmentManager()
+        env_manager = context.env_manager if hasattr(context, 'env_manager') else EnvironmentCoordinator()
 
         # Determine scenario status
         status = "passed"

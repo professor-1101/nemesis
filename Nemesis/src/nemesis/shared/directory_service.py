@@ -6,7 +6,7 @@ from nemesis.infrastructure.config import ConfigLoader
 from nemesis.infrastructure.logging import Logger
 
 
-class DirectoryManager:
+class DirectoryService:
     """Manages directory creation based on centralized configuration."""
 
     def __init__(self, config: ConfigLoader):
@@ -106,11 +106,11 @@ class DirectoryManager:
                 self._created_directories.add(dir_path)
             except (OSError, PermissionError) as e:
                 # File system errors - directory creation failed
-                self.logger.warning(f"Failed to create directory {dir_path}: {e}", traceback=traceback.format_exc(), module=__name__, class_name="DirectoryManager", method="_create_directory", dir_path=str(dir_path))
+                self.logger.warning(f"Failed to create directory {dir_path}: {e}", traceback=traceback.format_exc(), module=__name__, class_name="DirectoryService", method="_create_directory", dir_path=str(dir_path))
             except Exception as e:  # pylint: disable=broad-exception-caught
                 # Catch-all for unexpected errors from Path.mkdir
                 # NOTE: Path.mkdir may raise various exceptions we cannot predict
-                self.logger.warning(f"Failed to create directory {dir_path}: {e}", traceback=traceback.format_exc(), module=__name__, class_name="DirectoryManager", method="_create_directory", dir_path=str(dir_path))
+                self.logger.warning(f"Failed to create directory {dir_path}: {e}", traceback=traceback.format_exc(), module=__name__, class_name="DirectoryService", method="_create_directory", dir_path=str(dir_path))
 
     def _get_bool_config(self, key: str, default: bool) -> bool:
         """Get boolean config value with proper type conversion.

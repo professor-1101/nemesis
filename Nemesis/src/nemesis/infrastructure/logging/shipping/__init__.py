@@ -1,9 +1,9 @@
 """Log shipping module for external systems."""
 
-from .manager import ShippingManager
+from .shipper import LogShipper
 from .channels.local import LocalChannel
 
 __all__ = [
-    "ShippingManager",
+    "LogShipper",
     "LocalChannel",
 ]

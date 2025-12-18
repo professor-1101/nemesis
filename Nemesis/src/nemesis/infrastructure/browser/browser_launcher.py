@@ -3,7 +3,7 @@
 from typing import Any
 
 from nemesis.infrastructure.config import ConfigLoader
-from nemesis.shared.directory_manager import DirectoryManager
+from nemesis.shared.directory_service import DirectoryService
 from nemesis.infrastructure.logging import Logger
 from nemesis.utils.helpers.browser_helpers import get_browser_args, get_browser_type, get_viewport
 from nemesis.utils.helpers.har_helpers import add_har_path_to_options
@@ -42,8 +42,8 @@ class BrowserLauncher:
             ),
         }
 
-        # Use DirectoryManager for centralized directory management
-        directory_manager = DirectoryManager(self.config)
+        # Use DirectoryService for centralized directory management
+        directory_manager = DirectoryService(self.config)
 
         # Video recording - check attachments config
         videos_enabled = directory_manager.should_create_directory("videos")

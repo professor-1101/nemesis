@@ -3,7 +3,7 @@
 from pathlib import Path
 
 from nemesis.infrastructure.config import ConfigLoader
-from nemesis.shared.directory_manager import DirectoryManager
+from nemesis.shared.directory_service import DirectoryService
 from nemesis.infrastructure.logging import Logger
 from nemesis.shared.execution_context import ExecutionContext
 
@@ -24,8 +24,8 @@ class ExecutionManager:
 
     def _create_execution_directory(self) -> Path:
         """Create execution directory structure based on config."""
-        # Use DirectoryManager for centralized directory management
-        directory_manager = DirectoryManager(self.config)
+        # Use DirectoryService for centralized directory management
+        directory_manager = DirectoryService(self.config)
 
         # Create directories based on configuration
         created_dirs = directory_manager.create_execution_directories(self.execution_id)

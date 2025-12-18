@@ -4,9 +4,9 @@ import time
 from dataclasses import dataclass
 
 from ..models.log_entry import LogEntry
-from ..context.manager import ContextManager
+from ..context.handler import LoggingContextHandler
 from ..severity.mapper import SeverityMapper
-from ..shipping.manager import ShippingManager
+from ..shipping.shipper import LogShipper
 
 
 @dataclass
@@ -26,8 +26,8 @@ class LoggerConfig:
 class Logger:
     """Core logger for structured logging."""
 
-    def __init__(self, config: LoggerConfig, context_manager: ContextManager,
-                 severity_mapper: SeverityMapper, shipping_manager: ShippingManager):
+    def __init__(self, config: LoggerConfig, context_manager: LoggingContextHandler,
+                 severity_mapper: SeverityMapper, shipping_manager: LogShipper):
         """Initialize logger with dependencies."""
         self.config = config
         self.context_manager = context_manager

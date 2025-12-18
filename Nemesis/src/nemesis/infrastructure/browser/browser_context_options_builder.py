@@ -5,7 +5,7 @@ from typing import Any, Dict
 
 from nemesis.infrastructure.config import ConfigLoader
 from nemesis.infrastructure.logging import Logger
-from nemesis.shared.directory_manager import DirectoryManager
+from nemesis.shared.directory_service import DirectoryService
 from nemesis.utils.helpers.browser_helpers import get_viewport
 from nemesis.utils.helpers.har_helpers import add_har_path_to_options
 
@@ -21,7 +21,7 @@ class BrowserContextOptionsBuilder:
         """
         self.config = config
         self.logger = Logger.get_instance({})
-        self.directory_manager = DirectoryManager(config)
+        self.directory_manager = DirectoryService(config)
 
     def build_options(self, execution_id: str) -> Dict[str, Any]:
         """Build complete context creation options.

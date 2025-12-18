@@ -59,7 +59,7 @@ class ReporterManager:
         if self.config.get("reporting.reportportal.enabled", False):
             if self.skip_rp_init or not self.execution_manager:
                 # We're in finalization phase - ReportPortal was already initialized
-                # Try to get existing client from EnvironmentManager first
+                # Try to get existing client from EnvironmentCoordinator first
                 self.logger.info("Skipping ReportPortal initialization in finalization - will use existing client")
                 try:
                     from nemesis.infrastructure.environment.hooks import _get_env_manager  # pylint: disable=import-outside-toplevel
@@ -68,17 +68,17 @@ class ReporterManager:
                         existing_rp_client = env_manager.reporting_env.report_manager.reporter_manager.get_rp_client()
                         if existing_rp_client:
                             self.rp_client = existing_rp_client
-                            self.logger.info("Using existing ReportPortal client from EnvironmentManager")
+                            self.logger.info("Using existing ReportPortal client from EnvironmentCoordinator")
                             return
                 except (ImportError, AttributeError) as e:
-                    # Non-critical: failed to get existing ReportPortal client from EnvironmentManager
+                    # Non-critical: failed to get existing ReportPortal client from EnvironmentCoordinator
                     self.logger.debug(f"Could not get existing ReportPortal client - import/attribute error: {e}", module=__name__, class_name="ReporterManager", method="_initialize_reporters")
                 except Exception as e:  # pylint: disable=broad-exception-caught
-                    # Catch-all for unexpected errors from EnvironmentManager access
-                    # NOTE: EnvironmentManager import or access may raise various exceptions
+                    # Catch-all for unexpected errors from EnvironmentCoordinator access
+                    # NOTE: EnvironmentCoordinator import or access may raise various exceptions
                     self.logger.debug(f"Could not get existing ReportPortal client: {e}", module=__name__, class_name="ReporterManager", method="_initialize_reporters")
 
-                # If EnvironmentManager doesn't have the client (cross-process), create new client
+                # If EnvironmentCoordinator doesn't have the client (cross-process), create new client
                 # but it will reuse saved launch_id from file (handled in ReportPortalClient.__init__)
                 try:
                     self.logger.info("Creating new ReportPortalClient for finalization (will reuse saved launch_id)")

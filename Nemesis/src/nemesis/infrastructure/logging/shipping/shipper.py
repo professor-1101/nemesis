@@ -6,7 +6,7 @@ from ..config.settings import LoggingConfig
 from .channels.local import LocalChannel
 
 
-class ShippingManager:
+class LogShipper:
     """Manages log shipping to multiple channels."""
 
     def __init__(self, config: LoggingConfig):

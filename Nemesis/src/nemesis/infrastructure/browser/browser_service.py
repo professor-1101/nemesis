@@ -1,4 +1,4 @@
-"""Main browser manager - REFACTORED."""
+"""Browser service providing browser lifecycle management."""
 
 from nemesis.infrastructure.config import ConfigLoader
 from nemesis.infrastructure.browser.browser_lifecycle import BrowserLifecycle
@@ -7,11 +7,11 @@ from nemesis.infrastructure.browser.browser_cleanup import BrowserCleanup
 from nemesis.infrastructure.browser.browser_health import BrowserHealthMonitor
 
 
-class BrowserManager:
-    """Main browser manager that orchestrates all browser components."""
+class BrowserService:
+    """Browser service that orchestrates browser lifecycle and operations."""
 
     def __init__(self, config: ConfigLoader) -> None:
-        """Initialize browser manager.
+        """Initialize browser service.
 
         Args:
             config: Centralized config loader
