@@ -1,4 +1,4 @@
-"""Base class for ReportPortal managers with common initialization."""
+"""Base class for ReportPortal handlers with common initialization."""
 
 from reportportal_client import RPClient
 from nemesis.infrastructure.logging import Logger
@@ -9,10 +9,10 @@ from .rp_test_manager import RPTestManager
 from .rp_step_manager import RPStepManager
 
 
-class RPBaseManager:
-    """Base class for ReportPortal managers with shared initialization.
+class RPBaseHandler:
+    """Base class for ReportPortal handlers with shared initialization.
 
-    Provides common initialization pattern for managers that need access to
+    Provides common initialization pattern for handlers that need access to
     RP client and all manager instances.
     """
 

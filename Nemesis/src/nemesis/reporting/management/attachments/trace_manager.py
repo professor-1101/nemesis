@@ -1,10 +1,10 @@
 """Trace attachment management."""
 import shutil
 from pathlib import Path
-from .base_manager import BaseAttachmentManager
+from .base_handler import BaseAttachmentHandler
 
 
-class TraceManager(BaseAttachmentManager):
+class TraceManager(BaseAttachmentHandler):
     """Manages trace attachments."""
 
     def attach_trace(self, trace_path: Path) -> None:

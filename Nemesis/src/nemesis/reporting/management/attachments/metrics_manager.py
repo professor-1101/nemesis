@@ -1,10 +1,10 @@
 """Metrics attachment management."""
 import traceback
 from pathlib import Path
-from .base_manager import BaseAttachmentManager
+from .base_handler import BaseAttachmentHandler
 
 
-class MetricsManager(BaseAttachmentManager):
+class MetricsManager(BaseAttachmentHandler):
     """Manages metrics attachments."""
 
     def attach_metrics(self, metrics_path: Path, metric_type: str) -> None:

@@ -7,10 +7,10 @@ exceptions, and attachments to the current test item in ReportPortal hierarchy
 import traceback
 from pathlib import Path
 from nemesis.utils.decorators import retry
-from .rp_base_manager import RPBaseManager
+from .rp_base_handler import RPBaseHandler
 from .rp_utils import RPUtils
 
-class RPLogger(RPBaseManager):
+class RPLogger(RPBaseHandler):
     """Manages logging to ReportPortal.
     
     Handles sending log messages, exceptions, and attachments to the

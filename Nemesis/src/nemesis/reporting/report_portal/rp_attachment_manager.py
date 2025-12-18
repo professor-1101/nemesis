@@ -6,10 +6,10 @@ hierarchy (step > test > feature > launch).
 """
 from pathlib import Path
 from nemesis.utils.decorators import retry
-from .rp_base_manager import RPBaseManager
+from .rp_base_handler import RPBaseHandler
 from .rp_utils import RPUtils
 
-class RPAttachmentManager(RPBaseManager):
+class RPAttachmentManager(RPBaseHandler):
     """Manages file attachments for ReportPortal test items.
     
     Handles file validation, size limits, and attachment to the appropriate

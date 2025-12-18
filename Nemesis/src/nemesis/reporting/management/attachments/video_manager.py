@@ -2,10 +2,10 @@
 
 from pathlib import Path
 from nemesis.utils.video_converter import convert_to_mp4
-from .base_manager import BaseAttachmentManager
+from .base_handler import BaseAttachmentHandler
 
 
-class VideoManager(BaseAttachmentManager):
+class VideoManager(BaseAttachmentHandler):
     """Manages video attachments."""
 
     def _convert_video(self, video_path: Path) -> Path:

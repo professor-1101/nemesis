@@ -1,4 +1,4 @@
-"""Base class for attachment managers with shared functionality."""
+"""Base class for attachment handlers with shared functionality."""
 
 import shutil
 from pathlib import Path
@@ -6,15 +6,15 @@ from pathlib import Path
 from nemesis.infrastructure.logging import Logger
 
 
-class BaseAttachmentManager:
-    """Base class for attachment managers with shared functionality.
+class BaseAttachmentHandler:
+    """Base class for attachment handlers with shared functionality.
 
     Provides common initialization and file storage methods for
-    metrics, trace, and video managers.
+    metrics, trace, and video handlers.
     """
 
     def __init__(self, reporter_manager, execution_manager):
-        """Initialize base attachment manager.
+        """Initialize base attachment handler.
 
         Args:
             reporter_manager: Reporter manager instance
