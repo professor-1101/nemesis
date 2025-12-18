@@ -396,7 +396,7 @@ class TestScenarioComplete:
         scenario.complete()  # Now PASSED (terminal)
 
         with pytest.raises(ValueError, match="Cannot fail scenario in terminal status"):
-            scenario.fail("error")
+            scenario.fail()
 
     def test_skip_terminal_scenario_raises_error(self):
         """Test skipping scenario that's already in terminal status"""
@@ -513,7 +513,7 @@ class TestExecutionComplete:
         # Add a failed scenario
         scenario2 = Scenario.create(name="S2", feature_name="F1")
         scenario2.start()
-        scenario2.fail("error")
+        scenario2.fail()
         execution.add_scenario(scenario2)
 
         assert execution.is_successful() is False
@@ -579,7 +579,7 @@ class TestExecutionComplete:
         # Add failed scenario
         s2 = Scenario.create(name="S2", feature_name="F1")
         s2.start()
-        s2.fail("error")
+        s2.fail()
         execution.add_scenario(s2)
         assert execution.has_failures() is True
 

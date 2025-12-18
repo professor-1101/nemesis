@@ -27,7 +27,7 @@ class FeatureHandler:
         specific_message="{error}",
         fallback_message="{error}"
     )
-    def _call_rp_client(self, callback, error_context: str) -> None:
+    def _call_rp_client(self, callback) -> None:
         """Call ReportPortal client method with exception handling."""
         callback()
 

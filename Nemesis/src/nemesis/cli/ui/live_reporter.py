@@ -8,7 +8,6 @@ from rich.panel import Panel
 from rich.table import Table
 from rich.progress import Progress, SpinnerColumn, TextColumn, BarColumn, TimeElapsedColumn
 from rich.text import Text
-from rich.tree import Tree
 
 from nemesis.domain.entities import Execution, Scenario, Step
 from nemesis.domain.value_objects import ScenarioStatus, StepStatus

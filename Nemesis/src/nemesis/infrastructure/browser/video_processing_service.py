@@ -4,7 +4,6 @@ Converts WebM video files to MP4 format for compatibility with reporting systems
 """
 
 import subprocess
-import traceback
 from pathlib import Path
 
 from nemesis.infrastructure.logging import Logger

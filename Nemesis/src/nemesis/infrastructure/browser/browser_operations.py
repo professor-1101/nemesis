@@ -1,5 +1,4 @@
 """Browser operations for trace, screenshots, and video."""
-import traceback
 from pathlib import Path
 
 from playwright.sync_api import Page

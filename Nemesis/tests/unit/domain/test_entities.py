@@ -270,7 +270,7 @@ class TestScenario:
         scenario.start()
 
         # Act
-        scenario.fail("Test failed")
+        scenario.fail()
 
         # Assert
         assert scenario.status == ScenarioStatus.FAILED
@@ -379,7 +379,7 @@ class TestExecution:
         # Failed scenario
         s3 = Scenario.create(name="S3", feature_name="F1")
         s3.start()
-        s3.fail("error")
+        s3.fail()
         execution.add_scenario(s3)
 
         # Act
@@ -409,7 +409,7 @@ class TestExecution:
         # Failed scenario
         s3 = Scenario.create(name="S3", feature_name="F1")
         s3.start()
-        s3.fail("error")
+        s3.fail()
         execution.add_scenario(s3)
 
         # Act

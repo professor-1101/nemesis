@@ -95,7 +95,7 @@ class Scenario:
         else:
             self.status = ScenarioStatus.SKIPPED
 
-    def fail(self, reason: str = "") -> None:
+    def fail(self) -> None:
         """
         Mark scenario as failed explicitly
 

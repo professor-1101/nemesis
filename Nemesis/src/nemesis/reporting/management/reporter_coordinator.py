@@ -1,5 +1,4 @@
 """Reporter management with config-driven architecture."""
-import traceback
 from typing import Optional, Any
 
 from nemesis.infrastructure.config import ConfigLoader
