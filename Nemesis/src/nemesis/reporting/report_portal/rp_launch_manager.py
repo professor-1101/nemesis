@@ -98,7 +98,7 @@ class RPLaunchManager:
 
             # Store launch_id in EnvironmentManager for cross-process access
             try:
-                from nemesis.environment.hooks import _get_env_manager  # pylint: disable=import-outside-toplevel
+                from nemesis.infrastructure.environment.hooks import _get_env_manager  # pylint: disable=import-outside-toplevel
                 env_manager = _get_env_manager()
                 if env_manager:
                     # Store launch_id in EnvironmentManager instance
@@ -219,7 +219,7 @@ class RPLaunchManager:
 
             # Clear launch_id from EnvironmentManager
             try:
-                from nemesis.environment.hooks import _get_env_manager  # pylint: disable=import-outside-toplevel
+                from nemesis.infrastructure.environment.hooks import _get_env_manager  # pylint: disable=import-outside-toplevel
                 env_manager = _get_env_manager()
                 if env_manager and hasattr(env_manager, 'rp_launch_id'):
                     if env_manager.rp_launch_id == finished_launch_id:

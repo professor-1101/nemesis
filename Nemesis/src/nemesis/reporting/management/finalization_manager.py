@@ -70,7 +70,7 @@ class FinalizationManager:
                     if not launch_id:
                         # Try to get from EnvironmentManager (for cross-process access)
                         try:
-                            from nemesis.environment.hooks import _get_env_manager  # pylint: disable=import-outside-toplevel
+                            from nemesis.infrastructure.environment.hooks import _get_env_manager  # pylint: disable=import-outside-toplevel
                             env_manager = _get_env_manager()
                             if env_manager and hasattr(env_manager, 'rp_launch_id') and env_manager.rp_launch_id:
                                 launch_id = env_manager.rp_launch_id

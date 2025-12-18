@@ -62,7 +62,7 @@ class ReporterManager:
                 # Try to get existing client from EnvironmentManager first
                 self.logger.info("Skipping ReportPortal initialization in finalization - will use existing client")
                 try:
-                    from nemesis.environment.hooks import _get_env_manager  # pylint: disable=import-outside-toplevel
+                    from nemesis.infrastructure.environment.hooks import _get_env_manager  # pylint: disable=import-outside-toplevel
                     env_manager = _get_env_manager()
                     if env_manager and hasattr(env_manager, 'reporting_env') and env_manager.reporting_env.report_manager:
                         existing_rp_client = env_manager.reporting_env.report_manager.reporter_manager.get_rp_client()

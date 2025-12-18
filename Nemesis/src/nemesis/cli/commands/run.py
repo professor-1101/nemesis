@@ -198,7 +198,7 @@ def run_command(
                 # Only finalize local reports here (ReportPortal is finalized in after_all hook)
                 # This prevents duplicate finalization
                 try:
-                    from nemesis.environment.hooks import _get_env_manager  # pylint: disable=import-outside-toplevel
+                    from nemesis.infrastructure.environment.hooks import _get_env_manager  # pylint: disable=import-outside-toplevel
                     env_manager = _get_env_manager()
                     if env_manager and env_manager.reporting_env.report_manager:
                         # Local report finalization (HTML generation) can happen here if not done in after_all

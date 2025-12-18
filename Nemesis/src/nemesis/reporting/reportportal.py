@@ -74,7 +74,7 @@ class ReportPortalClient:
         saved_launch_id = None
         if not existing_launch_id and not self.rp_launch_manager.launch_id:
             try:
-                from nemesis.environment.hooks import _get_env_manager  # pylint: disable=import-outside-toplevel
+                from nemesis.infrastructure.environment.hooks import _get_env_manager  # pylint: disable=import-outside-toplevel
                 env_manager = _get_env_manager()
                 if env_manager and hasattr(env_manager, 'rp_launch_id') and env_manager.rp_launch_id:
                     saved_launch_id = env_manager.rp_launch_id
