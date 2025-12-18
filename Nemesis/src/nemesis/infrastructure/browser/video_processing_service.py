@@ -8,6 +8,7 @@ import traceback
 from pathlib import Path
 
 from nemesis.infrastructure.logging import Logger
+from nemesis.utils.decorators.exception_handler import handle_exceptions, handle_exceptions_with_fallback
 
 
 # Video processing constants
@@ -32,6 +33,10 @@ class VideoProcessingService:
         """
         self.logger = logger or Logger.get_instance({})
 
+    @handle_exceptions(
+        log_level="warning",
+        catch_exceptions=(OSError, ImportError)
+    )
     def convert_videos_in_directory(self, video_dir: Path) -> None:
         """
         Convert all WebM videos in directory to MP4.
@@ -47,36 +52,29 @@ class VideoProcessingService:
             >>> service = VideoProcessingService()
             >>> service.convert_videos_in_directory(Path("./videos"))
         """
-        try:
-            if not video_dir.exists():
-                return
+        if not video_dir.exists():
+            return
 
-            # Find all WebM files
-            webm_files = list(video_dir.glob("*.webm"))
-            if not webm_files:
-                return
+        # Find all WebM files
+        webm_files = list(video_dir.glob("*.webm"))
+        if not webm_files:
+            return
 
-            self.logger.info(
-                f"Converting {len(webm_files)} video(s) to MP4 (for all reporters)..."
-            )
+        self.logger.info(
+            f"Converting {len(webm_files)} video(s) to MP4 (for all reporters)..."
+        )
 
-            # Convert each file
-            for webm_file in webm_files:
-                self._convert_single_video(webm_file)
+        # Convert each file
+        for webm_file in webm_files:
+            self._convert_single_video(webm_file)
 
-        except (KeyboardInterrupt, SystemExit):
-            # Always re-raise these to allow proper program termination
-            raise
-        except (OSError, ImportError) as e:
-            # Video conversion setup errors
-            self.logger.warning(
-                f"Video conversion error: {e}",
-                traceback=traceback.format_exc(),
-                module=__name__,
-                class_name="VideoProcessingService",
-                method="convert_videos_in_directory"
-            )
-
+    @handle_exceptions_with_fallback(
+        log_level="warning",
+        specific_exceptions=(OSError, RuntimeError, subprocess.SubprocessError),
+        specific_message="Failed to convert {webm_file.name}: {error}",
+        fallback_message="Failed to convert {webm_file.name}: {error}",
+        return_on_error=None
+    )
     def _convert_single_video(self, webm_file: Path) -> Path | None:
         """
         Convert a single WebM video file to MP4.
@@ -87,31 +85,15 @@ class VideoProcessingService:
         Returns:
             Path to MP4 file if successful, None otherwise
         """
-        try:
-            # Import here to avoid dependency if not needed
-            from nemesis.utils.video_converter import convert_to_mp4  # pylint: disable=import-outside-toplevel
+        # Import here to avoid dependency if not needed
+        from nemesis.utils.video_converter import convert_to_mp4  # pylint: disable=import-outside-toplevel
 
-            mp4_file = convert_to_mp4(webm_file)
-            if mp4_file and mp4_file != webm_file:
-                self.logger.debug(f"Converted: {webm_file.name} -> {mp4_file.name}")
-                return mp4_file
+        mp4_file = convert_to_mp4(webm_file)
+        if mp4_file and mp4_file != webm_file:
+            self.logger.debug(f"Converted: {webm_file.name} -> {mp4_file.name}")
+            return mp4_file
 
-            return None
-
-        except (KeyboardInterrupt, SystemExit):
-            # Always re-raise these to allow proper program termination
-            raise
-        except (OSError, RuntimeError, subprocess.SubprocessError) as e:
-            # Video conversion errors for single file - log and continue
-            self.logger.warning(
-                f"Failed to convert {webm_file.name}: {e}",
-                traceback=traceback.format_exc(),
-                module=__name__,
-                class_name="VideoProcessingService",
-                method="_convert_single_video",
-                video_file=str(webm_file)
-            )
-            return None
+        return None
 
     def find_videos_to_convert(self, video_dir: Path) -> list[Path]:
         """

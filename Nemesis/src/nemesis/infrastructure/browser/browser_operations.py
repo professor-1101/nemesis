@@ -5,6 +5,7 @@ from pathlib import Path
 from playwright.sync_api import Page
 
 from nemesis.infrastructure.logging import Logger
+from nemesis.utils.decorators.exception_handler import handle_exceptions_with_fallback
 
 
 class BrowserOperations:
@@ -17,26 +18,19 @@ class BrowserOperations:
         self.execution_id = execution_id
         self.logger = Logger.get_instance({})
 
+    @handle_exceptions_with_fallback(
+        log_level="error",
+        specific_exceptions=(RuntimeError, AttributeError, OSError, IOError, Exception),
+        specific_message="Failed to get video path: {error}",
+        fallback_message="Failed to get video path: {error}",
+        return_on_error=None
+    )
     def get_video_path(self) -> Path | None:
         """Get video path if recording is enabled."""
-        try:
-            video = self.page.video
-            if video:
-                return Path(video.path())
-            return None
-        except (RuntimeError, AttributeError) as e:
-            # Playwright API errors - video path retrieval failed
-            self.logger.error(f"Failed to get video path: {e}", traceback=traceback.format_exc(), module=__name__, class_name="BrowserOperations", method="get_video_path", execution_id=self.execution_id)
-            return None
-        except (OSError, IOError) as e:
-            # File path errors
-            self.logger.error(f"Failed to get video path - I/O error: {e}", traceback=traceback.format_exc(), module=__name__, class_name="BrowserOperations", method="get_video_path", execution_id=self.execution_id)
-            return None
-        except Exception as e:  # pylint: disable=broad-exception-caught
-            # Catch-all for unexpected errors from Playwright video API
-            # NOTE: Playwright video API may raise various exceptions we cannot predict
-            self.logger.error(f"Failed to get video path: {e}", traceback=traceback.format_exc(), module=__name__, class_name="BrowserOperations", method="get_video_path", execution_id=self.execution_id)
-            return None
+        video = self.page.video
+        if video:
+            return Path(video.path())
+        return None
 
     @staticmethod
     def _sanitize_filename(name: str) -> str:
