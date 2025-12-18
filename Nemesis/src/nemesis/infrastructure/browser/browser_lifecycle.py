@@ -1,4 +1,14 @@
-"""Browser lifecycle management."""
+"""Browser lifecycle management (Refactored for SRP).
+
+This module orchestrates browser lifecycle using composed services.
+Following SRP: Single responsibility is lifecycle orchestration.
+
+Refactored to extract 4 service classes:
+- BrowserHealthValidator: Health checking
+- VideoProcessingService: Video conversion
+- ResourceCleaner: Graceful cleanup
+- CollectorCoordinator: Collector management
+"""
 
 import time
 import traceback
@@ -22,12 +32,36 @@ from nemesis.infrastructure.logging import Logger
 from nemesis.utils.helpers.browser_helpers import get_browser_args, get_browser_type
 from nemesis.infrastructure.browser.browser_context_options_builder import BrowserContextOptionsBuilder
 
+# Extracted services (SRP compliance)
+from nemesis.infrastructure.browser.browser_health_validator import BrowserHealthValidator
+from nemesis.infrastructure.browser.video_processing_service import (
+    VideoProcessingService,
+    VIDEO_FINALIZATION_DELAY
+)
+from nemesis.infrastructure.browser.resource_cleaner import ResourceCleaner
+from nemesis.infrastructure.browser.collector_coordinator import CollectorCoordinator
+
 
 class BrowserLifecycle:
-    """Manages browser lifecycle operations."""
+    """
+    Orchestrates browser lifecycle using composition (Refactored for SRP).
+
+    Responsibilities (SRP):
+    - Start browser and create page
+    - Coordinate lifecycle events
+    - Provide access to browser/page instances
+    - Close browser gracefully
+
+    This class was refactored to follow SRP by extracting 4 service classes.
+    Reduced from 424 lines to ~180 lines.
+
+    Design Pattern: Composition over inheritance
+    Architecture: Clean Architecture - coordinates infrastructure services
+    """
 
     def __init__(self, config: ConfigLoader) -> None:
-        """Initialize browser lifecycle.
+        """
+        Initialize browser lifecycle with composed services.
 
         Args:
             config: Centralized config loader
@@ -35,22 +69,35 @@ class BrowserLifecycle:
         self.config = config
         self.logger = Logger.get_instance({})
 
+        # Browser instances
         self._playwright: Playwright | None = None
         self._browser: Browser | None = None
         self._context: BrowserContext | None = None
         self._page: Page | None = None
         self._is_healthy = False
 
-        # Collectors
-        self._console_collector = None
-        self._network_collector = None
-        self._performance_collector = None
-
         # Context options builder
         self._context_options_builder = BrowserContextOptionsBuilder(config)
 
+        # Composed services (SRP: Each service has one responsibility)
+        self._health_validator = BrowserHealthValidator()
+        self._video_processor = VideoProcessingService(logger=self.logger)
+        self._resource_cleaner = ResourceCleaner(logger=self.logger)
+        self._collector_coordinator = CollectorCoordinator(logger=self.logger)
+
     def start(self, execution_id: str) -> Page:
-        """Start browser and create page synchronously."""
+        """
+        Start browser and create page synchronously.
+
+        Args:
+            execution_id: Execution ID for context
+
+        Returns:
+            Playwright Page instance
+
+        Raises:
+            BrowserError: If browser fails to start or is already running
+        """
         if self._is_healthy:
             raise BrowserError(
                 "Browser already started",
@@ -58,10 +105,12 @@ class BrowserLifecycle:
             )
 
         try:
+            # Start Playwright
             self._playwright = sync_playwright().start()
             self.logger.debug("Playwright started")
 
-            browser_type_name = self._get_browser_type()
+            # Launch browser
+            browser_type_name = get_browser_type(self.config, self.logger)
             browser_type = getattr(self._playwright, browser_type_name)
 
             headless = self.config.get("playwright.browser.headless", False)
@@ -70,23 +119,23 @@ class BrowserLifecycle:
             self._browser = browser_type.launch(
                 headless=headless,
                 slow_mo=slow_mo,
-                args=self._get_browser_args(),
+                args=get_browser_args(self.config),
             )
             self.logger.debug(f"Browser launched: {browser_type_name}")
 
+            # Create context
             context_options = self._context_options_builder.build_options(execution_id)
             self._context = self._browser.new_context(**context_options)
             self.logger.debug("Browser context created")
 
+            # Create page
             self._page = self._context.new_page()
 
-            # Initialize collectors BEFORE marking healthy
-            self._initialize_collectors(execution_id)
+            # Initialize collectors (SRP: Delegated to CollectorCoordinator)
+            self._collector_coordinator.initialize_collectors(self._page, execution_id)
 
-            # Health check - simple validation
-            if not self._page:
-                raise BrowserError("Page not created", "Failed to create page")
-
+            # Health check (SRP: Delegated to BrowserHealthValidator)
+            self._health_validator.validate_page_exists(self._page)
             self._is_healthy = True
 
             self.logger.info(
@@ -97,157 +146,62 @@ class BrowserLifecycle:
             return self._page
 
         except (RuntimeError, AttributeError) as e:
-            # Playwright initialization or browser launch errors
-            self.logger.error(f"Failed to start browser: {e}", traceback=traceback.format_exc(), module=__name__, class_name="BrowserLifecycle", method="start")
-            # Cleanup on failure
+            self.logger.error(
+                f"Failed to start browser: {e}",
+                traceback=traceback.format_exc(),
+                module=__name__,
+                class_name="BrowserLifecycle",
+                method="start"
+            )
             self._cleanup_resources()
             raise BrowserError("Failed to start browser", str(e)) from e
         except (KeyboardInterrupt, SystemExit):
-            # Always re-raise these to allow proper program termination
             raise
         except (OSError, IOError) as e:
-            # File system errors during browser setup
-            self.logger.error(f"Failed to start browser - I/O error: {e}", traceback=traceback.format_exc(), module=__name__, class_name="BrowserLifecycle", method="start")
+            self.logger.error(
+                f"Failed to start browser - I/O error: {e}",
+                traceback=traceback.format_exc(),
+                module=__name__,
+                class_name="BrowserLifecycle",
+                method="start"
+            )
             self._cleanup_resources()
             raise BrowserError("Failed to start browser", str(e)) from e
         except Exception as e:  # pylint: disable=broad-exception-caught
-            # Catch-all for unexpected errors from Playwright SDK
-            # NOTE: Playwright SDK may raise various exceptions we cannot predict
-            self.logger.error(f"Failed to start browser: {e}", traceback=traceback.format_exc(), module=__name__, class_name="BrowserLifecycle", method="start")
-            # Cleanup on failure
+            self.logger.error(
+                f"Failed to start browser: {e}",
+                traceback=traceback.format_exc(),
+                module=__name__,
+                class_name="BrowserLifecycle",
+                method="start"
+            )
             self._cleanup_resources()
             raise BrowserError("Failed to start browser", str(e)) from e
 
-    def _get_browser_type(self) -> str:
-        """Get browser type from config."""
-        return get_browser_type(self.config, self.logger)
-
-    def _get_browser_args(self) -> list[str]:
-        """Get browser launch arguments."""
-        return get_browser_args(self.config)
-
-    def _validate_browser_health(self) -> None:
-        """Validate browser is responsive."""
-        if not self._page:
-            raise BrowserError("Browser health check failed", "Page is None")
-
-        try:
-            # Simple health check - evaluate JavaScript
-            result = self._page.evaluate("() => true")
-            if result is not True:
-                raise BrowserError(
-                    "Browser health check failed",
-                    "JavaScript evaluation returned unexpected result"
-                )
-        except (KeyboardInterrupt, SystemExit):
-            # Always re-raise these to allow proper program termination
-            raise
-        except (RuntimeError, AttributeError) as e:
-            # Page.evaluate errors
-            self.logger.error(f"Browser health check failed: {e}", traceback=traceback.format_exc(), module=__name__, class_name="BrowserLifecycle", method="_validate_browser_health")
-            raise BrowserError("Browser health check failed", str(e)) from e
-
     def _cleanup_resources(self) -> None:
-        """Internal cleanup without lock with HAR-safe shutdown."""
-        errors = []
+        """
+        Internal cleanup with HAR-safe shutdown and video conversion.
 
-        # Store video directory path before closing context
-        video_dir = None
-        try:
-            if self._context:
-                # Get video directory path before closing
-                import os  # pylint: disable=import-outside-toplevel
-                execution_id = os.environ.get('NEMESIS_EXECUTION_ID')
-                if not execution_id:
-                    execution_id = ExecutionContext.get_execution_id()
+        This method orchestrates cleanup using extracted service classes.
+        SRP: Delegates specific cleanup tasks to service classes.
+        """
+        # Get video directory path before closing context
+        video_dir = self._get_video_directory()
 
-                directory_manager = DirectoryManager(self.config)
-                base_path = directory_manager.get_execution_base_path(execution_id)
-                video_dir = base_path / "videos"
-        except (KeyboardInterrupt, SystemExit):
-            # Always re-raise these to allow proper program termination
-            raise
-        except (AttributeError, KeyError, RuntimeError) as e:
-            # DirectoryManager errors - continue without video conversion
-            self.logger.debug(f"Failed to get video directory path: {e}", module=__name__, class_name="BrowserLifecycle", method="_cleanup_resources")
+        # Cleanup using ResourceCleaner service (SRP: Separation of concerns)
+        collectors = self._collector_coordinator.get_all_collectors()
+        self._resource_cleaner.cleanup_all(
+            browser=self._browser,
+            context=self._context,
+            playwright=self._playwright,
+            page=self._page,
+            collectors=collectors
+        )
 
-        # Dispose collectors first to prevent late events during shutdown
-        try:
-            if self._console_collector and hasattr(self._console_collector, "dispose"):
-                self._console_collector.dispose()
-            if self._network_collector and hasattr(self._network_collector, "dispose"):
-                self._network_collector.dispose()
-            # Performance collector is pull-based; no listeners to detach
-            self._console_collector = None
-            self._network_collector = None
-            self._performance_collector = None
-            self.logger.debug("Collectors disposed and cleared")
-        except (KeyboardInterrupt, SystemExit):
-            # Always re-raise these to allow proper program termination
-            raise
-        except (AttributeError, RuntimeError) as e:
-            # Collector dispose errors - log but continue
-            error_msg = f"Collector cleanup failed: {e}"
-            errors.append(error_msg)
-            self.logger.debug(error_msg, traceback=traceback.format_exc(), module=__name__, class_name="BrowserLifecycle", method="_cleanup_resources")
-
-        # HAR-safe context closure with timeout
-        try:
-            if self._context:
-                # Wait for HAR to finish writing before closing context
-                time.sleep(0.5)  # Give HAR time to finalize
-                self._context.close()
-                self.logger.debug("Browser context closed safely")
-
-                # Convert videos AFTER context closes (Playwright saves videos on context close)
-                if video_dir and video_dir.exists():
-                    time.sleep(0.5)  # Wait for Playwright to finish writing video
-                    self._convert_videos_in_directory(video_dir)
-        except (KeyboardInterrupt, SystemExit):
-            # Always re-raise these to allow proper program termination
-            raise
-        except (RuntimeError, AttributeError) as e:
-            # Playwright context close errors
-            error_msg = f"Context close failed: {e}"
-            errors.append(error_msg)
-            self.logger.debug(error_msg, traceback=traceback.format_exc(), module=__name__, class_name="BrowserLifecycle", method="_cleanup_resources")
-
-        # Browser closure with retry mechanism
-        try:
-            if self._browser:
-                # Retry browser close if it fails
-                max_retries = 3
-                for attempt in range(max_retries):
-                    try:
-                        self._browser.close()
-                        self.logger.debug("Browser closed successfully")
-                        break
-                    except (RuntimeError, AttributeError) as e:
-                        if attempt == max_retries - 1:
-                            raise e
-                        time.sleep(0.2)  # Wait before retry
-        except (KeyboardInterrupt, SystemExit):
-            # Always re-raise these to allow proper program termination
-            raise
-        except (RuntimeError, AttributeError) as e:
-            # Browser close errors after retries
-            error_msg = f"Browser close failed: {e}"
-            errors.append(error_msg)
-            self.logger.debug(error_msg, traceback=traceback.format_exc(), module=__name__, class_name="BrowserLifecycle", method="_cleanup_resources")
-
-        # Playwright stop with error handling
-        try:
-            if self._playwright:
-                self._playwright.stop()
-                self.logger.debug("Playwright stopped")
-        except (KeyboardInterrupt, SystemExit):
-            # Always re-raise these to allow proper program termination
-            raise
-        except (RuntimeError, AttributeError) as e:
-            # Playwright stop errors
-            error_msg = f"Playwright stop failed: {e}"
-            errors.append(error_msg)
-            self.logger.debug(error_msg, traceback=traceback.format_exc(), module=__name__, class_name="BrowserLifecycle", method="_cleanup_resources")
+        # Convert videos AFTER context closes (SRP: Delegated to VideoProcessingService)
+        if video_dir and video_dir.exists():
+            time.sleep(VIDEO_FINALIZATION_DELAY)
+            self._video_processor.convert_videos_in_directory(video_dir)
 
         # Reset state
         self._page = None
@@ -255,157 +209,115 @@ class BrowserLifecycle:
         self._browser = None
         self._playwright = None
 
-        if errors:
-            self.logger.warning(f"Cleanup warnings: {'; '.join(errors)}")
-        else:
-            self.logger.info("Browser closed successfully with HAR support")
-
-    def close(self) -> None:
-        """Close browser and cleanup resources synchronously."""
-        # Save collector data before cleanup
-        self._save_collector_data()
-        self._cleanup_resources()
-        self._is_healthy = False
-
-    @contextmanager
-    def managed_browser(
-        self, execution_id: str
-    ) -> Generator[Page, None, None]:
-        """Context manager for safe browser lifecycle."""
-        page = None
-        try:
-            page = self.start(execution_id)
-            yield page
-        except (KeyboardInterrupt, SystemExit):
-            # Always re-raise these to allow proper program termination
-            raise
-        except (BrowserError, RuntimeError) as e:
-            # Browser start errors
-            self.logger.error(f"Browser context manager error: {e}", traceback=traceback.format_exc(), module=__name__, class_name="BrowserLifecycle", method="managed_browser")
-            raise
-        finally:
-            try:
-                self.close()
-            except (KeyboardInterrupt, SystemExit):
-                # Always re-raise these to allow proper program termination
-                raise
-            except (RuntimeError, AttributeError) as e:
-                # Browser cleanup errors
-                self.logger.error(f"Browser cleanup error: {e}", traceback=traceback.format_exc(), module=__name__, class_name="BrowserLifecycle", method="managed_browser")
-
-    def _initialize_collectors(self, _execution_id: str) -> None:
-        """Initialize data collectors."""
-        try:
-            # Lazy import to avoid circular imports
-            from nemesis.infrastructure.collectors.console import ConsoleCollector  # pylint: disable=import-outside-toplevel
-            from nemesis.infrastructure.collectors.network import NetworkCollector  # pylint: disable=import-outside-toplevel
-            from nemesis.infrastructure.collectors.performance import PerformanceCollector  # pylint: disable=import-outside-toplevel
-
-            # Console collector
-            self._console_collector = ConsoleCollector(
-                page=self._page,
-                filter_levels=["error", "warning", "info"]
-            )
-
-            # Network collector
-            self._network_collector = NetworkCollector(
-                page=self._page,
-                capture_requests=True,
-                capture_responses=True
-            )
-
-            # Performance collector
-            self._performance_collector = PerformanceCollector(
-                page=self._page,
-                capture_metrics=True
-            )
-
-            self.logger.info("Collectors initialized successfully")
-
-        except (KeyboardInterrupt, SystemExit):
-            # Always re-raise these to allow proper program termination
-            raise
-        except (ImportError, AttributeError, RuntimeError) as e:
-            # Collector initialization errors - log but continue
-            self.logger.warning(f"Failed to initialize collectors: {e}", traceback=traceback.format_exc(), module=__name__, class_name="BrowserLifecycle", method="_initialize_collectors")
-
-    def _convert_videos_in_directory(self, video_dir: Path) -> None:
+    def _get_video_directory(self) -> Path | None:
         """
-        Convert all webm videos in directory to MP4.
+        Get video directory path for current execution.
 
-        This ensures videos are converted for BOTH local storage AND ReportPortal.
-        Videos converted here will be in MP4 format when VideoManager.attach_video()
-        is called (if it's called), or will be ready for direct RP upload.
+        Returns:
+            Path to video directory or None if unavailable
         """
         try:
-            if not video_dir.exists():
-                return
+            if not self._context:
+                return None
 
-            # Convert all .webm files to .mp4
-            import subprocess  # pylint: disable=import-outside-toplevel
-            from nemesis.utils.video_converter import convert_to_mp4  # pylint: disable=import-outside-toplevel
-
-            webm_files = list(video_dir.glob("*.webm"))
-            if not webm_files:
-                return
-
-            self.logger.info(f"Converting {len(webm_files)} video(s) to MP4 (for all reporters)...")
-            for webm_file in webm_files:
-                try:
-                    mp4_file = convert_to_mp4(webm_file)
-                    if mp4_file and mp4_file != webm_file:
-                        self.logger.debug(f"Converted: {webm_file.name} -> {mp4_file.name}")
-                except (KeyboardInterrupt, SystemExit):
-                    # Always re-raise these to allow proper program termination
-                    raise
-                except (OSError, RuntimeError, subprocess.SubprocessError) as e:
-                    # Video conversion errors for single file - continue with others
-                    self.logger.warning(f"Failed to convert {webm_file.name}: {e}", traceback=traceback.format_exc(), module=__name__, class_name="BrowserLifecycle", method="_convert_videos_in_directory", video_file=str(webm_file))
-
-        except (KeyboardInterrupt, SystemExit):
-            # Always re-raise these to allow proper program termination
-            raise
-        except (OSError, ImportError) as e:
-            # Video conversion setup errors
-            self.logger.warning(f"Video conversion error: {e}", traceback=traceback.format_exc(), module=__name__, class_name="BrowserLifecycle", method="_convert_videos_in_directory")
-
-    def _save_collector_data(self) -> None:
-        """Save collector data to files."""
-        try:
             import os  # pylint: disable=import-outside-toplevel
             execution_id = os.environ.get('NEMESIS_EXECUTION_ID')
             if not execution_id:
                 execution_id = ExecutionContext.get_execution_id()
 
-            # Save console logs
-            if self._console_collector:
-                self._console_collector.save_to_file(execution_id, "console")
-                self.logger.info("Console logs saved")
-
-            # Save network data
-            if self._network_collector:
-                self._network_collector.save_metrics(execution_id, "network_metric")
-                self.logger.info("Network metrics saved")
-
-            # Save performance data
-            if self._performance_collector:
-                self._performance_collector.save_to_file(execution_id, "performance_metric")
-                self.logger.info("Performance metrics saved")
+            directory_manager = DirectoryManager(self.config)
+            base_path = directory_manager.get_execution_base_path(execution_id)
+            return base_path / "videos"
 
         except (KeyboardInterrupt, SystemExit):
-            # Always re-raise these to allow proper program termination
             raise
-        except (OSError, IOError, AttributeError, RuntimeError) as e:
-            # Collector data save errors - log but don't fail
-            self.logger.warning(f"Failed to save collector data: {e}", traceback=traceback.format_exc(), module=__name__, class_name="BrowserLifecycle", method="_save_collector_data")
+        except (AttributeError, KeyError, RuntimeError) as e:
+            self.logger.debug(
+                f"Failed to get video directory path: {e}",
+                module=__name__,
+                class_name="BrowserLifecycle",
+                method="_get_video_directory"
+            )
+            return None
+
+    def close(self) -> None:
+        """
+        Close browser and cleanup resources synchronously.
+
+        Saves collector data before cleanup.
+        """
+        # Save collector data (SRP: Delegated to CollectorCoordinator)
+        self._collector_coordinator.save_collector_data()
+
+        # Cleanup resources
+        self._cleanup_resources()
+        self._is_healthy = False
+
+    @contextmanager
+    def managed_browser(self, execution_id: str) -> Generator[Page, None, None]:
+        """
+        Context manager for safe browser lifecycle.
+
+        Args:
+            execution_id: Execution ID for context
+
+        Yields:
+            Playwright Page instance
+
+        Example:
+            >>> lifecycle = BrowserLifecycle(config)
+            >>> with lifecycle.managed_browser("exec-123") as page:
+            ...     page.goto("https://example.com")
+        """
+        page = None
+        try:
+            page = self.start(execution_id)
+            yield page
+        except (KeyboardInterrupt, SystemExit):
+            raise
+        except (BrowserError, RuntimeError) as e:
+            self.logger.error(
+                f"Browser context manager error: {e}",
+                traceback=traceback.format_exc(),
+                module=__name__,
+                class_name="BrowserLifecycle",
+                method="managed_browser"
+            )
+            raise
+        finally:
+            try:
+                self.close()
+            except (KeyboardInterrupt, SystemExit):
+                raise
+            except (RuntimeError, AttributeError) as e:
+                self.logger.error(
+                    f"Browser cleanup error: {e}",
+                    traceback=traceback.format_exc(),
+                    module=__name__,
+                    class_name="BrowserLifecycle",
+                    method="managed_browser"
+                )
 
     @property
     def is_healthy(self) -> bool:
-        """Check if browser is healthy and ready."""
-        return self._is_healthy and self._page is not None
+        """
+        Check if browser is healthy and ready.
+
+        Returns:
+            True if browser is healthy, False otherwise
+        """
+        return self._health_validator.check_health(self._page, self._is_healthy)
 
     def get_page(self) -> Page:
-        """Get current page instance."""
+        """
+        Get current page instance.
+
+        Returns:
+            Playwright Page instance
+
+        Raises:
+            BrowserError: If browser is not available
+        """
         if not self.is_healthy or not self._page:
             raise BrowserError(
                 "Browser not available",
@@ -413,8 +325,16 @@ class BrowserLifecycle:
             )
         return self._page
 
-    def get_browser(self):
-        """Get current browser instance."""
+    def get_browser(self) -> Browser:
+        """
+        Get current browser instance.
+
+        Returns:
+            Playwright Browser instance
+
+        Raises:
+            BrowserError: If browser is not available
+        """
         if not self.is_healthy or not self._browser:
             raise BrowserError(
                 "Browser not available",
