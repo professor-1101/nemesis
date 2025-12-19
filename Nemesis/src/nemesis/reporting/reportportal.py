@@ -2,16 +2,16 @@
 import traceback
 from pathlib import Path
 
-from nemesis.core.config import ConfigLoader
-from nemesis.core.logging import Logger
+from nemesis.infrastructure.config import ConfigLoader
+from nemesis.infrastructure.logging import Logger
 from .report_portal.rp_config_loader import RPConfigLoader
 from .report_portal.rp_client_base import RPClientBase
-from .report_portal.rp_launch_manager import RPLaunchManager
-from .report_portal.rp_feature_manager import RPFeatureManager
-from .report_portal.rp_test_manager import RPTestManager
-from .report_portal.rp_step_manager import RPStepManager
+from .report_portal.rp_launch_coordinator import RPLaunchCoordinator
+from .report_portal.rp_feature_handler import RPFeatureHandler
+from .report_portal.rp_test_handler import RPTestHandler
+from .report_portal.rp_step_handler import RPStepHandler
 from .report_portal.rp_logger import RPLogger
-from .report_portal.rp_attachment_manager import RPAttachmentManager
+from .report_portal.rp_attachment_handler import RPAttachmentHandler
 
 class ReportPortalClient:
     """ReportPortal client with BDD-optimized formatting."""
@@ -43,41 +43,52 @@ class ReportPortalClient:
         )
         self.rp_client_base._validate_connection() # Initial connection validation
 
-        self.rp_launch_manager = RPLaunchManager(
+        self.rp_launch_manager = RPLaunchCoordinator(
             rp_client_base=self.rp_client_base,
             launch_name=rp_settings["launch_name"],
             launch_description=rp_settings["launch_description"],
             launch_attributes=rp_settings["launch_attributes"],
+            debug_mode=rp_settings.get("debug_mode", False),
         )
-        self.rp_feature_manager = RPFeatureManager(self.rp_client_base, self.rp_launch_manager)
-        self.rp_test_manager = RPTestManager(self.rp_client_base, self.rp_launch_manager, self.rp_feature_manager)
-        self.rp_step_manager = RPStepManager(self.rp_client_base, self.rp_launch_manager, self.rp_test_manager)
+        self.rp_feature_manager = RPFeatureHandler(self.rp_client_base, self.rp_launch_manager)
+        self.rp_test_manager = RPTestHandler(
+            self.rp_client_base,
+            self.rp_launch_manager,
+            self.rp_feature_manager,
+            is_skipped_an_issue=rp_settings.get("is_skipped_an_issue", False)
+        )
+        self.rp_step_manager = RPStepHandler(
+            self.rp_client_base,
+            self.rp_launch_manager,
+            self.rp_test_manager,
+            rp_settings.get("step_log_layout", "NESTED")
+        )
         self.rp_logger = RPLogger(self.rp_client_base, self.rp_launch_manager, self.rp_feature_manager, self.rp_test_manager, self.rp_step_manager)
-        self.rp_attachment_manager = RPAttachmentManager(self.rp_client_base, self.rp_launch_manager, self.rp_feature_manager, self.rp_test_manager, self.rp_step_manager)
+        self.rp_attachment_manager = RPAttachmentHandler(self.rp_client_base, self.rp_launch_manager, self.rp_feature_manager, self.rp_test_manager, self.rp_step_manager)
 
         # Only start launch if not already started (check RPClient internal state)
         # RPClient may already have a launch_id from a previous initialization
         existing_launch_id = getattr(self.rp_client_base.client, 'launch_id', None)
 
-        # Also check if launch_id was stored in EnvironmentManager (for finalization phase)
+        # Also check if launch_id was stored in EnvironmentCoordinator (for finalization phase)
         saved_launch_id = None
         if not existing_launch_id and not self.rp_launch_manager.launch_id:
             try:
-                from nemesis.environment.hooks import _get_env_manager  # pylint: disable=import-outside-toplevel
+                from nemesis.infrastructure.environment.hooks import _get_env_manager  # pylint: disable=import-outside-toplevel
                 env_manager = _get_env_manager()
                 if env_manager and hasattr(env_manager, 'rp_launch_id') and env_manager.rp_launch_id:
                     saved_launch_id = env_manager.rp_launch_id
-                    self.logger.info(f"Found launch_id in EnvironmentManager: {saved_launch_id}")
+                    self.logger.info(f"Found launch_id in EnvironmentCoordinator: {saved_launch_id}")
             except (ImportError, AttributeError) as load_error:
-                # Non-critical: failed to get launch_id from EnvironmentManager
-                self.logger.debug(f"Failed to get launch_id from EnvironmentManager: {load_error}", module=__name__, class_name="ReportPortalClient", method="__init__")
+                # Non-critical: failed to get launch_id from EnvironmentCoordinator
+                self.logger.debug(f"Failed to get launch_id from EnvironmentCoordinator: {load_error}", module=__name__, class_name="ReportPortalClient", method="__init__")
             except (KeyboardInterrupt, SystemExit):
                 # Allow program interruption to propagate
                 raise
             except Exception as load_error:  # pylint: disable=broad-exception-caught
-                # Catch-all for unexpected errors from EnvironmentManager access
-                # NOTE: EnvironmentManager import or access may raise various exceptions we cannot predict
-                self.logger.debug(f"Failed to get launch_id from EnvironmentManager: {load_error}", module=__name__, class_name="ReportPortalClient", method="__init__")
+                # Catch-all for unexpected errors from EnvironmentCoordinator access
+                # NOTE: EnvironmentCoordinator import or access may raise various exceptions we cannot predict
+                self.logger.debug(f"Failed to get launch_id from EnvironmentCoordinator: {load_error}", module=__name__, class_name="ReportPortalClient", method="__init__")
 
         if not existing_launch_id and not self.rp_launch_manager.launch_id and not saved_launch_id:
             self.rp_launch_manager.start_launch()
@@ -86,26 +97,27 @@ class ReportPortalClient:
             self.rp_launch_manager.launch_id = existing_launch_id
             self.logger.info(f"Reusing existing ReportPortal launch: {existing_launch_id}")
         elif saved_launch_id:
-            # Reuse saved launch_id from EnvironmentManager (from previous process or same process)
+            # Reuse saved launch_id from EnvironmentCoordinator (from previous process or same process)
             self.rp_launch_manager.launch_id = saved_launch_id
             # Note: Cannot set client.launch_id directly (it's read-only property)
             # But RPClient will use the launch_id from finish_launch call
-            self.logger.info(f"Reusing launch_id from EnvironmentManager: {saved_launch_id}")
+            self.logger.info(f"Reusing launch_id from EnvironmentCoordinator: {saved_launch_id}")
 
     def start_launch(self) -> None:
         """Start launch - only if not already started."""
         if self.rp_launch_manager:
             self.rp_launch_manager.start_launch()
 
-    def start_feature(self, feature_name: str, description: str = "") -> None:
-        """Start a feature (test suite) in ReportPortal.
-        
+    def start_feature(self, feature_name: str, description: str = "", tags: list = None) -> None:
+        """Start a feature (test suite) in ReportPortal with advanced tag support.
+
         Args:
             feature_name: Name of the feature to start
             description: Optional description for the feature
+            tags: List of Behave tags (supports @attribute, @test_case_id, etc.)
         """
         if self.rp_feature_manager:
-            self.rp_feature_manager.start_feature(feature_name, description)
+            self.rp_feature_manager.start_feature(feature_name, description, tags)
 
     def finish_feature(self, status: str = "PASSED") -> None:
         """Finish a feature (test suite) in ReportPortal.
@@ -116,15 +128,17 @@ class ReportPortalClient:
         if self.rp_feature_manager:
             self.rp_feature_manager.finish_feature(status)
 
-    def start_test(self, name: str, test_type: str = "SCENARIO") -> None:
-        """Start a test (scenario) in ReportPortal.
-        
+    def start_test(self, name: str, test_type: str = "SCENARIO", tags: list = None, description: str = "") -> None:
+        """Start a test (scenario) in ReportPortal with advanced tag support.
+
         Args:
             name: Name of the test/scenario to start
             test_type: Type of test item (SCENARIO, TEST, etc.)
+            tags: List of Behave tags (supports @attribute, @test_case_id, etc.)
+            description: Optional scenario description
         """
         if self.rp_test_manager:
-            self.rp_test_manager.start_test(name, test_type)
+            self.rp_test_manager.start_test(name, test_type, tags, description)
 
     def start_step(self, step_name: str) -> None:
         """Start a step within a test in ReportPortal.
@@ -167,13 +181,31 @@ class ReportPortalClient:
 
     def log_message(self, message: str, level: str = "INFO") -> None:
         """Log a message to ReportPortal.
-        
+
         Args:
             message: Message text to log
             level: Log level (INFO, DEBUG, WARN, ERROR, etc.)
         """
         if self.rp_logger:
             self.rp_logger.log_message(message, level)
+
+    def log_metadata(self, key: str, value: str, level: str = "INFO") -> None:
+        """Log custom metadata to current test item in ReportPortal.
+
+        Formats metadata as key-value pair for better visibility in ReportPortal.
+        Useful for runtime metadata enrichment (environment details, test data IDs, etc.).
+
+        Args:
+            key: Metadata key (e.g., "environment", "browser_version", "test_user")
+            value: Metadata value
+            level: Log level (default: INFO)
+
+        Example:
+            >>> rp_client.log_metadata("browser_version", "Chrome 120")
+            >>> rp_client.log_metadata("test_data_id", "USER-12345", "DEBUG")
+        """
+        if self.rp_logger:
+            self.rp_logger.log_metadata(key, value, level)
 
     def log_exception(self, exception: Exception, description: str = "") -> None:
         """Log an exception to ReportPortal with full stack trace.

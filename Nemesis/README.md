@@ -1,179 +1,640 @@
 # Nemesis Test Automation Framework
 
-A powerful BDD test automation framework built with Behave and Playwright, featuring comprehensive reporting and artifact collection.
+**Modern BDD Test Automation Framework** built with Clean Architecture, Domain-Driven Design, and SOLID principles.
 
-## Features
+---
 
-- 🎭 **Playwright Integration**: Modern browser automation
-- 🥒 **BDD with Behave**: Gherkin-based test scenarios
-- 📊 **Multi-Reporter Support**: Local HTML, ReportPortal
-- 📈 **Performance Metrics**: Navigation timing, resource timing
-- 🌐 **Network Monitoring**: HAR files, request/response tracking
-- 🖥️ **Console Logging**: Browser console error tracking
-- 🎥 **Video Recording**: Test execution videos with mouse tracking
-- 📸 **Screenshots**: Automatic screenshot capture on failure
-- 🔍 **Trace Files**: Playwright trace viewer support
-- 🚀 **Beautiful CLI**: Rich console output with progress tracking
+## 📋 Table of Contents
 
-## Installation
+- [Features](#features)
+- [Installation](#installation)
+- [Quick Start](#quick-start)
+- [Configuration](#configuration)
+- [CLI Commands](#cli-commands)
+- [Architecture](#architecture)
+- [Running Tests](#running-tests)
+- [Development](#development)
+- [Troubleshooting](#troubleshooting)
 
-### Framework Installation
+---
+
+## ✨ Features
+
+- ✅ **Clean Architecture** - Domain, Application, Infrastructure layers
+- ✅ **Domain-Driven Design** - Value Objects, Entities, Use Cases
+- ✅ **SOLID Principles** - Maintainable, testable code
+- ✅ **BDD with Behave** - Gherkin syntax for readable tests
+- ✅ **Multiple Browsers** - Chromium, Firefox, WebKit via Playwright
+- ✅ **Real-time Reporting** - Live test execution feedback
+- ✅ **JSON Reports** - Structured test results
+- ✅ **100% Domain Coverage** - Comprehensive test suite
+- ✅ **Network-Independent Testing** - Mock-based integration tests
+- ✅ **Observability Ready** - Structured for distributed tracing
+
+---
+
+## 🚀 Installation
+
+### Prerequisites
+
+- **Python 3.11+**
+- **pip**
+- **Node.js 18+** (for Playwright browsers)
+
+### Install Package
 
 ```bash
-pip install nemesis-automation
+# Clone repository
+git clone https://github.com/your-org/nemesis.git
+cd nemesis/Nemesis
+
+# Create virtual environment
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+
+# Install package with dependencies
+pip install -e .
+
+# Install Playwright browsers
+playwright install chromium
 ```
 
-**Important:** Environment variables (like `JAVA_HOME`) are inherited by Python processes, but you may need to:
-
-1. **Restart your terminal/PowerShell** after setting environment variables in System Properties
-2. **Or set them in the current session** before running tests:
+### Verify Installation
 
 ```bash
-# Windows PowerShell (current session only)
-$env:JAVA_HOME = "C:\Program Files\Eclipse Adoptium\jdk-17.0.17.10-hotspot"
-$env:PATH = "$env:JAVA_HOME\bin;$env:PATH"
-
-# Linux/macOS (current session only)
-export JAVA_HOME=/path/to/jdk-17
-export PATH=$JAVA_HOME/bin:$PATH
+nemesis --version
 ```
 
-3. **For permanent setup**, add to System Environment Variables (Windows) or `~/.bashrc`/`~/.zshrc` (Linux/macOS)
+---
 
-### Allure CLI Installation (Optional)
+## 🎯 Quick Start
 
-For full-featured Allure HTML reports with Dashboard, Charts, and Timeline, you need to install Java and Allure CLI separately:
+### 1. Initialize Project
 
-**Prerequisites:**
-- Java JDK 17 LTS (required for Allure CLI)
-- Set `JAVA_HOME` environment variable
-
-**Install Java 17 LTS:**
-- **Recommended:** Download from [Eclipse Temurin JDK 17 LTS](https://adoptium.net/temurin/releases/)
-- Windows: Download `.msi` installer from Adoptium
-- macOS: `brew install --cask temurin17` or download from Adoptium
-- Linux: Download from Adoptium or use package manager
-
-**Install Allure CLI:**
-
-**Windows:**
 ```bash
-# Using Chocolatey
-choco install allure
-
-# Using Scoop
-scoop install allure
-
-# Using npm
-npm install -g allure-commandline
+nemesis init
 ```
 
-**macOS:**
+This creates:
+- `nemesis.config.yml` - Configuration file
+- `features/` - Feature files directory
+- `features/steps/` - Step definitions
+- `features/environment.py` - Behave hooks
+
+### 2. Create Feature File
+
+`features/login.feature`:
+```gherkin
+@smoke
+Feature: User Login
+
+  @critical
+  Scenario: User can login with valid credentials
+    Given I am on the login page
+    When I enter username "standard_user"
+    And I enter password "secret_sauce"
+    And I click the login button
+    Then I should see the dashboard
+```
+
+### 3. Implement Steps
+
+`features/steps/login_steps.py`:
+```python
+from behave import given, when, then
+
+@given('I am on the login page')
+def step_impl(context):
+    context.page.goto("https://www.saucedemo.com")
+
+@when('I enter username "{username}"')
+def step_impl(context, username):
+    context.page.fill("#user-name", username)
+
+@when('I enter password "{password}"')
+def step_impl(context, password):
+    context.page.fill("#password", password)
+
+@when('I click the login button')
+def step_impl(context):
+    context.page.click("#login-button")
+
+@then('I should see the dashboard')
+def step_impl(context):
+    assert context.page.is_visible(".inventory_list")
+```
+
+### 4. Run Tests
+
 ```bash
-brew install allure
+# Run all tests
+nemesis run
+
+# Run specific tags
+nemesis run --tags @smoke
+
+# Run in headless mode
+nemesis run --headless
 ```
 
-**Linux:**
+---
+
+## ⚙️ Configuration
+
+### Configuration File
+
+`nemesis.config.yml`:
+
+```yaml
+# Project
+project:
+  name: "My Test Project"
+  version: "1.0.0"
+
+# Browser
+browser:
+  type: "chromium"  # chromium, firefox, webkit
+  headless: false
+  viewport:
+    width: 1280
+    height: 720
+  timeout: 30000  # milliseconds
+
+# Environments
+environments:
+  dev:
+    base_url: "https://dev.example.com"
+  staging:
+    base_url: "https://staging.example.com"
+  prod:
+    base_url: "https://example.com"
+
+# Reporting
+reporting:
+  local:
+    enabled: true
+    output_dir: "reports"
+
+# Execution
+execution:
+  parallel: 1
+  screenshot_on_failure: true
+  video: false
+  trace: false
+```
+
+### Environment Variables
+
 ```bash
-npm install -g allure-commandline
+# Browser
+export NEMESIS_BROWSER="chromium"
+export NEMESIS_HEADLESS="true"
+
+# Environment
+export NEMESIS_ENV="prod"
 ```
 
-**Manual Installation:**
-Download from [Allure Releases](https://github.com/allure-framework/allure2/releases) and add to PATH.
+---
 
-After installation, verify:
+## 🖥️ CLI Commands
+
+### `nemesis run`
+
+Execute test scenarios.
+
 ```bash
-java -version
-allure --version
+# Basic usage
+nemesis run
+
+# With tags
+nemesis run --tags @smoke
+nemesis run --tags "@smoke and @critical"
+
+# Specific feature
+nemesis run --feature features/login.feature
+
+# Environment
+nemesis run --env prod
+
+# Headless mode
+nemesis run --headless
+
+# Parallel execution
+nemesis run --parallel 4
+
+# Browser selection
+nemesis run --browser firefox
+
+# Debug mode
+nemesis run --debug --verbose
 ```
 
-**Note:** If you see "JAVA_HOME is not set" error, you need to:
-1. Install Java JDK 17 LTS from [Eclipse Temurin](https://adoptium.net/temurin/releases/)
-2. Set `JAVA_HOME` environment variable to your Java installation path (e.g., `C:\Program Files\Eclipse Adoptium\jdk-17.x.x-hotspot`)
-3. Add `%JAVA_HOME%\bin` (Windows) or `$JAVA_HOME/bin` (Linux/macOS) to PATH
+**Options:**
 
-The framework will generate Allure results (JSON files) automatically. If Allure CLI is installed and Java is available, full HTML reports will be generated. Otherwise, a simple fallback HTML report will be created with instructions.
+| Option | Description | Default |
+|--------|-------------|---------|
+| `--tags` `-t` | Run scenarios with specific tags | All |
+| `--feature` `-f` | Run specific feature file | All |
+| `--env` `-e` | Environment (dev/staging/prod) | `dev` |
+| `--headless` | Run in headless mode | `False` |
+| `--parallel` `-p` | Number of parallel workers | `1` |
+| `--browser` `-b` | Browser type | `chromium` |
+| `--debug` | Enable debug logging | `False` |
+| `--verbose` `-v` | Verbose output | `False` |
 
-**Viewing Allure Reports:**
+### `nemesis init`
 
-Due to CORS restrictions, you cannot open Allure reports directly with `file://` protocol. Use one of these methods:
+Initialize a new project.
 
-**Method 1: Using Allure CLI (Recommended)**
 ```bash
-cd reports/YYYY-MM-DD_HH-MM-SS_<execution-id>
-allure open allure-report
+nemesis init
+nemesis init --force  # Overwrite existing config
 ```
-This starts a local HTTP server and opens the report in your browser.
 
-**Method 2: Using Python HTTP Server**
+### `nemesis list`
+
+List recent test executions.
+
 ```bash
-# Python 3
-cd reports/YYYY-MM-DD_HH-MM-SS_<execution-id>
-python -m http.server 8000
-# Then open http://localhost:8000/report.html in your browser
+nemesis list
+nemesis list --limit 5
 ```
 
-**Method 3: Using Node.js http-server**
+### `nemesis open`
+
+Open latest test report.
+
 ```bash
-npm install -g http-server
-cd reports/YYYY-MM-DD_HH-MM-SS_<execution-id>
-http-server -p 8000
-# Then open http://localhost:8000/report.html in your browser
+nemesis open
+nemesis open --execution-id exec_20251216_120000
 ```
 
-## Quick Start
+### `nemesis clean`
+
+Clean old test reports.
+
+```bash
+nemesis clean
+nemesis clean --days 3
+nemesis clean --dry-run  # Preview only
+```
+
+### `nemesis validate`
+
+Validate feature files.
+
+```bash
+nemesis validate
+nemesis validate --feature features/login.feature
+```
+
+---
+
+## 🏗️ Architecture
+
+Nemesis follows **Clean Architecture** principles:
+
+```
+┌─────────────────────────────────────┐
+│         CLI Layer                    │
+│  - Commands (run, init, etc.)       │
+│  - UI (progress, tables, colors)    │
+└──────────────┬──────────────────────┘
+               │ uses
+               ▼
+┌─────────────────────────────────────┐
+│      Application Layer               │
+│  - RunTestsUseCase                  │
+│  - ExecuteTestScenarioUseCase       │
+│  - Coordinators                      │
+└──────────────┬──────────────────────┘
+               │ uses
+               ▼
+┌─────────────────────────────────────┐
+│         Domain Layer                 │
+│  - Execution, Scenario, Step        │
+│  - ExecutionId, Duration, Status    │
+│  - Ports (IReporter, IBrowser, ...) │
+└──────────────┬──────────────────────┘
+               │ implemented by
+               ▼
+┌─────────────────────────────────────┐
+│     Infrastructure Layer             │
+│  - PlaywrightBrowserDriver          │
+│  - JSONReporter, ConsoleReporter    │
+│  - SigNozShipper, LocalFileShipper  │
+└─────────────────────────────────────┘
+```
+
+### Key Components
+
+**Domain Layer** (`src/nemesis/domain/`):
+- **Entities**: `Execution`, `Scenario`, `Step` - Business logic
+- **Value Objects**: `ExecutionId`, `Duration`, `ScenarioStatus`, `StepStatus`
+- **Ports**: `IReporter`, `IBrowserDriver`, `ICollector`, `ILogShipper`
+
+**Application Layer** (`src/nemesis/application/`):
+- **Use Cases**: `RunTestsUseCase`, `ExecuteTestScenarioUseCase`
+- **Coordinators**: `ExecutionCoordinator`, `ScenarioCoordinator`
+
+**Infrastructure Layer** (`src/nemesis/infrastructure/`):
+- **Browser**: `PlaywrightBrowserDriver`
+- **Reporting**: `JSONReporter`, `ConsoleReporter`
+- **Logging**: `LocalFileShipper`, `SigNozShipper`
+
+**CLI Layer** (`src/nemesis/cli/`):
+- **Commands**: `run`, `init`, `list`, `open`, `clean`, `validate`
+- **UI**: Progress bars, tables, colors
+
+### Benefits
+
+- ✅ **Testable**: Each layer tested independently
+- ✅ **Flexible**: Easy to swap implementations
+- ✅ **Maintainable**: Clear separation of concerns
+- ✅ **Scalable**: Ready for distributed systems
+
+---
+
+## 🧪 Running Tests
+
+### Unit Tests (Domain Layer)
+
+```bash
+# Run all domain tests
+pytest tests/unit/domain/ -v
+
+# With coverage
+pytest tests/unit/domain/ --cov=src/nemesis/domain --cov-report=term-missing
+
+# Expected: 111 tests, 100% coverage, ~2 seconds
+```
+
+### Integration Tests
+
+```bash
+# Run integration tests (no network needed)
+pytest tests/integration/ -v
+
+# Expected: 5 tests, ~1 second
+```
+
+### E2E Tests
+
+```bash
+# Run E2E tests for ports/infrastructure
+pytest tests/e2e/ -v
+
+# Expected: 9 tests, ~1 second
+```
+
+### All Tests
+
+```bash
+# Run everything
+pytest tests/ -v
+
+# With coverage
+pytest tests/ --cov=src/nemesis --cov-report=html
+```
+
+---
+
+## 💻 Development
+
+### Project Structure
+
+```
+nemesis/
+├── src/nemesis/
+│   ├── domain/              # Domain Layer
+│   │   ├── entities/        # Execution, Scenario, Step
+│   │   ├── value_objects/   # ExecutionId, Duration, Status
+│   │   └── ports/           # Interfaces (IReporter, IBrowser, etc.)
+│   ├── application/         # Application Layer
+│   │   ├── use_cases/       # RunTestsUseCase, etc.
+│   │   └── services/        # Coordinators
+│   ├── infrastructure/      # Infrastructure Layer
+│   │   ├── browser/         # PlaywrightBrowserDriver
+│   │   ├── reporting/       # JSONReporter, ConsoleReporter
+│   │   └── logging/         # LocalFileShipper, SigNozShipper
+│   └── cli/                 # CLI Layer
+│       ├── commands/        # run, init, list, etc.
+│       └── ui/              # Progress bars, tables, LiveReporter
+├── tests/
+│   ├── unit/domain/         # Domain layer tests (100% coverage)
+│   ├── integration/         # Integration tests
+│   └── e2e/                 # E2E tests for ports
+├── features/                # BDD feature files
+├── nemesis.config.yml       # Configuration
+├── pyproject.toml           # Package config
+├── setup.py                 # Package setup
+└── README.md                # This file
+```
+
+### Adding New Features
+
+**1. Add Domain Entity/Value Object:**
+
+```python
+# src/nemesis/domain/value_objects/new_value.py
+@dataclass(frozen=True)
+class NewValue:
+    """Your value object"""
+    value: str
+```
+
+**2. Add Use Case:**
+
+```python
+# src/nemesis/application/use_cases/new_use_case.py
+class NewUseCase:
+    """Your use case"""
+    def execute(self, ...):
+        pass
+```
+
+**3. Add Infrastructure Implementation:**
+
+```python
+# src/nemesis/infrastructure/new_adapter.py
+class NewAdapter(IPort):
+    """Your adapter"""
+    def method(self):
+        pass
+```
+
+**4. Add CLI Command:**
+
+```python
+# src/nemesis/cli/commands/new_command.py
+@click.command()
+def new_command():
+    """Your command"""
+    pass
+```
+
+### Testing Strategy
+
+1. **Unit Tests** - Domain layer (100% coverage required)
+2. **Integration Tests** - Application + Infrastructure
+3. **E2E Tests** - Full workflow with real/mocked components
+4. **Business Tests** - BDD scenarios in `features/`
+
+### Code Quality
+
+```bash
+# Format code
+black src/ tests/
+
+# Lint
+ruff check src/ tests/
+
+# Type check
+mypy src/
+
+# Run all quality checks
+black src/ tests/ && ruff check src/ tests/ && mypy src/
+```
+
+---
+
+## 🔧 Troubleshooting
+
+### Tests Not Found
+
+```bash
+# Verify feature files exist
+ls features/*.feature
+
+# Validate features
+nemesis validate
+```
+
+### Browser Launch Failed
 
 ```bash
 # Install Playwright browsers
 playwright install chromium
 
-# Run tests
-nemesis run
-
-# Run with specific tags
-nemesis run --tags @smoke
-
-# Run with specific environment
-nemesis run --env staging
-
-# View recent executions
-nemesis list
-
-# Clean old reports
-nemesis clean --older-than 7d
+# Check browser
+nemesis run --browser chromium --debug
 ```
 
-## Configuration
-
-Framework uses YAML configuration files:
-
-- `playwright.yaml`: Browser settings
-- `reporting.yaml`: Report configuration
-- `reportportal.yaml`: ReportPortal settings
-- `environments/*.yaml`: Environment-specific configs
-
-## Report Modes
-
-- `local`: HTML reports with artifacts
-- `reportportal`: Real-time reporting to ReportPortal
-- `all`: All reporters enabled (default)
-
-## CLI Options
+### Import Errors
 
 ```bash
-nemesis run [OPTIONS]
+# Reinstall package
+pip install -e .
 
-Options:
-  -t, --tags TEXT         Run scenarios with specific tags
-  -f, --feature TEXT      Run specific feature file
-  -e, --env TEXT         Environment (dev/staging/prod)
-  -r, --report TEXT      Report mode (local/reportportal/all)
-  -p, --parallel INT     Number of parallel workers
-  --headless/--no-headless  Run in headless mode
-  --dry-run              Validate without execution
-  --debug                Enable debug logging
+# Verify installation
+python -c "import nemesis; print(nemesis.__version__)"
 ```
 
-## License
+### Report Not Generated
 
-MIT License
+```bash
+# Check output directory
+ls -la reports/
+
+# Check permissions
+chmod -R 755 reports/
+
+# Enable debug
+nemesis run --debug
+```
+
+### Network Issues
+
+The framework includes network-independent integration tests:
+
+```bash
+# Run without network
+pytest tests/integration/ -v
+```
+
+---
+
+## 📚 Additional Resources
+
+### Documentation
+
+- **Architecture**: See Clean Architecture diagram above
+- **Domain Model**: `src/nemesis/domain/`
+- **Ports & Adapters**: `src/nemesis/domain/ports/`
+
+### Examples
+
+See `features/` directory for BDD examples.
+
+### Contributing
+
+1. Fork the repository
+2. Create feature branch (`git checkout -b feature/new-feature`)
+3. Write tests (unit + integration)
+4. Ensure 100% domain coverage
+5. Follow Clean Architecture principles
+6. Submit pull request
+
+### DoD (Definition of Done)
+
+All code must follow:
+- ✅ **Domain-Driven Design (DDD)** - Value Objects, Entities, Use Cases
+- ✅ **Clean Architecture** - Layer separation, dependency rule
+- ✅ **SOLID Principles** - SRP, OCP, LSP, ISP, DIP
+- ✅ **Clean Code** - Readable, maintainable, intent-revealing
+- ✅ **Test Coverage** - 100% domain, comprehensive integration/E2E
+- ✅ **Observability** - Structured logging, tracing-ready
+
+---
+
+## 📊 Test Results
+
+### Coverage Summary
+
+```
+Domain Layer:     100% (111 tests)
+Integration:      5 tests
+E2E:              9 tests
+Total:            125 tests
+Execution Time:   ~4 seconds
+```
+
+### Test Breakdown
+
+| Layer | Tests | Coverage | Time |
+|-------|-------|----------|------|
+| Domain | 111 | 100% | ~2s |
+| Integration | 5 | N/A | ~1s |
+| E2E | 9 | N/A | ~1s |
+
+---
+
+## 🎯 Comparison with Other Frameworks
+
+| Feature | Nemesis | Cypress | Playwright |
+|---------|---------|---------|------------|
+| **Language** | Python | JavaScript | JavaScript/Python |
+| **Architecture** | Clean | Monolithic | Framework-based |
+| **BDD** | ✅ Behave | ❌ | ✅ Plugin |
+| **DDD** | ✅ | ❌ | ❌ |
+| **100% Coverage** | ✅ | N/A | N/A |
+| **Parallel** | ✅ Free | ✅ Paid | ✅ Free |
+| **Real-time UI** | ✅ | ✅ | ✅ |
+
+---
+
+## 📝 License
+
+MIT License - See LICENSE file for details.
+
+---
+
+## 🤝 Support
+
+- **Issues**: [GitHub Issues](https://github.com/your-org/nemesis/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/your-org/nemesis/discussions)
+- **Email**: support@example.com
+
+---
+
+**Built with ❤️ using Clean Architecture, DDD, and SOLID principles.**

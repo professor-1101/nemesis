@@ -8,9 +8,8 @@ from typing import Any
 from rich.console import Console
 from rich.panel import Panel
 
-from nemesis.core.logging import Logger
+from nemesis.infrastructure.logging import Logger
 from nemesis.reporting.local.data_model import ExecutionData, ScenarioData, StepData
-from nemesis.reporting.local.allure import AllureReportBuilder
 
 
 class LocalReporter:
@@ -145,11 +144,11 @@ class LocalReporter:
         # self.current_scenario = None
 
     def generate_report(self) -> Path:
-        """Generate Allure report (only allure-results and allure-report, no report.html)."""
+        """Generate JSON report with execution data."""
         self.execution_data.end_time = datetime.now()
 
         # Log execution data summary
-        self.logger.info(f"Generating Allure report with {len(self.execution_data.scenarios)} scenarios")
+        self.logger.info(f"Generating JSON report with {len(self.execution_data.scenarios)} scenarios")
         self.logger.debug(f"Execution data: {self.execution_data}")
 
         # If no scenarios were tracked, try to find existing execution data
@@ -159,14 +158,33 @@ class LocalReporter:
             self._try_recover_execution_data()
 
         try:
-            # Use AllureReportBuilder - generates only allure-results and allure-report
-            builder = AllureReportBuilder(self.execution_data, self.execution_path)
-            builder.build_report()
+            # Generate simple JSON report
+            report_dir = self.execution_path / "reports"
+            report_dir.mkdir(parents=True, exist_ok=True)
+
+            report_file = report_dir / "execution.json"
+            with open(report_file, 'w') as f:
+                json.dump({
+                    "execution_id": self.execution_data.execution_id,
+                    "start_time": self.execution_data.start_time.isoformat(),
+                    "end_time": self.execution_data.end_time.isoformat() if self.execution_data.end_time else None,
+                    "duration": self.execution_data.duration,
+                    "total_scenarios": len(self.execution_data.scenarios),
+                    "scenarios": [
+                        {
+                            "name": s.name,
+                            "feature": s.feature_name,
+                            "status": s.status,
+                            "duration": s.duration,
+                            "steps": len(s.steps)
+                        }
+                        for s in self.execution_data.scenarios
+                    ]
+                }, f, indent=2)
 
             # Report success
-            allure_report_dir = self.execution_path / "allure-report"
-            self._print_report_success(allure_report_dir)
-            return allure_report_dir
+            self._print_report_success(report_dir)
+            return report_dir
 
         except Exception as e:
             self.logger.error(f"Failed to generate report: {e}")

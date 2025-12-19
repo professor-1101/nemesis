@@ -6,9 +6,9 @@ file and environment variables, providing structured access to settings.
 import os
 from typing import Any, Dict
 
-from nemesis.core.config import ConfigLoader
-from nemesis.core.exceptions import ReportPortalError
-from nemesis.core.logging import Logger
+from nemesis.infrastructure.config import ConfigLoader
+from nemesis.shared.exceptions import ReportPortalError
+from nemesis.infrastructure.logging import Logger
 from .rp_utils import RPUtils
 
 class RPConfigLoader:
@@ -37,7 +37,38 @@ class RPConfigLoader:
         self.launch_description = self.config_loader.get("reportportal.launch_description")
         self.launch_attributes = RPUtils.parse_attributes(self.config_loader.get("reportportal.launch_attributes", ""))
 
+        # Step log layout: SCENARIO (logs only), STEP (flat items), NESTED (hierarchical)
+        step_log_layout = self.config_loader.get("reporting.reportportal.step_log_layout", "NESTED")
+        self.step_log_layout = self._validate_step_layout(step_log_layout)
+
+        # Skip handling: Whether skipped tests should be marked as issues
+        self.is_skipped_an_issue = self.config_loader.get("reporting.reportportal.is_skipped_an_issue", False)
+
+        # Debug mode: Creates DEBUG launches for testing/development
+        self.debug_mode = self.config_loader.get("reporting.reportportal.debug_mode", False)
+
         self._validate_config()
+
+    def _validate_step_layout(self, layout: str) -> str:
+        """Validate step log layout configuration.
+
+        Args:
+            layout: Layout mode string
+
+        Returns:
+            Validated layout mode (uppercase)
+        """
+        valid_layouts = {"SCENARIO", "STEP", "NESTED"}
+        layout_upper = layout.upper() if layout else "NESTED"
+
+        if layout_upper not in valid_layouts:
+            self.logger.warning(
+                f"Invalid step_log_layout '{layout}'. Using default 'NESTED'. "
+                f"Valid options: {', '.join(valid_layouts)}"
+            )
+            return "NESTED"
+
+        return layout_upper
 
     def _validate_config(self) -> None:
         missing = []
@@ -59,7 +90,7 @@ class RPConfigLoader:
 
     def get_rp_settings(self) -> Dict[str, Any]:
         """Get all ReportPortal settings as a dictionary.
-        
+
         Returns:
             Dictionary containing all ReportPortal configuration settings:
             - endpoint: Server endpoint URL
@@ -69,6 +100,9 @@ class RPConfigLoader:
             - launch_name: Launch name
             - launch_description: Launch description
             - launch_attributes: Launch attributes list
+            - step_log_layout: Step logging layout mode
+            - is_skipped_an_issue: Whether skipped tests are marked as issues
+            - debug_mode: Whether to create DEBUG launches
         """
         return {
             "endpoint": self.endpoint,
@@ -78,4 +112,7 @@ class RPConfigLoader:
             "launch_name": self.launch_name,
             "launch_description": self.launch_description,
             "launch_attributes": self.launch_attributes,
+            "step_log_layout": self.step_log_layout,
+            "is_skipped_an_issue": self.is_skipped_an_issue,
+            "debug_mode": self.debug_mode,
         }

@@ -80,3 +80,85 @@ class RPUtils:
             # Catch-all for unexpected errors from traceback extraction
             # NOTE: traceback.format_exception may raise various exceptions we cannot predict
             return f"{type(exception).__name__}: {str(exception)}\n(Stack trace extraction failed: {e})"
+
+    @staticmethod
+    def parse_behave_tags(tags: list) -> dict:
+        """Parse Behave tags to extract attributes, test case IDs, and other metadata.
+
+        Supports:
+        - @attribute(key:value) -> Adds to attributes list
+        - @test_case_id(TC-XXX) -> Sets test_case_id
+        - @fixture.* -> Adds to attributes as fixture tag
+        - Regular tags -> Adds to attributes as simple tags
+
+        Args:
+            tags: List of Behave tag strings
+
+        Returns:
+            Dictionary with parsed metadata:
+            {
+                'attributes': [{'key': 'tag', 'value': 'smoke'}, ...],
+                'test_case_id': 'TC-001',
+                'is_fixture': False
+            }
+
+        Examples:
+            >>> RPUtils.parse_behave_tags(['smoke', 'attribute(priority:high)', 'test_case_id(TC-001)'])
+            {
+                'attributes': [
+                    {'key': 'tag', 'value': 'smoke'},
+                    {'key': 'priority', 'value': 'high'}
+                ],
+                'test_case_id': 'TC-001',
+                'is_fixture': False
+            }
+        """
+        result = {
+            'attributes': [],
+            'test_case_id': None,
+            'is_fixture': False
+        }
+
+        if not tags:
+            return result
+
+        for tag in tags:
+            tag_str = str(tag).strip()
+
+            # Parse @attribute(key:value)
+            if tag_str.startswith('attribute(') and tag_str.endswith(')'):
+                attr_content = tag_str[10:-1]  # Remove "attribute(" and ")"
+                if ':' in attr_content:
+                    key, value = attr_content.split(':', 1)
+                    result['attributes'].append({
+                        'key': key.strip(),
+                        'value': value.strip()
+                    })
+                else:
+                    # If no colon, treat whole content as value with 'attribute' key
+                    result['attributes'].append({
+                        'key': 'attribute',
+                        'value': attr_content.strip()
+                    })
+
+            # Parse @test_case_id(TC-XXX)
+            elif tag_str.startswith('test_case_id(') and tag_str.endswith(')'):
+                test_case_id = tag_str[13:-1]  # Remove "test_case_id(" and ")"
+                result['test_case_id'] = test_case_id.strip()
+
+            # Parse @fixture.* tags
+            elif tag_str.startswith('fixture.') or tag_str == 'fixture':
+                result['is_fixture'] = True
+                result['attributes'].append({
+                    'key': 'fixture',
+                    'value': tag_str
+                })
+
+            # Regular tags - add as simple key-value pair
+            else:
+                result['attributes'].append({
+                    'key': 'tag',
+                    'value': tag_str
+                })
+
+        return result

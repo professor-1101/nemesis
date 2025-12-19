@@ -9,7 +9,7 @@ from .helpers.string_utils import StringUtils  # pylint: disable=no-name-in-modu
 from .helpers.time_utils import TimeUtils  # pylint: disable=no-name-in-module
 from .helpers.validation_utils import ValidationUtils  # pylint: disable=no-name-in-module
 from .helpers.retry_utils import RetryUtils  # pylint: disable=no-name-in-module
-from .path_utils import PathManager, get_path_manager, set_path_manager
+from .path_utils import PathHelper, get_path_manager, set_path_manager
 from .config_utils import ConfigHelper, get_config_helper, set_config_helper
 
 # Convenience functions for backward compatibility
@@ -60,7 +60,7 @@ def retry_on_exception(func, max_attempts=3, delay=1.0, exceptions=(Exception,))
 __all__ = [
     # Classes
     "FileUtils", "StringUtils", "TimeUtils", "ValidationUtils", "RetryUtils",
-    "PathManager", "ConfigHelper",
+    "PathHelper", "ConfigHelper",
     # Functions
     "sanitize_filename", "generate_timestamp", "ensure_directory",
     "read_json_file", "write_json_file", "format_duration",

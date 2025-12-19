@@ -8,7 +8,7 @@ import traceback
 from pathlib import Path
 from typing import Optional
 
-from nemesis.core.logging import Logger
+from nemesis.infrastructure.logging import Logger
 
 
 def convert_to_mp4(input_path: Path, output_path: Optional[Path] = None) -> Optional[Path]:

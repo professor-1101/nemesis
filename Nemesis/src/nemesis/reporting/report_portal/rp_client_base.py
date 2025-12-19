@@ -5,8 +5,8 @@ client creation, connection validation, and basic health checks.
 """
 from reportportal_client import RPClient
 from nemesis.utils.decorators import retry
-from nemesis.core.exceptions import ReportPortalError
-from nemesis.core.logging import Logger
+from nemesis.shared.exceptions import ReportPortalError
+from nemesis.infrastructure.logging import Logger
 
 class RPClientBase:
     """Base client for ReportPortal integration.
@@ -59,7 +59,7 @@ class RPClientBase:
 
     def is_healthy(self) -> bool:
         """Check if client is healthy."""
-        # This will be more meaningful when launch_id is managed by RPLaunchManager
+        # This will be more meaningful when launch_id is managed by RPLaunchCoordinator
         # For now, it just means client instance exists and connection was validated.
         return self.client is not None
 
