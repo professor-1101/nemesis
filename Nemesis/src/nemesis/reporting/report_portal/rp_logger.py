@@ -29,18 +29,21 @@ class RPLogger(RPBaseHandler):
         launch_id = self.rp_launch_manager.get_launch_id()
 
         if not item_id or not launch_id:
+            self.logger.warning(f"Cannot log message - item_id: {item_id}, launch_id: {launch_id}")
             return
 
         try:
             if len(message) > 10000:
                 message = message[:10000] + "\n[truncated]"
 
+            self.logger.info(f"[RP LOG DEBUG] Logging message to item_id={item_id}, level={level}, message length={len(message)}")
             self.client.log(
                 time=RPUtils.timestamp(),
                 message=message,
                 level=level,
                 item_id=item_id,
             )
+            self.logger.info(f"[RP LOG DEBUG] Log sent successfully")
         except (AttributeError, RuntimeError) as e:
             # ReportPortal SDK API errors
             self.logger.error(f"Failed to log message - API error: {e}", traceback=traceback.format_exc(), module=__name__, class_name="RPLogger", method="log_message")

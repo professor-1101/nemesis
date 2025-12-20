@@ -124,6 +124,9 @@ class ScenarioAttachmentHandler:
             if not execution_path:
                 return
 
+            # Ensure collector data is saved before trying to attach
+            self._ensure_collector_data_saved()
+
             # Use collector content logger
             content_logger = CollectorContentLogger(self.report_manager)
 
@@ -220,3 +223,20 @@ class ScenarioAttachmentHandler:
             # Catch-all for unexpected errors from collector attachment operations
             # NOTE: Collector directory operations or ReportPortal API may raise various exceptions we cannot predict
             self.logger.debug(f"Error attaching scenario collectors: {e}", traceback=traceback.format_exc(), module=__name__, class_name="ScenarioAttachmentHandler", method="attach_collectors")
+
+    def _ensure_collector_data_saved(self) -> None:
+        """Ensure collector data is saved to files before attachment."""
+        try:
+            # Try to get collector coordinator from environment
+            from nemesis.infrastructure.environment.hooks import _get_env_manager
+            env_manager = _get_env_manager()
+            if env_manager and hasattr(env_manager, 'browser_env'):
+                browser_env = env_manager.browser_env
+                if browser_env and hasattr(browser_env, '_collector_coordinator'):
+                    collector_coordinator = browser_env._collector_coordinator
+                    if collector_coordinator and hasattr(collector_coordinator, 'save_collector_data'):
+                        self.logger.debug("Saving collector data before attachment")
+                        collector_coordinator.save_collector_data()
+                        self.logger.debug("Collector data saved successfully")
+        except Exception as e:  # pylint: disable=broad-exception-caught
+            self.logger.debug(f"Failed to save collector data: {e}")

@@ -48,7 +48,7 @@ class MetricsHandler(BaseAttachmentHandler):
                     self._store_attachment_locally(metrics_path, metric_type_clean + "s")
             self._call_local_reporter(_attach_local)
 
-        if self.reporter_manager.is_rp_enabled():
+        if self.reporter_manager.is_rp_healthy():
             self._call_rp_client(
                 lambda: self.reporter_manager.get_rp_client().attach_file(metrics_path, desc, "metrics")
             )
@@ -77,7 +77,7 @@ class MetricsHandler(BaseAttachmentHandler):
             elif file_path.suffix.lower() in ['.json'] and 'performance' in str(file_path).lower():
                 attachment_type = "metrics"
 
-        if self.reporter_manager.is_rp_enabled():
+        if self.reporter_manager.is_rp_healthy():
             self._call_rp_client(
                 lambda: self.reporter_manager.get_rp_client().attach_file(file_path, description, attachment_type)
             )
@@ -89,7 +89,7 @@ class MetricsHandler(BaseAttachmentHandler):
                 lambda: self.reporter_manager.get_local_reporter().add_log(message, level)
             )
 
-        if self.reporter_manager.is_rp_enabled():
+        if self.reporter_manager.is_rp_healthy():
             self._call_rp_client(
                 lambda: self.reporter_manager.get_rp_client().log_message(message, level)
             )

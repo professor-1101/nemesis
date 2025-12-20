@@ -51,7 +51,7 @@ class RPFeatureHandler:
 
             # Build start_test_item parameters
             start_params = {
-                "name": f"Feature: {feature_name}",
+                "name": feature_name,  # Use feature name directly without prefix
                 "start_time": RPUtils.timestamp(),
                 "item_type": "SUITE",
                 "description": description,
@@ -85,8 +85,15 @@ class RPFeatureHandler:
     @safe_execute(log_exceptions=True)
     def finish_feature(self, status: str = "PASSED") -> None:
         """Finish feature."""
-        if not self.feature_id or not self.rp_launch_manager.is_launch_active():
+        if not self.feature_id:
+            self.logger.warning(f"[RP DEBUG] finish_feature: feature_id is None, skipping finish")
             return
+        
+        if not self.rp_launch_manager.is_launch_active():
+            self.logger.warning(f"[RP DEBUG] finish_feature: launch is not active (launch_id={self.rp_launch_manager.launch_id}), skipping finish")
+            return
+        
+        self.logger.info(f"[RP DEBUG] finish_feature: feature_id={self.feature_id}, status={status}, launch_id={self.rp_launch_manager.get_launch_id()}")
 
         try:
             self.client.finish_test_item(

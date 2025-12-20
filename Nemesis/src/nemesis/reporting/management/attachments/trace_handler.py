@@ -35,7 +35,7 @@ class TraceHandler(BaseAttachmentHandler):
             # NOTE: Local reporter or file operations may raise various exceptions we cannot predict
             self.logger.debug(f"Failed to handle local trace attachment: {e}", exc_info=True)
 
-        if self.reporter_manager.is_rp_enabled():
+        if self.reporter_manager.is_rp_healthy():
             try:
                 self.reporter_manager.get_rp_client().attach_file(trace_path, "Playwright Trace", "trace")
             except (AttributeError, RuntimeError) as e:

@@ -82,7 +82,7 @@ class RPStepHandler:
             self.logger.debug(f"Failed to log step as message: {e}", exc_info=True)
 
     @retry(max_attempts=2, delay=0.5)
-    def start_step(self, step_name: str) -> None:
+    def start_step(self, step_name: str, tags: list = None) -> None:
         """Start step with BDD formatting (respects layout mode).
 
         In SCENARIO mode: Logs step as message only
@@ -101,14 +101,24 @@ class RPStepHandler:
             return
 
         try:
-            self.step_id = self.client.start_test_item(
-                name=step_name,
-                start_time=RPUtils.timestamp(),
-                item_type="STEP",
-                parent_item_id=test_id,
-                launch_uuid=launch_id,
-                has_stats=False,
-            )
+            # Parse tags for attributes and metadata
+            parsed_tags = RPUtils.parse_behave_tags(tags or [])
+            attributes = parsed_tags.get('attributes', [])
+
+            start_params = {
+                "name": step_name,
+                "start_time": RPUtils.timestamp(),
+                "item_type": "STEP",
+                "parent_item_id": test_id,
+                "launch_uuid": launch_id,
+                "has_stats": False,
+            }
+
+            # Add attributes if present
+            if attributes:
+                start_params["attributes"] = attributes
+
+            self.step_id = self.client.start_test_item(**start_params)
 
         except (AttributeError, RuntimeError) as e:
             # ReportPortal SDK API errors - start_test_item failed

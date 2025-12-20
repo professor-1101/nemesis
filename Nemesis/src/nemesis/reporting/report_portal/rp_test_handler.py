@@ -37,7 +37,7 @@ class RPTestHandler:
         self.is_skipped_an_issue = is_skipped_an_issue
 
     @retry(max_attempts=2, delay=0.5)
-    def start_test(self, name: str, test_type: str = "SCENARIO", tags: list = None, description: str = "") -> None:
+    def start_test(self, name: str, test_type: str = "TEST", tags: list = None, description: str = "") -> None:
         """Start test (scenario) under feature with support for advanced tags.
 
         Args:
@@ -54,9 +54,14 @@ class RPTestHandler:
             return
 
         try:
-            formatted_name = f"Scenario: {name}" if not name.startswith("Scenario:") else name
+            # Use scenario name directly (without "Scenario:" prefix)
+            # ReportPortal will show it as a scenario item based on item_type
+            formatted_name = name
 
             # Clear previous test_id before starting new test
+            # This ensures each scenario gets its own test_id
+            if self.test_id:
+                self.logger.debug(f"Clearing previous test_id: {self.test_id} before starting new test: {name}")
             self.test_id = None
 
             # Parse tags for attributes and metadata
@@ -118,8 +123,15 @@ class RPTestHandler:
         Args:
             status: Test status (PASSED, FAILED, SKIPPED, etc.)
         """
-        if not self.test_id or not self.rp_launch_manager.is_launch_active():
+        if not self.test_id:
+            self.logger.warning(f"[RP DEBUG] finish_test: test_id is None, skipping finish")
             return
+        
+        if not self.rp_launch_manager.is_launch_active():
+            self.logger.warning(f"[RP DEBUG] finish_test: launch is not active (launch_id={self.rp_launch_manager.launch_id}), skipping finish")
+            return
+        
+        self.logger.info(f"[RP DEBUG] finish_test: test_id={self.test_id}, status={status}, launch_id={self.rp_launch_manager.get_launch_id()}")
 
         try:
             finish_params = {
@@ -136,7 +148,9 @@ class RPTestHandler:
                     "issue_type": "NOT_ISSUE"
                 }
 
+            self.logger.info(f"[RP DEBUG] Calling client.finish_test_item with params: item_id={finish_params['item_id']}, status={finish_params['status']}, launch_uuid={finish_params['launch_uuid']}")
             self.client.finish_test_item(**finish_params)
+            self.logger.info(f"[RP DEBUG] finish_test_item completed successfully for test_id={self.test_id}")
             # Keep test_id for potential attachments after test finish
             # It will be cleared when a new test starts or launch finishes
             # self.test_id = None

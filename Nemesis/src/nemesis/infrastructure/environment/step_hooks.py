@@ -9,6 +9,57 @@ from nemesis.utils.decorators.exception_handler import handle_exceptions_with_fa
 LOGGER = Logger.get_instance({})
 
 
+def _setup_action_logging_after_browser_start(env_manager, context, step) -> None:
+    """Setup action logging for Playwright after browser starts"""
+    try:
+        # Get current page adapter from context (should be set by browser_environment)
+        if hasattr(context, 'page') and context.page:
+            page_adapter = context.page
+            LOGGER.info(f"Found page adapter in context: {type(page_adapter)}")
+
+            # Create action logger callback that logs to ReportPortal
+            def action_logger_callback(message: str) -> None:
+                try:
+                    LOGGER.debug(f"Action callback called: {message}")
+
+                    # Add action to scenario's action list for stack trace
+                    env_manager.add_scenario_action(message)
+
+                    # Add action to current step's action list for step-level stack trace
+                    env_manager.add_step_action(message)
+
+                    # Log to ReportPortal for the current active item (scenario/test/step)
+                    if hasattr(env_manager, 'reporting_env') and env_manager.reporting_env:
+                        reporting_env = env_manager.reporting_env
+                        if hasattr(reporting_env, '_reporter_manager') and reporting_env._reporter_manager:
+                            reporter_manager = reporting_env._reporter_manager
+                            if reporter_manager.is_rp_enabled():
+                                rp_client = reporter_manager.get_rp_client()
+                                if rp_client:
+                                    rp_client.log_message(message, "DEBUG")
+                                    LOGGER.debug(f"Logged action to RP: {message}")
+                                else:
+                                    LOGGER.warning("RP client not available")
+                            else:
+                                LOGGER.warning("RP not enabled")
+                        else:
+                            LOGGER.warning("Reporter manager not available")
+                    else:
+                        LOGGER.warning("Reporting env not available")
+                except Exception as e:  # pylint: disable=broad-exception-caught
+                    LOGGER.warning(f"Failed to log action to ReportPortal: {e}")
+
+            # Set the action logger on the page adapter
+            page_adapter.set_action_logger(action_logger_callback)
+            LOGGER.info(f"Action logging enabled for step: {step.name}")
+
+        else:
+            LOGGER.warning("Page adapter not found in context")
+
+    except Exception as e:  # pylint: disable=broad-exception-caught
+        LOGGER.warning(f"Failed to setup action logging: {e}")
+
+
 @handle_exceptions_with_fallback(
     logger=LOGGER,
     log_level="warning",
@@ -24,7 +75,7 @@ def before_step(context: Any, step: Any) -> None:
         step: Behave step object
     """
     # Lazy import to avoid circular dependency
-    from .environment_manager import EnvironmentCoordinator  # pylint: disable=import-outside-toplevel
+    from .environment_coordinator import EnvironmentCoordinator  # pylint: disable=import-outside-toplevel
 
     env_manager = context.env_manager if hasattr(context, 'env_manager') else EnvironmentCoordinator()
 
@@ -36,6 +87,13 @@ def before_step(context: Any, step: Any) -> None:
             if browser_started:
                 context.browser_started = True
                 LOGGER.info("Browser started successfully")
+
+                # Setup action logging for Playwright after browser starts
+                try:
+                    _setup_action_logging_after_browser_start(env_manager, context, step)
+                    LOGGER.info("Action logging setup completed")
+                except Exception as e:
+                    LOGGER.error(f"Failed to setup action logging: {e}", traceback=traceback.format_exc())
             else:
                 LOGGER.error("Failed to start browser, marking as crashed")
                 context.browser_crashed = True
@@ -49,6 +107,9 @@ def before_step(context: Any, step: Any) -> None:
 
     # Start step reporting
     env_manager.reporting_env.start_step(context, step)
+
+    # Clear previous step actions for step-level stack trace
+    env_manager.clear_step_actions()
 
     # Log step start
     env_manager.logger_env.log_step_start(context, step)
@@ -69,7 +130,7 @@ def after_step(context: Any, step: Any) -> None:
         step: Behave step object
     """
     # Lazy import to avoid circular dependency
-    from .environment_manager import EnvironmentCoordinator  # pylint: disable=import-outside-toplevel
+    from .environment_coordinator import EnvironmentCoordinator  # pylint: disable=import-outside-toplevel
 
     env_manager = context.env_manager if hasattr(context, 'env_manager') else EnvironmentCoordinator()
 

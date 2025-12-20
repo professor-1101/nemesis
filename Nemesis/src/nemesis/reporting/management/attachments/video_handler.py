@@ -79,7 +79,7 @@ class VideoHandler(BaseAttachmentHandler):
                 self.logger.debug(f"Failed to handle local video attachment: {e}", exc_info=True)
 
         # STEP 3: ReportPortal handling (if enabled)
-        if self.reporter_manager.is_rp_enabled():
+        if self.reporter_manager.is_rp_healthy():
             try:
                 # Attach as file (attachment will appear in Attachments tab)
                 # The attach_file method creates a minimal log entry automatically

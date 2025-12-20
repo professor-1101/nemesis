@@ -1,13 +1,15 @@
 # ReportPortal Configuration
-# Update these values with your ReportPortal instance details
+# SauceDemo Test Automation Project
 
+enabled: true
 endpoint: http://192.168.10.191:9080
-project: develop_automation
-api_key: developer_tynmjr9wQdy6JAm2zBqlC3Kf-MigjzSkGPqvMOsHACa-AeFiVSHfluZPCNMbCNkR
+project: saucedemo
+api_key: saucedemo_JL_9PyVyTK-W_KNUP6tX0mGYHL51XcPK7vdCC4ChEHBunBbBGA_8BnpnmHPLKBeB
 
-launch_name: Nemesis Test Automation
-launch_description: E2E Testing with Behave & Playwright
-launch_attributes: BDD Playwright E2E
+# Launch settings (auto-generated if not specified)
+# launch_name: Auto-generated from execution
+# launch_description: Auto-generated
+# launch_attributes: Auto-generated from tags
 
 client_type: SYNC
 verify_ssl: false

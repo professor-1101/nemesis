@@ -93,6 +93,19 @@ class ReportFinalizer:
                         if launch_url:
                             self.logger.info(f"[RP DEBUG] ReportPortal launch URL: {launch_url}")
 
+                        # CRITICAL: Terminate FIRST to ensure all pending logs/attachments are flushed
+                        self.logger.info(f"[RP DEBUG] Checking terminate conditions BEFORE finish...")
+                        if hasattr(rp_client, 'rp_client_base') and rp_client.rp_client_base and hasattr(rp_client.rp_client_base, 'client'):
+                            try:
+                                self.logger.info("Terminating ReportPortal client BEFORE finish_launch...")
+                                rp_client.rp_client_base.client.terminate()
+                                self.logger.info("ReportPortal client terminated successfully BEFORE finish")
+                                time.sleep(0.5)
+                            except Exception as terminate_error:
+                                self.logger.warning(f"Terminate before finish failed: {terminate_error}")
+                        else:
+                            self.logger.warning("Cannot terminate client - missing client object")
+
                         # Always try to finish launch (even if is_healthy() returns False)
                         # is_healthy() checks if launch_id is not None, but launch_id may be cleared after finish
                         # We have the launch_id from _finished_launch_id or launch_id property, so we can finish it
@@ -103,20 +116,7 @@ class ReportFinalizer:
                         rp_client.finish_launch("FINISHED", launch_id=launch_id)
                         self.logger.info(f"[RP DEBUG] After finish_launch - rp_client.launch_id: {rp_client.launch_id}")
 
-                        # Give time for finish_launch request to be processed and all pending logs/exceptions to be sent
-                        time.sleep(3.0)
-
-                        # CRITICAL: Terminate AFTER finish_launch to ensure all pending logs/attachments are sent
-                        self.logger.info(f"[RP DEBUG] Checking terminate conditions AFTER finish...")
-                        if hasattr(rp_client, 'rp_client_base') and rp_client.rp_client_base and hasattr(rp_client.rp_client_base, 'client'):
-                            try:
-                                self.logger.info("Terminating ReportPortal client AFTER finish_launch...")
-                                rp_client.rp_client_base.client.terminate()
-                                self.logger.info("ReportPortal client terminated successfully AFTER finish")
-                            except Exception as terminate_error:
-                                self.logger.warning(f"Terminate after finish failed: {terminate_error}")
-                        else:
-                            self.logger.warning("Cannot terminate client - missing client object")
+                        # Give time for finish_launch request to be processed
                         time.sleep(0.5)
 
                         # Make a direct API call as final fallback to ensure launch is finished

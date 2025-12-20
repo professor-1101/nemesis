@@ -89,18 +89,24 @@ class ReporterCoordinator:
         return_on_error=None
     )
     def _init_rp_client(self) -> Optional[ReportPortalClient]:
-        """Initialize ReportPortal client with exception handling."""
+        """Initialize ReportPortal client with exception handling.
+        
+        Note: Launch will be started lazily in first feature (lazy start pattern).
+        So launch_id may be None at initialization time - this is expected.
+        """
         client = ReportPortalClient(self.config)
 
+        # Launch is started lazily in first feature, so launch_id may be None here
+        # This is expected behavior - launch will be started when start_feature is called
         if client.launch_id:
             self.logger.info(f"ReportPortal initialized - Launch: {client.launch_id}")
-
             launch_url = client.get_launch_url()
             if launch_url:
                 self.logger.info(f"ReportPortal URL: {launch_url}")
-            return client
         else:
-            raise RuntimeError("Launch ID not obtained")
+            self.logger.info("ReportPortal client initialized (launch will start lazily in first feature)")
+        
+        return client
 
     def _initialize_reporters(self) -> None:
         """Initialize enabled reporters with graceful degradation."""
@@ -149,3 +155,14 @@ class ReporterCoordinator:
     def is_rp_enabled(self) -> bool:
         """Check if ReportPortal is enabled and active."""
         return self.config.get("reporting.reportportal.enabled", False) and self.rp_client is not None
+
+    def is_rp_healthy(self) -> bool:
+        """Check if ReportPortal client is healthy and can be used."""
+        if not self.is_rp_enabled():
+            return False
+
+        try:
+            # Check if client has required attributes and launch_id
+            return hasattr(self.rp_client, 'launch_id') and self.rp_client.launch_id is not None
+        except Exception:
+            return False

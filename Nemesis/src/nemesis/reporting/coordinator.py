@@ -11,6 +11,7 @@ from nemesis.reporting.management.execution_handler import ExecutionHandler
 from nemesis.reporting.management.reporter_coordinator import ReporterCoordinator
 from nemesis.reporting.management.feature_handler import FeatureHandler
 from nemesis.reporting.management.scenario_handler import ScenarioHandler
+from nemesis.reporting.management.step_handler import StepHandler
 from nemesis.reporting.management.attachment_handler import AttachmentHandler
 from nemesis.reporting.management.report_finalizer import ReportFinalizer
 from nemesis.utils.helpers.scenario_helpers import normalize_scenario_status
@@ -58,7 +59,7 @@ class ReportCoordinator:
         # Initialize management components
         self.feature_manager = FeatureHandler(self.reporter_manager)
         self.scenario_manager = ScenarioHandler(self.reporter_manager)
-        self.step_manager = StepManager(self.reporter_manager)
+        self.step_manager = StepHandler(self.reporter_manager)
 
         if self.execution_manager:
             self.attachment_manager = AttachmentHandler(self.reporter_manager, self.execution_manager)

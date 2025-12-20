@@ -43,6 +43,11 @@ class ReportPortalClient:
         )
         self.rp_client_base._validate_connection() # Initial connection validation
 
+        # Store settings for lazy launch start (will be started in first feature if needed)
+        self._launch_settings = rp_settings
+        self._launch_started = False
+        self._finished_launch_id = None  # Store launch_id after finish for finalization
+        
         self.rp_launch_manager = RPLaunchCoordinator(
             rp_client_base=self.rp_client_base,
             launch_name=rp_settings["launch_name"],
@@ -90,34 +95,102 @@ class ReportPortalClient:
                 # NOTE: EnvironmentCoordinator import or access may raise various exceptions we cannot predict
                 self.logger.debug(f"Failed to get launch_id from EnvironmentCoordinator: {load_error}", module=__name__, class_name="ReportPortalClient", method="__init__")
 
-        if not existing_launch_id and not self.rp_launch_manager.launch_id and not saved_launch_id:
-            self.rp_launch_manager.start_launch()
-        elif existing_launch_id:
+        if existing_launch_id:
             # Reuse existing launch_id from RPClient
             self.rp_launch_manager.launch_id = existing_launch_id
+            self._launch_started = True
             self.logger.info(f"Reusing existing ReportPortal launch: {existing_launch_id}")
         elif saved_launch_id:
             # Reuse saved launch_id from EnvironmentCoordinator (from previous process or same process)
             self.rp_launch_manager.launch_id = saved_launch_id
+            self._launch_started = True
             # Note: Cannot set client.launch_id directly (it's read-only property)
             # But RPClient will use the launch_id from finish_launch call
             self.logger.info(f"Reusing launch_id from EnvironmentCoordinator: {saved_launch_id}")
+        # Don't start launch here - will be started lazily in first feature if needed
 
-    def start_launch(self) -> None:
-        """Start launch - only if not already started."""
+    def start_launch(self, launch_description: str = None, launch_attributes: list = None) -> None:
+        """Start launch - only if not already started.
+        
+        Args:
+            launch_description: Optional description (will override config if provided)
+            launch_attributes: Optional attributes list (will override config if provided)
+        """
+        if self._launch_started:
+            return
+            
         if self.rp_launch_manager:
+            # Update launch description and attributes if provided
+            if launch_description is not None:
+                self.rp_launch_manager.launch_description = launch_description
+            if launch_attributes is not None:
+                self.rp_launch_manager.launch_attributes = self.rp_launch_manager._normalize_attributes(launch_attributes)
+            
             self.rp_launch_manager.start_launch()
+            self._launch_started = True
 
-    def start_feature(self, feature_name: str, description: str = "", tags: list = None) -> None:
+    def start_feature(self, feature_name: str, description: str = "", tags: list = None, launch_attributes: list = None) -> None:
         """Start a feature (test suite) in ReportPortal with advanced tag support.
 
         Args:
             feature_name: Name of the feature to start
             description: Optional description for the feature
             tags: List of Behave tags (supports @attribute, @test_case_id, etc.)
+            launch_attributes: Launch attributes (browser_type, scenario_count, version, sprint, environment)
         """
+        self.logger.info(f"[RP DEBUG] start_feature called: feature_name={feature_name}, _launch_started={self._launch_started}, launch_id={self.launch_id}")
+        
+        # Lazy launch start: If launch hasn't started yet, start it now with feature info
+        if not self._launch_started:
+            self.logger.info(f"Starting launch lazily for feature: {feature_name}")
+            # Auto-generate launch_description from first feature if not in config
+            launch_description = self._launch_settings.get("launch_description")
+            self.logger.info(f"[RP DEBUG] launch_description from config: {launch_description}")
+            self.logger.info(f"[RP DEBUG] description parameter: {repr(description)}, type: {type(description)}")
+            
+            if not launch_description:
+                # Use feature description if available, otherwise use feature name
+                if description:
+                    # Handle both string and list descriptions
+                    desc_text = '\n'.join(description) if isinstance(description, list) else description
+                    self.logger.info(f"[RP DEBUG] Processed description text: {repr(desc_text[:100])}")
+                    # Use feature description directly, without "Test execution for:" prefix
+                    launch_description = desc_text if desc_text.strip() else feature_name
+                else:
+                    # If no description, use feature name
+                    self.logger.info(f"[RP DEBUG] No description provided, using feature_name: {feature_name}")
+                    launch_description = feature_name
+            
+            self.logger.info(f"[RP DEBUG] Final launch_description: {repr(launch_description[:100])}")
+            
+            # Use provided launch_attributes or auto-generate from first feature tags if not in config
+            if launch_attributes is None:
+                launch_attributes = self._launch_settings.get("launch_attributes", [])
+                if not launch_attributes and tags:
+                    from .report_portal.rp_utils import RPUtils
+                    parsed_tags = RPUtils.parse_behave_tags(tags)
+                    launch_attributes = parsed_tags.get('attributes', [])
+                    self.logger.info(f"Auto-generated launch_attributes from first feature tags: {len(launch_attributes)} attributes")
+            else:
+                self.logger.info(f"Using provided launch_attributes: {len(launch_attributes)} attributes")
+            
+            # Set launch name from feature name (per requirements)
+            launch_name = feature_name
+            self.logger.info(f"[RP DEBUG] Launch name set to feature name: {launch_name}")
+
+            # Update launch name in launch coordinator if available
+            if self.rp_launch_manager:
+                self.rp_launch_manager.update_launch_name(launch_name)
+
+            self.logger.info(f"Calling start_launch with name='{launch_name}', description='{launch_description[:50]}...', attributes={len(launch_attributes)}")
+            self.start_launch(launch_description=launch_description, launch_attributes=launch_attributes)
+            self.logger.info(f"Launch started successfully. Launch ID: {self.launch_id}")
+        
         if self.rp_feature_manager:
-            self.rp_feature_manager.start_feature(feature_name, description, tags)
+            # Ensure description is properly formatted (handle both string and list)
+            desc_text = '\n'.join(description) if isinstance(description, list) else (description or "")
+            self.logger.info(f"[RP DEBUG] Starting feature in RP: name={feature_name}, description length={len(desc_text)}, tags={tags}")
+            self.rp_feature_manager.start_feature(feature_name, desc_text, tags)
 
     def finish_feature(self, status: str = "PASSED") -> None:
         """Finish a feature (test suite) in ReportPortal.
@@ -128,7 +201,7 @@ class ReportPortalClient:
         if self.rp_feature_manager:
             self.rp_feature_manager.finish_feature(status)
 
-    def start_test(self, name: str, test_type: str = "SCENARIO", tags: list = None, description: str = "") -> None:
+    def start_test(self, name: str, test_type: str = "TEST", tags: list = None, description: str = "") -> None:
         """Start a test (scenario) in ReportPortal with advanced tag support.
 
         Args:
@@ -140,14 +213,14 @@ class ReportPortalClient:
         if self.rp_test_manager:
             self.rp_test_manager.start_test(name, test_type, tags, description)
 
-    def start_step(self, step_name: str) -> None:
+    def start_step(self, step_name: str, tags: list = None) -> None:
         """Start a step within a test in ReportPortal.
         
         Args:
             step_name: Name of the step to start
         """
         if self.rp_step_manager:
-            self.rp_step_manager.start_step(step_name)
+            self.rp_step_manager.start_step(step_name, tags)
 
     def finish_step(self, status: str) -> None:
         """Finish a step in ReportPortal.
@@ -177,6 +250,9 @@ class ReportPortalClient:
         if self.rp_launch_manager:
             # If launch_id provided, use it; otherwise use the one from launch_manager
             target_launch_id = launch_id or self.launch_id
+            # Store launch_id before finishing (it will be cleared after finish)
+            if target_launch_id:
+                self._finished_launch_id = target_launch_id
             self.rp_launch_manager.finish_launch(status, target_launch_id)
 
     def log_message(self, message: str, level: str = "INFO") -> None:
@@ -188,6 +264,8 @@ class ReportPortalClient:
         """
         if self.rp_logger:
             self.rp_logger.log_message(message, level)
+        else:
+            self.logger.warning(f"RP logger not available, cannot log message: {message[:50]}...")
 
     def log_metadata(self, key: str, value: str, level: str = "INFO") -> None:
         """Log custom metadata to current test item in ReportPortal.
@@ -230,16 +308,16 @@ class ReportPortalClient:
             if attachment_path and attachment_path.exists() and self.rp_attachment_manager:
                 self.rp_attachment_manager.attach_file(attachment_path, f"Attachment for {type(exception).__name__}", "exception")
 
-    def attach_file(self, file_path: Path, description: str = "", attachment_type: str = "") -> None:
+    def attach_file(self, file_data, description: str = "", attachment_type: str = "") -> None:
         """Attach a file to the current test item in ReportPortal.
-        
+
         Args:
-            file_path: Path to the file to attach
+            file_data: File data as bytes or Path to the file to attach
             description: Optional description for the attachment
             attachment_type: Optional type of attachment (screenshot, video, etc.)
         """
         if self.rp_attachment_manager:
-            self.rp_attachment_manager.attach_file(file_path, description, attachment_type)
+            self.rp_attachment_manager.attach_file(file_data, description, attachment_type)
 
     def is_healthy(self) -> bool:
         """Check if ReportPortal client is healthy and has an active launch.
@@ -264,6 +342,9 @@ class ReportPortalClient:
     @property
     def launch_id(self) -> str | None:
         """Get the current launch ID."""
+        # Return finished launch_id if launch is finished, otherwise return active launch_id
+        if hasattr(self, '_finished_launch_id') and self._finished_launch_id:
+            return self._finished_launch_id
         if self.rp_launch_manager:
             return self.rp_launch_manager.launch_id
         return None

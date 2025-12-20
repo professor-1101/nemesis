@@ -107,8 +107,21 @@ class BrowserEnvironment:
             return False
 
         self.logger.debug("Browser manager is available, calling start()")
+        
+        # Start browser and get page
+        playwright_page = self.browser_manager.start(execution_id)
+        if not playwright_page:
+            self.logger.error("Failed to start browser - start() returned None")
+            context.browser_crashed = True
+            return False
+        
         self.logger.debug("Browser started successfully, getting browser instance")
         context.browser = self.browser_manager.get_browser()
+        
+        # Wrap Playwright Page with IPage adapter for Clean Architecture
+        from nemesis.infrastructure.browser import PlaywrightPageAdapter
+        context.page = PlaywrightPageAdapter(playwright_page)
+        self._current_page_adapter = context.page  # Store reference for action logging
 
         # Mark browser as started
         context.browser_started = True

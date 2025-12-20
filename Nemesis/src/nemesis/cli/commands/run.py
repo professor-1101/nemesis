@@ -45,8 +45,8 @@ def _get_latest_execution_id():
 
 @handle_exceptions(
     log_level="debug",
-    specific_exceptions=(OSError, IOError, ValueError, AttributeError, Exception),
-    specific_message="Failed to show report path: {error}"
+    catch_exceptions=(OSError, IOError, ValueError, AttributeError, Exception),
+    message_template="Failed to show report path: {error}"
 )
 def _show_report_path():
     """Show JSON report path if it exists."""

@@ -1,6 +1,6 @@
 """Centralized environment manager for Nemesis framework."""
 import os
-from typing import Any, Optional
+from typing import Any, Optional, Dict, List
 from pathlib import Path
 
 from nemesis.infrastructure.config import ConfigLoader
@@ -32,6 +32,61 @@ class EnvironmentCoordinator:
         self.initialized = False
         self.execution_id: Optional[str] = None
         self.rp_launch_id: Optional[str] = None  # Store ReportPortal launch_id for cross-process access
+
+        # Store current context for attachment naming
+        self.current_feature_name: Optional[str] = None
+        self.current_scenario_name: Optional[str] = None
+        self.current_step_name: Optional[str] = None
+
+        # Store scenario actions for stack trace
+        self.current_scenario_actions: List[str] = []
+
+        # Store current step actions for step-level stack trace
+        self.current_step_actions: List[str] = []
+
+    def set_current_feature(self, feature_name: str) -> None:
+        """Set current feature name for attachment naming."""
+        self.current_feature_name = feature_name
+
+    def set_current_scenario(self, scenario_name: str) -> None:
+        """Set current scenario name for attachment naming."""
+        self.current_scenario_name = scenario_name
+
+    def set_current_step(self, step_name: str) -> None:
+        """Set current step name for attachment naming."""
+        self.current_step_name = step_name
+
+    def add_scenario_action(self, action: str) -> None:
+        """Add an action to current scenario's action list."""
+        self.current_scenario_actions.append(action)
+
+    def get_scenario_actions(self) -> List[str]:
+        """Get all actions for current scenario."""
+        return self.current_scenario_actions.copy()
+
+    def clear_scenario_actions(self) -> None:
+        """Clear actions list for new scenario."""
+        self.current_scenario_actions.clear()
+
+    def add_step_action(self, action: str) -> None:
+        """Add an action to current step's action list."""
+        self.current_step_actions.append(action)
+
+    def get_step_actions(self) -> List[str]:
+        """Get all actions for current step."""
+        return self.current_step_actions.copy()
+
+    def clear_step_actions(self) -> None:
+        """Clear step actions list."""
+        self.current_step_actions.clear()
+
+    def get_attachment_context(self) -> Dict[str, str]:
+        """Get current context for attachment naming."""
+        return {
+            "feature": self.current_feature_name or "unknown",
+            "scenario": self.current_scenario_name or "unknown",
+            "step": self.current_step_name or "unknown"
+        }
 
     @handle_exceptions_with_fallback(
         log_level="critical",

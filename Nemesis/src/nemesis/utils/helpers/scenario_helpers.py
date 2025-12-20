@@ -23,18 +23,29 @@ def normalize_scenario_status(scenario: Any, status: Any = None) -> str:
             status = "passed"
 
     # Normalize to lowercase
-    return "passed" if status.lower() in ("passed", "pass") else "failed"
+    status_lower = status.lower()
+    if status_lower in ("passed", "pass"):
+        return "passed"
+    elif status_lower in ("failed", "fail"):
+        return "failed"
+    elif status_lower in ("skipped", "skip"):
+        return "skipped"
+    else:
+        return "passed"  # Default fallback
 
 
 def normalize_scenario_status_for_rp(scenario: Any, status: Any = None) -> str:
     """Normalize scenario status to ReportPortal format (uppercase).
-    
+
     Args:
         scenario: Scenario object from Behave
         status: Optional status string or object
-        
+
     Returns:
-        Normalized status string ("PASSED" or "FAILED")
+        Normalized status string ("PASSED", "FAILED", or "SKIPPED")
     """
     normalized = normalize_scenario_status(scenario, status)
-    return normalized.upper()
+    if normalized == "skipped":
+        return "SKIPPED"
+    else:
+        return normalized.upper()

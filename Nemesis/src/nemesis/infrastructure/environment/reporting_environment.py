@@ -130,9 +130,15 @@ class ReportingEnvironment:
             _context: Behave context object (unused, kept for interface compatibility)
             feature: Behave feature object
         """
+        feature_name = getattr(feature, 'name', str(feature))
+        self.logger.info(f"[RP DEBUG] ReportingEnvironment.start_feature called: feature_name={feature_name}")
+        
         if self.report_manager:
+            self.logger.info(f"[RP DEBUG] Calling report_manager.start_feature for: {feature_name}")
             self.report_manager.start_feature(feature)
-            self.logger.debug(f"Feature reporting started: {feature.name}")
+            self.logger.info(f"[RP DEBUG] Feature reporting started: {feature_name}")
+        else:
+            self.logger.warning(f"[RP DEBUG] report_manager is None, cannot start feature: {feature_name}")
 
     @handle_exceptions_with_fallback(
         log_level="warning",

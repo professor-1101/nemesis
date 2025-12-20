@@ -4,11 +4,12 @@ This module loads and validates ReportPortal configuration from configuration
 file and environment variables, providing structured access to settings.
 """
 import os
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
 from nemesis.infrastructure.config import ConfigLoader
 from nemesis.shared.exceptions import ReportPortalError
 from nemesis.infrastructure.logging import Logger
+from nemesis.shared.execution_context import ExecutionContext
 from .rp_utils import RPUtils
 
 class RPConfigLoader:
@@ -33,9 +34,25 @@ class RPConfigLoader:
         self.project = self.config_loader.get("reportportal.project") or os.getenv("RP_PROJECT")
         self.api_key = self.config_loader.get("reportportal.api_key") or os.getenv("RP_API_KEY")
         self.verify_ssl = self.config_loader.get("reportportal.verify_ssl", True)
-        self.launch_name = self.config_loader.get("reportportal.launch_name", "Nemesis Automation")
+        
+        # Launch name will be set from feature name when starting first feature
+        config_launch_name = self.config_loader.get("reportportal.launch_name")
+        if config_launch_name:
+            self.launch_name = config_launch_name
+        else:
+            # Will be set from feature name in start_feature
+            self.launch_name = None
+            self.logger.info("Launch name will be set from first feature name")
+        
+        # launch_description can be None - will be set from first feature if not provided
         self.launch_description = self.config_loader.get("reportportal.launch_description")
-        self.launch_attributes = RPUtils.parse_attributes(self.config_loader.get("reportportal.launch_attributes", ""))
+        
+        # launch_attributes can be empty - will be set from first feature tags if not provided
+        config_launch_attributes = self.config_loader.get("reportportal.launch_attributes", "")
+        if config_launch_attributes:
+            self.launch_attributes = RPUtils.parse_attributes(config_launch_attributes)
+        else:
+            self.launch_attributes = []  # Will be populated from first feature tags
 
         # Step log layout: SCENARIO (logs only), STEP (flat items), NESTED (hierarchical)
         step_log_layout = self.config_loader.get("reporting.reportportal.step_log_layout", "NESTED")

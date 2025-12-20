@@ -12,6 +12,20 @@ class ScreenshotHandler:
         self.reporter_manager = reporter_manager
         self.execution_manager = execution_manager
 
+    def capture_screenshot(self) -> bytes | None:
+        """Capture screenshot from browser."""
+        try:
+            # Get browser adapter from infrastructure
+            from nemesis.infrastructure.environment.hooks import _get_env_manager
+            env_manager = _get_env_manager()
+            if env_manager and hasattr(env_manager, 'get_browser_adapter'):
+                browser_adapter = env_manager.get_browser_adapter()
+                if browser_adapter and hasattr(browser_adapter, 'capture_screenshot'):
+                    return browser_adapter.capture_screenshot()
+        except Exception as e:  # pylint: disable=broad-exception-caught
+            self.logger.warning(f"Failed to capture screenshot: {e}")
+        return None
+
     def attach_screenshot(self, screenshot: bytes, name: str) -> None:
         """Attach screenshot to reports."""
         try:
@@ -43,7 +57,7 @@ class ScreenshotHandler:
                     self.logger.debug(f"Failed to add screenshot to local reporter: {e}", exc_info=True)
 
             # Attach to ReportPortal
-            if self.reporter_manager.is_rp_enabled():
+            if self.reporter_manager.is_rp_healthy():
                 try:
                     self.reporter_manager.get_rp_client().attach_file(screenshot_path, f"Screenshot: {name}", "screenshot")
                 except (AttributeError, RuntimeError) as e:

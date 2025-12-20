@@ -23,6 +23,12 @@ class RPUtils:
     def get_mime_type(file_path: Path) -> str:
         """Get MIME type from file extension."""
         ext = file_path.suffix.lower()
+        return RPUtils.get_mime_type_from_ext(ext)
+
+    @staticmethod
+    def get_mime_type_from_ext(ext: str) -> str:
+        """Get MIME type from file extension string."""
+        ext = ext.lower()
         mime_types = {
             '.json': 'application/json',
             '.txt': 'text/plain',

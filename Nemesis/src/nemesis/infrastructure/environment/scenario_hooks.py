@@ -9,6 +9,38 @@ from nemesis.utils.decorators.exception_handler import handle_exceptions_with_fa
 LOGGER = Logger.get_instance({})
 
 
+def _setup_action_logging_for_scenario(env_manager, context, scenario) -> None:
+    """Setup action logging for the current scenario"""
+    try:
+        # Get current page adapter from browser environment
+        if hasattr(env_manager, 'browser_env') and env_manager.browser_env:
+            browser_env = env_manager.browser_env
+            if hasattr(browser_env, '_current_page_adapter') and browser_env._current_page_adapter:
+                page_adapter = browser_env._current_page_adapter
+
+                # Create action logger callback that logs to ReportPortal
+                def action_logger_callback(message: str) -> None:
+                    try:
+                        # Log to ReportPortal for this scenario
+                        if hasattr(env_manager, 'reporting_env') and env_manager.reporting_env:
+                            reporting_env = env_manager.reporting_env
+                            if hasattr(reporting_env, '_reporter_manager') and reporting_env._reporter_manager:
+                                reporter_manager = reporting_env._reporter_manager
+                                if reporter_manager.is_rp_enabled():
+                                    rp_client = reporter_manager.get_rp_client()
+                                    if rp_client:
+                                        rp_client.log_message(message, "DEBUG")
+                    except Exception as e:  # pylint: disable=broad-exception-caught
+                        LOGGER.warning(f"Failed to log action to ReportPortal: {e}")
+
+                # Set the action logger on the page adapter
+                page_adapter.set_action_logger(action_logger_callback)
+                LOGGER.debug(f"Action logging enabled for scenario: {scenario.name}")
+
+    except Exception as e:  # pylint: disable=broad-exception-caught
+        LOGGER.warning(f"Failed to setup action logging: {e}")
+
+
 def before_scenario(context: Any, scenario: Any) -> None:
     """Before each scenario.
 
@@ -18,7 +50,7 @@ def before_scenario(context: Any, scenario: Any) -> None:
     """
     try:
         # Lazy import to avoid circular dependency
-        from .environment_manager import EnvironmentCoordinator  # pylint: disable=import-outside-toplevel
+        from .environment_coordinator import EnvironmentCoordinator  # pylint: disable=import-outside-toplevel
 
         env_manager = context.env_manager if hasattr(context, 'env_manager') else EnvironmentCoordinator()
 
@@ -39,9 +71,22 @@ def before_scenario(context: Any, scenario: Any) -> None:
         # Mark browser as not started yet (lazy initialization)
         context.browser_started = False
         context.browser_crashed = False
+        
+        # Set test_config for page objects (cannot use 'config' as it's reserved by behave)
+        if not hasattr(context, 'test_config'):
+            config_dict = env_manager.config.load()
+            context.test_config = {
+                "base_url": config_dict.get("environments", {}).get("dev", {}).get("base_url", "https://www.saucedemo.com"),
+                "browser_type": config_dict.get("browser", {}).get("type", "chromium"),
+                "headless": config_dict.get("browser", {}).get("headless", False),
+            }
 
         # Start scenario reporting
         env_manager.reporting_env.start_scenario(context, scenario)
+
+        # Clear previous scenario actions and setup action logging
+        env_manager.clear_scenario_actions()
+        _setup_action_logging_for_scenario(env_manager, context, scenario)
 
         # Log scenario start
         env_manager.logger_env.log_scenario_start(context, scenario)
@@ -79,7 +124,7 @@ def after_scenario(context: Any, scenario: Any) -> None:
         scenario: Behave scenario object
     """
     # Lazy import to avoid circular dependency
-    from .environment_manager import EnvironmentCoordinator  # pylint: disable=import-outside-toplevel
+    from .environment_coordinator import EnvironmentCoordinator  # pylint: disable=import-outside-toplevel
 
     env_manager = context.env_manager if hasattr(context, 'env_manager') else EnvironmentCoordinator()
 

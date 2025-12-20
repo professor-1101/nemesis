@@ -61,6 +61,11 @@ class RPLaunchCoordinator:
         """Return current timestamp in milliseconds as string."""
         return str(int(datetime.now().timestamp() * 1000))
 
+    def update_launch_name(self, name: str) -> None:
+        """Update launch name before starting launch."""
+        self.launch_name = name
+        self.logger.info(f"[RP DEBUG] Launch name updated to: {name}")
+
     @retry(max_attempts=3, delay=1.0)
     def start_launch(self) -> None:
         """
@@ -76,6 +81,7 @@ class RPLaunchCoordinator:
             # Use DEBUG mode if configured, otherwise DEFAULT
             launch_mode = "DEBUG" if self.debug_mode else "DEFAULT"
 
+            self.logger.info(f"[RP DEBUG] Calling client.start_launch: name={self.launch_name}, description={self.launch_description[:100] if self.launch_description else 'None'}...")
             launch_id = self.client.start_launch(
                 name=self.launch_name,
                 start_time=self._current_timestamp_ms(),
@@ -84,6 +90,7 @@ class RPLaunchCoordinator:
                 mode=launch_mode,
                 rerun=False,
             )
+            self.logger.info(f"[RP DEBUG] client.start_launch returned: launch_id={launch_id}")
 
             # RPClient may not return launch_id; fallback to internal state
             self.launch_id = launch_id or getattr(self.client, "launch_id", None)
@@ -94,7 +101,11 @@ class RPLaunchCoordinator:
                     "RPClient did not return launch_id after start_launch",
                 )
 
-            self.logger.info(f"ReportPortal launch started: {self.launch_id}")
+            self.logger.info(f"[RP DEBUG] ReportPortal launch started: {self.launch_id}")
+            self.logger.info(f"[RP DEBUG] Launch name: {self.launch_name}")
+            self.logger.info(f"[RP DEBUG] Launch description: {self.launch_description[:100] if self.launch_description else 'None'}...")
+            self.logger.info(f"[RP DEBUG] Launch attributes: {len(self.launch_attributes)} attributes")
+            self.logger.info(f"[RP DEBUG] Client launch_id: {getattr(self.client, 'launch_id', 'None')}")
 
             # Store launch_id in EnvironmentCoordinator for cross-process access
             try:
@@ -162,44 +173,52 @@ class RPLaunchCoordinator:
             # Save launch_id before clearing
             finished_launch_id = target_launch_id
 
-            # If client.launch_id is not set or different, we need to use direct API call
-            # RPClient.finish_launch() uses client.launch_id internally
-            # So we need to ensure client.launch_id matches our target_launch_id
+            # IMPORTANT: RPClient.finish_launch() uses client.launch_id internally
+            # We need to ensure client.launch_id matches our target_launch_id
+            # If they don't match, we need to set it via internal state
             current_client_launch_id = getattr(self.client, 'launch_id', None)
 
             # Log the launch IDs for debugging
-            self.logger.info(f"Finishing launch: target={target_launch_id}, client.launch_id={current_client_launch_id}")
+            self.logger.info(f"[RP DEBUG] Finishing launch: target={target_launch_id}, client.launch_id={current_client_launch_id}, self.launch_id={self.launch_id}")
 
+            # If client.launch_id doesn't match target_launch_id, try to set it
             if current_client_launch_id != target_launch_id:
-                # Try to set it via internal state (if possible)
+                self.logger.info(f"[RP DEBUG] client.launch_id ({current_client_launch_id}) != target_launch_id ({target_launch_id}), trying to set it...")
+                
+                # Try to set launch_id via _item_stack (RPClient stores launch_id in _item_stack[0]['uuid'])
                 try:
-                    # Try to set _launch_id attribute if it exists
-                    if hasattr(self.client, '_launch_id'):
-                        self.client._launch_id = target_launch_id
-                        self.logger.info(f"Set client._launch_id to {target_launch_id}")
-                    # Try to access internal _item_stack to set launch_id
-                    elif hasattr(self.client, '_item_stack') and self.client._item_stack:
-                        # RPClient stores launch_id in _item_stack[0]['uuid']
-                        if len(self.client._item_stack) > 0 and 'uuid' in self.client._item_stack[0]:
-                            self.client._item_stack[0]['uuid'] = target_launch_id
-                            self.logger.info(f"Set client._item_stack[0]['uuid'] to {target_launch_id}")
-
-                    # Call finish_launch - it should now use the correct launch_id
+                    if hasattr(self.client, '_item_stack') and self.client._item_stack:
+                        # Access _item_stack (it's a LifoQueue, so we need to peek at the first item)
+                        # Note: We can't directly access LifoQueue items, but we can try to set launch_id via property
+                        # Actually, RPClient uses launch_id property which reads from _item_stack
+                        # So we need to ensure _item_stack[0]['uuid'] is set correctly
+                        # But LifoQueue doesn't allow direct access - we need to use the property setter if available
+                        pass  # Will try direct API call instead
+                    
+                    # If we can't set it via internal state, use direct API call
+                    # But first, try to call finish_launch with explicit launch_id if RPClient supports it
+                    # Note: RPClient.finish_launch() doesn't accept launch_id parameter, so we need to set it first
+                    # Try to set via launch_uuid property (newer API)
+                    if hasattr(self.client, 'launch_uuid'):
+                        self.client.launch_uuid = target_launch_id
+                        self.logger.info(f"[RP DEBUG] Set client.launch_uuid to {target_launch_id}")
+                    
+                    # Now try finish_launch
                     self.client.finish_launch(
                         end_time=self._current_timestamp_ms(),
                         status=status,
                     )
                 except (AttributeError, RuntimeError, TypeError) as finish_error:
-                    # If finish_launch failed, re-raise the error
-                    self.logger.error(f"Failed to finish launch via RPClient: {finish_error}", traceback=traceback.format_exc(), module=__name__, class_name="RPLaunchCoordinator", method="finish_launch")
-                    raise
+                    # If finish_launch failed, log and try direct API call
+                    self.logger.warning(f"[RP DEBUG] Failed to finish launch via RPClient (will try direct API): {finish_error}")
+                    # Don't raise - will try direct API call in finalizer
                 except Exception as finish_error:  # pylint: disable=broad-exception-caught
                     # Catch-all for unexpected errors from RPClient
-                    # NOTE: ReportPortal SDK may raise various exceptions we cannot predict
-                    self.logger.error(f"Failed to finish launch via RPClient: {finish_error}", traceback=traceback.format_exc(), module=__name__, class_name="RPLaunchCoordinator", method="finish_launch")
-                    raise
+                    self.logger.warning(f"[RP DEBUG] Failed to finish launch via RPClient (will try direct API): {finish_error}")
+                    # Don't raise - will try direct API call in finalizer
             else:
                 # Client already has the correct launch_id
+                self.logger.info(f"[RP DEBUG] client.launch_id matches target_launch_id, calling finish_launch...")
                 self.client.finish_launch(
                     end_time=self._current_timestamp_ms(),
                     status=status,
@@ -211,29 +230,21 @@ class RPLaunchCoordinator:
             # For now, add a delay to ensure request is processed
             time.sleep(0.5)
 
-            self.logger.info(f"Launch finished: {finished_launch_id}")
+            self.logger.info(f"[RP DEBUG] Launch finished: {finished_launch_id}")
 
-            # Clear launch_id after successful finish (only if it was self.launch_id)
-            if target_launch_id == self.launch_id:
-                self.launch_id = None
+            # IMPORTANT: Don't clear launch_id immediately after finish
+            # We need to keep it for finalization phase (terminate() and direct API call)
+            # It will be cleared after terminate() is called
+            # Keep launch_id for now - it will be used in finalizer
+            # if target_launch_id == self.launch_id:
+            #     self.launch_id = None
 
-            # Clear launch_id from EnvironmentCoordinator
-            try:
-                from nemesis.infrastructure.environment.hooks import _get_env_manager  # pylint: disable=import-outside-toplevel
-                env_manager = _get_env_manager()
-                if env_manager and hasattr(env_manager, 'rp_launch_id'):
-                    if env_manager.rp_launch_id == finished_launch_id:
-                        env_manager.rp_launch_id = None
-                    self.logger.debug("Cleared launch_id from EnvironmentCoordinator")
-            except (AttributeError, ImportError) as cleanup_error:
-                # Non-critical: failed to clear launch_id from EnvironmentCoordinator
-                self.logger.debug(f"Failed to clear launch_id from EnvironmentCoordinator (non-critical): {cleanup_error}", module=__name__, class_name="RPLaunchCoordinator", method="finish_launch")
-            except Exception as cleanup_error:  # pylint: disable=broad-exception-caught
-                # Catch-all for unexpected errors from EnvironmentCoordinator access
-                # NOTE: EnvironmentCoordinator import or access may raise various exceptions
-                self.logger.debug(f"Failed to clear launch_id from EnvironmentCoordinator (non-critical): {cleanup_error}", module=__name__, class_name="RPLaunchCoordinator", method="finish_launch")
+            # IMPORTANT: Don't clear launch_id from EnvironmentCoordinator immediately
+            # We need to keep it for finalization phase (terminate() and direct API call)
+            # It will be cleared after terminate() is called in report_finalizer
+            # Keep launch_id in EnvironmentCoordinator for now
 
-            self.logger.debug(f"Launch {finished_launch_id} finalized and cleared")
+            self.logger.info(f"[RP DEBUG] Launch {finished_launch_id} finish request sent (will be cleared after terminate)")
 
         except (AttributeError, RuntimeError, TypeError) as e:
             # ReportPortal SDK errors

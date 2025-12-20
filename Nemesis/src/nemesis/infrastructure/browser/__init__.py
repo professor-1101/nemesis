@@ -7,6 +7,7 @@ from .browser_cleanup import BrowserCleanup
 from .browser_health import BrowserHealthMonitor
 from .browser_operations import BrowserOperations
 from .browser_context_options_builder import BrowserContextOptionsBuilder
+from .playwright_adapter import PlaywrightBrowserDriver, PlaywrightPageAdapter
 
 __all__ = [
     'BrowserService',
@@ -15,5 +16,7 @@ __all__ = [
     'BrowserCleanup',
     'BrowserHealthMonitor',
     'BrowserOperations',
-    'BrowserContextOptionsBuilder'
+    'BrowserContextOptionsBuilder',
+    'PlaywrightBrowserDriver',
+    'PlaywrightPageAdapter'
 ]

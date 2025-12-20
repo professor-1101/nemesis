@@ -23,7 +23,7 @@ def before_feature(context: Any, feature: Any) -> None:
         feature: Behave feature object
     """
     # Lazy import to avoid circular dependency
-    from .environment_manager import EnvironmentCoordinator  # pylint: disable=import-outside-toplevel
+    from .environment_coordinator import EnvironmentCoordinator  # pylint: disable=import-outside-toplevel
 
     env_manager = context.env_manager if hasattr(context, 'env_manager') else EnvironmentCoordinator()
 
@@ -49,7 +49,7 @@ def after_feature(context: Any, feature: Any) -> None:
         feature: Behave feature object
     """
     # Lazy import to avoid circular dependency
-    from .environment_manager import EnvironmentCoordinator  # pylint: disable=import-outside-toplevel
+    from .environment_coordinator import EnvironmentCoordinator  # pylint: disable=import-outside-toplevel
 
     env_manager = context.env_manager if hasattr(context, 'env_manager') else EnvironmentCoordinator()
 
