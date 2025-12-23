@@ -198,28 +198,230 @@ class NetworkCollector(ICollector, BaseCollector):
             "requests": self.requests.copy(),
         }
 
+    def export_as_har(self) -> dict[str, Any]:
+        """
+        Export network data as HAR (HTTP Archive) 1.2 format.
+
+        HAR format is compatible with Chrome DevTools, Firefox DevTools,
+        and other network analysis tools.
+
+        Returns:
+            HAR 1.2 formatted dict
+
+        Reference: http://www.softwareishard.com/blog/har-12-spec/
+        """
+        # Combine requests with their responses
+        # Create a map of URL -> request data
+        request_map: dict[str, dict] = {}
+        for req in self.requests:
+            if req["type"] == "request":
+                request_map[req["url"]] = req
+
+        # Build HAR entries
+        entries = []
+        for item in self.requests:
+            if item["type"] == "response":
+                url = item["url"]
+                request_data = request_map.get(url, {})
+
+                # Build HAR entry
+                entry = {
+                    "startedDateTime": self._timestamp_to_iso(item.get("timestamp", 0)),
+                    "time": item.get("duration", 0),
+                    "request": {
+                        "method": item.get("method", "GET"),
+                        "url": url,
+                        "httpVersion": "HTTP/1.1",
+                        "cookies": [],
+                        "headers": self._dict_to_har_headers(request_data.get("headers", {})),
+                        "queryString": [],
+                        "postData": self._create_post_data(request_data.get("post_data")),
+                        "headersSize": -1,
+                        "bodySize": len(request_data.get("post_data", "")) if request_data.get("post_data") else 0,
+                    },
+                    "response": {
+                        "status": item.get("status", 0),
+                        "statusText": item.get("status_text", ""),
+                        "httpVersion": "HTTP/1.1",
+                        "cookies": [],
+                        "headers": [],
+                        "content": {
+                            "size": item.get("size", 0),
+                            "mimeType": item.get("content_type", ""),
+                        },
+                        "redirectURL": "",
+                        "headersSize": -1,
+                        "bodySize": item.get("size", 0),
+                    },
+                    "cache": {},
+                    "timings": {
+                        "blocked": -1,
+                        "dns": -1,
+                        "connect": -1,
+                        "send": 0,
+                        "wait": item.get("duration", 0),
+                        "receive": 0,
+                        "ssl": -1,
+                    },
+                }
+                entries.append(entry)
+
+            elif item["type"] == "failed":
+                # Add failed requests as entries with error status
+                entry = {
+                    "startedDateTime": self._timestamp_to_iso(item.get("timestamp", 0)),
+                    "time": 0,
+                    "request": {
+                        "method": item.get("method", "GET"),
+                        "url": item.get("url", ""),
+                        "httpVersion": "HTTP/1.1",
+                        "cookies": [],
+                        "headers": [],
+                        "queryString": [],
+                        "headersSize": -1,
+                        "bodySize": 0,
+                    },
+                    "response": {
+                        "status": 0,
+                        "statusText": f"Failed: {item.get('error', 'Unknown error')}",
+                        "httpVersion": "HTTP/1.1",
+                        "cookies": [],
+                        "headers": [],
+                        "content": {
+                            "size": 0,
+                            "mimeType": "",
+                        },
+                        "redirectURL": "",
+                        "headersSize": -1,
+                        "bodySize": 0,
+                    },
+                    "cache": {},
+                    "timings": {
+                        "blocked": -1,
+                        "dns": -1,
+                        "connect": -1,
+                        "send": -1,
+                        "wait": -1,
+                        "receive": -1,
+                        "ssl": -1,
+                    },
+                }
+                entries.append(entry)
+
+        # Build HAR structure
+        har = {
+            "log": {
+                "version": "1.2",
+                "creator": {
+                    "name": "Nemesis Test Framework",
+                    "version": "1.0.0",
+                },
+                "browser": {
+                    "name": "Playwright",
+                    "version": "1.0.0",
+                },
+                "pages": [],
+                "entries": entries,
+            }
+        }
+
+        return har
+
+    def _timestamp_to_iso(self, timestamp: float) -> str:
+        """
+        Convert timestamp to ISO 8601 format for HAR.
+
+        Args:
+            timestamp: Timestamp in milliseconds
+
+        Returns:
+            ISO 8601 formatted datetime string
+        """
+        from datetime import datetime, timezone
+        try:
+            dt = datetime.fromtimestamp(timestamp / 1000, tz=timezone.utc)
+            return dt.isoformat()
+        except (ValueError, OSError):
+            # Fallback to current time if timestamp is invalid
+            return datetime.now(timezone.utc).isoformat()
+
+    def _dict_to_har_headers(self, headers: dict) -> list[dict]:
+        """
+        Convert headers dict to HAR headers format.
+
+        Args:
+            headers: Dict of header name -> value
+
+        Returns:
+            List of {name, value} dicts
+        """
+        return [{"name": name, "value": value} for name, value in headers.items()]
+
+    def _create_post_data(self, post_data: str | None) -> dict | None:
+        """
+        Create HAR postData object.
+
+        Args:
+            post_data: POST data string
+
+        Returns:
+            HAR postData object or None
+        """
+        if not post_data:
+            return None
+
+        return {
+            "mimeType": "application/x-www-form-urlencoded",
+            "text": post_data,
+            "params": [],
+        }
+
     def save_metrics(self, execution_id: str, _scenario_name: str) -> Path:
-        """Save network metrics to JSON."""
+        """
+        Save network metrics to JSON and HAR formats.
+
+        Saves two files:
+        1. network_metric.json - Custom format with Nemesis metrics
+        2. network.har - Standard HAR 1.2 format (importable to Chrome DevTools)
+
+        Returns:
+            Path to JSON metrics file
+        """
         try:
             # Use PathHelper for centralized path management
             try:
                 path_manager = get_path_manager()
-                file_path = path_manager.get_attachment_path(execution_id, "network", "network_metric.json")
+                json_file_path = path_manager.get_attachment_path(execution_id, "network", "network_metric.json")
+                har_file_path = path_manager.get_attachment_path(execution_id, "network", "network.har")
             except (AttributeError, KeyError, RuntimeError) as e:
                 # PathHelper initialization errors - fallback to original logic
                 self.logger.debug(f"PathHelper failed, using fallback path: {e}", traceback=traceback.format_exc(), module=__name__, class_name="NetworkCollector", method="save_metrics", execution_id=execution_id)
-                file_path = Path(f"reports/{execution_id}/network/network_metric.json")
-                ensure_directory_exists(file_path, execution_id)
+                json_file_path = Path(f"reports/{execution_id}/network/network_metric.json")
+                har_file_path = Path(f"reports/{execution_id}/network/network.har")
+                ensure_directory_exists(json_file_path, execution_id)
             except (KeyboardInterrupt, SystemExit):  # pylint: disable=try-except-raise
                 # NOTE: Always re-raise KeyboardInterrupt and SystemExit to allow proper program termination
                 raise
 
+            # Save custom JSON format
             metrics = self.get_metrics()
-            with open(file_path, "w", encoding="utf-8") as f:
+            with open(json_file_path, "w", encoding="utf-8") as f:
                 json.dump(metrics, f, indent=2, ensure_ascii=False)
 
-            self.logger.info(f"Network metrics saved: {file_path} ({metrics['total_requests']} requests)")
-            return file_path
+            self.logger.info(f"Network metrics (JSON) saved: {json_file_path} ({metrics['total_requests']} requests)")
+
+            # Save HAR format
+            try:
+                har_data = self.export_as_har()
+                with open(har_file_path, "w", encoding="utf-8") as f:
+                    json.dump(har_data, f, indent=2, ensure_ascii=False)
+
+                self.logger.info(f"Network metrics (HAR) saved: {har_file_path} ({len(har_data['log']['entries'])} entries)")
+            except Exception as har_error:  # pylint: disable=broad-exception-caught
+                # HAR export is supplementary - don't fail if it errors
+                self.logger.warning(f"Failed to save HAR format: {har_error}")
+
+            return json_file_path
 
         except (OSError, IOError, PermissionError) as e:
             # File system errors

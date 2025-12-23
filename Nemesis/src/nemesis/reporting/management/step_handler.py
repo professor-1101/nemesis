@@ -419,7 +419,11 @@ class StepHandler:
             self.logger.warning(f"Failed to log console activity: {e}")
 
     def _attach_console_logs(self, rp_client, step_name: str, feature_name: str, scenario_name: str) -> None:
-        """Attach console logs as file attachment."""
+        """
+        Attach console logs as file attachment.
+
+        Enhanced formatting with emoji severity indicators and no truncation limits.
+        """
         try:
             # Get console collector data
             console_collector = self._get_collector_data('console')
@@ -428,25 +432,11 @@ class StepHandler:
                 sanitized_step = self._sanitize_filename(step_name)
                 name = f"console_logs_{timestamp}"
 
-                # Convert to clean text format for attachment (use raw data)
-                console_lines = []
-                if console_collector and isinstance(console_collector, list):
-                    for log in console_collector[:50]:  # Limit to first 50 logs for attachment
-                        if isinstance(log, dict):
-                            log_type = log.get('type', 'info')
-                            message = log.get('text', '')
-                            location = log.get('location', '')
-                            timestamp_val = log.get('timestamp', '')
+                # Use enhanced formatting method (shows all logs with emoji indicators)
+                console_text = self._format_console_data(console_collector)
 
-                            console_lines.append(f"[{log_type.upper()}] {message}")
-                            if location and location != 'unknown':
-                                console_lines.append(f"  Location: {location}")
-                            console_lines.append(f"  Time: {timestamp_val:.0f}ms")
-                            console_lines.append("")
-
-                console_text = "\n".join(console_lines)
                 rp_client.attach_file(console_text.encode('utf-8'), f"Console Logs: {step_name}", "console_logs")
-                self.logger.debug(f"Console logs attached: {len(console_text)} lines")
+                self.logger.debug(f"Console logs attached: {len(console_collector)} entries")
         except Exception as e:  # pylint: disable=broad-exception-caught
             self.logger.warning(f"Failed to attach console logs: {e}")
 
@@ -512,55 +502,240 @@ class StepHandler:
     # _performance_data_to_attributes method removed - performance handled at scenario level
 
     def _format_network_data(self, network_data) -> str:
-        """Format network data for logging."""
+        """
+        Format network data as ASCII table with enhanced readability.
+
+        Creates a structured table with:
+        - Method | URL | Status | Duration | Size | Type
+        - No truncation limits (shows all requests)
+        - Grouped by request type (responses, requests, failed)
+        """
         try:
             if isinstance(network_data, list):
-                lines = []
-                for req in network_data[:10]:  # Limit to first 10 requests
-                    method = req.get('method', 'GET')
-                    url = req.get('url', '')[:100]  # Truncate long URLs
-                    status = req.get('status', 'unknown')
-                    duration = req.get('duration', 0)
-                    size = req.get('size', 0)
-                    lines.append(f"{method} {url} -> {status} ({duration}ms, {size}bytes)")
-                return "\n".join(lines)
+                if not network_data:
+                    return "No network activity captured."
+
+                # Group by type
+                responses = [r for r in network_data if r.get('type') == 'response']
+                requests = [r for r in network_data if r.get('type') == 'request']
+                failed = [r for r in network_data if r.get('type') == 'failed']
+
+                sections = []
+
+                # Summary header
+                sections.append("=" * 120)
+                sections.append(f"NETWORK ACTIVITY SUMMARY ({len(network_data)} total events)")
+                sections.append("=" * 120)
+                sections.append(f"✅ Responses: {len(responses)}")
+                sections.append(f"📤 Requests: {len(requests)}")
+                sections.append(f"❌ Failed: {len(failed)}")
+                sections.append("=" * 120)
+                sections.append("")
+
+                # Responses table
+                if responses:
+                    sections.append(self._create_network_table("RESPONSES", responses, "✅"))
+                    sections.append("")
+
+                # Failed requests table
+                if failed:
+                    sections.append(self._create_network_failed_table("FAILED REQUESTS", failed, "❌"))
+                    sections.append("")
+
+                # Requests table (if only requests without responses)
+                if requests:
+                    sections.append(self._create_network_table("REQUESTS", requests, "📤"))
+                    sections.append("")
+
+                return "\n".join(sections).rstrip()
             return str(network_data)
         except Exception as e:  # pylint: disable=broad-exception-caught
             self.logger.warning(f"Failed to format network data: {e}")
             return ""
 
+    def _create_network_table(self, section_name: str, entries: list, emoji: str) -> str:
+        """
+        Create ASCII table for network requests/responses.
+
+        Args:
+            section_name: Name of the section (e.g., "RESPONSES")
+            entries: List of network entries
+            emoji: Emoji indicator
+
+        Returns:
+            Formatted ASCII table
+        """
+        lines = []
+        lines.append(f"─── {emoji} {section_name} ({len(entries)} entries) ───")
+        lines.append("")
+
+        # Table header
+        lines.append(f"{'#':<4} {'METHOD':<8} {'URL':<60} {'STATUS':<8} {'DURATION':<12} {'SIZE':<12}")
+        lines.append("─" * 120)
+
+        for i, entry in enumerate(entries, 1):
+            method = entry.get('method', 'GET')[:7]
+            url = entry.get('url', '')[:58]  # Truncate very long URLs for table
+            status = entry.get('status', entry.get('resource_type', 'N/A'))
+            duration = entry.get('duration', 0)
+            size = entry.get('size', 0)
+
+            # Format status with emoji for HTTP codes
+            status_str = str(status)
+            if isinstance(status, int):
+                if 200 <= status < 300:
+                    status_str = f"✅ {status}"
+                elif 300 <= status < 400:
+                    status_str = f"↪️  {status}"
+                elif 400 <= status < 500:
+                    status_str = f"⚠️  {status}"
+                elif status >= 500:
+                    status_str = f"❌ {status}"
+
+            # Format duration and size
+            duration_str = f"{duration:.0f}ms" if duration else "N/A"
+            size_str = self._format_bytes(size) if size else "N/A"
+
+            lines.append(f"{i:<4} {method:<8} {url:<60} {status_str:<8} {duration_str:<12} {size_str:<12}")
+
+        return "\n".join(lines)
+
+    def _create_network_failed_table(self, section_name: str, entries: list, emoji: str) -> str:
+        """
+        Create ASCII table for failed network requests.
+
+        Args:
+            section_name: Name of the section (e.g., "FAILED REQUESTS")
+            entries: List of failed request entries
+            emoji: Emoji indicator
+
+        Returns:
+            Formatted ASCII table
+        """
+        lines = []
+        lines.append(f"─── {emoji} {section_name} ({len(entries)} entries) ───")
+        lines.append("")
+
+        # Table header
+        lines.append(f"{'#':<4} {'METHOD':<8} {'URL':<70} {'ERROR':<30}")
+        lines.append("─" * 120)
+
+        for i, entry in enumerate(entries, 1):
+            method = entry.get('method', 'GET')[:7]
+            url = entry.get('url', '')[:68]  # Truncate very long URLs
+            error = entry.get('error', 'Unknown error')[:28]
+
+            lines.append(f"{i:<4} {method:<8} {url:<70} {error:<30}")
+
+        return "\n".join(lines)
+
+    def _format_bytes(self, bytes_val: int) -> str:
+        """
+        Format bytes as human-readable string (KB, MB).
+
+        Args:
+            bytes_val: Size in bytes
+
+        Returns:
+            Formatted string (e.g., "1.5 KB", "2.3 MB")
+        """
+        if bytes_val < 1024:
+            return f"{bytes_val} B"
+        elif bytes_val < 1024 * 1024:
+            return f"{bytes_val / 1024:.1f} KB"
+        else:
+            return f"{bytes_val / (1024 * 1024):.1f} MB"
+
     def _format_console_data(self, console_data) -> str:
-        """Format console data for logging."""
+        """
+        Format console data for logging with emoji severity indicators.
+
+        Enhanced formatting:
+        - 🔴 ERROR: Critical errors
+        - 🟡 WARNING: Warnings
+        - 🔵 INFO/LOG: Informational logs
+        - ⚪ DEBUG: Debug logs
+        - No truncation limits (show all logs)
+        """
         try:
             if isinstance(console_data, list):
-                lines = []
-                for log in console_data[:20]:  # Limit to first 20 logs
-                    # Skip header lines
-                    log_str = str(log)
-                    if "===" in log_str or "SUMMARY" in log_str or "messages" in log_str:
-                        continue
+                if not console_data:
+                    return "No console logs captured."
 
-                    # Extract data from log entry
-                    log_type = log.get('type', 'info')
-                    message = log.get('text', '')[:200]  # Truncate long messages
-                    location = log.get('location', '')
-                    timestamp = log.get('timestamp', '')
+                # Group logs by severity
+                errors = [log for log in console_data if log.get('type', '').lower() == 'error']
+                warnings = [log for log in console_data if log.get('type', '').lower() == 'warning']
+                info_logs = [log for log in console_data if log.get('type', '').lower() in ['info', 'log']]
+                debug_logs = [log for log in console_data if log.get('type', '').lower() == 'debug']
 
-                    # Format each log entry cleanly
-                    if location and location != 'unknown':
-                        lines.append(f"[{log_type.upper()}] {message}")
-                        lines.append(f"  Location: {location}")
-                        lines.append(f"  Time: {timestamp:.0f}ms")
-                        lines.append("")  # Empty line for separation
-                    else:
-                        lines.append(f"[{log_type.upper()}] {message}")
-                        lines.append("")  # Empty line for separation
+                sections = []
 
-                return "\n".join(lines).rstrip()  # Remove trailing newline
+                # Summary header
+                sections.append("=" * 80)
+                sections.append(f"CONSOLE LOGS SUMMARY ({len(console_data)} total entries)")
+                sections.append("=" * 80)
+                sections.append(f"🔴 Errors: {len(errors)}")
+                sections.append(f"🟡 Warnings: {len(warnings)}")
+                sections.append(f"🔵 Info/Log: {len(info_logs)}")
+                sections.append(f"⚪ Debug: {len(debug_logs)}")
+                sections.append("=" * 80)
+                sections.append("")
+
+                # Format each severity section
+                if errors:
+                    sections.append(self._format_console_section("ERRORS", errors, "🔴"))
+                    sections.append("")
+
+                if warnings:
+                    sections.append(self._format_console_section("WARNINGS", warnings, "🟡"))
+                    sections.append("")
+
+                if info_logs:
+                    sections.append(self._format_console_section("INFO/LOG", info_logs, "🔵"))
+                    sections.append("")
+
+                if debug_logs:
+                    sections.append(self._format_console_section("DEBUG", debug_logs, "⚪"))
+                    sections.append("")
+
+                return "\n".join(sections).rstrip()
             return str(console_data)
         except Exception as e:  # pylint: disable=broad-exception-caught
             self.logger.warning(f"Failed to format console data: {e}")
             return ""
+
+    def _format_console_section(self, section_name: str, logs: list, emoji: str) -> str:
+        """
+        Format a section of console logs with consistent styling.
+
+        Args:
+            section_name: Name of the section (e.g., "ERRORS", "WARNINGS")
+            logs: List of log entries
+            emoji: Emoji indicator for severity
+
+        Returns:
+            Formatted section as string
+        """
+        lines = []
+        lines.append(f"─── {emoji} {section_name} ({len(logs)} entries) ───")
+        lines.append("")
+
+        for i, log in enumerate(logs, 1):
+            log_type = log.get('type', 'info')
+            message = log.get('text', '')  # No truncation - show full message
+            location = log.get('location', '')
+            timestamp = log.get('timestamp', '')
+
+            # Entry number and message
+            lines.append(f"{emoji} [{i}] {message}")
+
+            # Location and timestamp on separate lines for readability
+            if location and location != 'unknown':
+                lines.append(f"    📍 Location: {location}")
+            lines.append(f"    ⏱  Time: {timestamp:.0f}ms")
+            lines.append("")  # Empty line for separation
+
+        return "\n".join(lines)
 
     def _get_collector_data(self, collector_type: str):
         """Get data from collectors."""
