@@ -1,0 +1,28 @@
+# ReportPortal Configuration
+# PostBank Test Automation Project
+
+enabled: true
+endpoint: http://192.168.10.191:9080
+project: postbank
+api_key: postbank_42RUSWAMQOi1TvPax2cfLaeBxfxIBvJffDFb0TomS87eqk4fJhSpZoXUmKFzJl7d
+
+# Launch settings (auto-generated if not specified)
+# launch_name: Auto-generated from execution
+# launch_description: Auto-generated
+# launch_attributes: Auto-generated from tags
+
+client_type: SYNC
+verify_ssl: false
+
+logging:
+  log_batch_size: 20
+  log_batch_payload_size: 65000000
+
+retry:
+  max_retries: 3
+  retry_delay: 1.0
+
+timeout:
+  connection: 30
+  read: 120
+

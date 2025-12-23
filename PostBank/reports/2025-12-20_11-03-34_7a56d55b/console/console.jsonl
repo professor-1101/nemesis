@@ -1,0 +1,47 @@
+======================================================================
+CONSOLE LOGS SUMMARY
+======================================================================
+ERROR               2 messages
+WARNING             8 messages
+======================================================================
+
+[WARNING] Deprecated API for given entry type.
+  Location: :5:0
+  Time: 1766216074990ms
+
+[WARNING] Deprecated API for given entry type.
+  Location: :20:0
+  Time: 1766216074993ms
+
+[WARNING] Deprecated API for given entry type.
+  Location: :54:0
+  Time: 1766216074995ms
+
+[WARNING] Deprecated API for given entry type.
+  Location: :82:0
+  Time: 1766216074996ms
+
+[WARNING] Deprecated API for given entry type.
+  Location: :2:0
+  Time: 1766216075016ms
+
+[WARNING] Deprecated API for given entry type.
+  Location: :2:0
+  Time: 1766216075031ms
+
+[WARNING] Deprecated API for given entry type.
+  Location: :2:0
+  Time: 1766216075046ms
+
+[WARNING] Deprecated API for given entry type.
+  Location: :2:0
+  Time: 1766216075068ms
+
+[ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized)
+  Location: https://events.backtrace.io/api/unique-events/submit?universe=UNIVERSE&token=TOKEN:0:0
+  Time: 1766216075596ms
+
+[ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized)
+  Location: https://events.backtrace.io/api/summed-events/submit?universe=UNIVERSE&token=TOKEN:0:0
+  Time: 1766216075600ms
+

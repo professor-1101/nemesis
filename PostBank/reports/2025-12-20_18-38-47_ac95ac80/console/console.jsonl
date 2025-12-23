@@ -1,0 +1,67 @@
+======================================================================
+CONSOLE LOGS SUMMARY
+======================================================================
+ERROR               4 messages
+WARNING            10 messages
+======================================================================
+
+[WARNING] No Telerik and Kendo UI License found.
+  To download a license key file, visit https://prgress.co/3PwQMKZ
+  Location: http://192.168.10.141:1365/assets/index-d914c119.js:67:2841
+  Time: 1766243332913ms
+
+[WARNING] License activation failed for @progress/kendo-react-intl
+No license found.
+See https://www.telerik.com/kendo-react-ui/my-license/?utm_medium=product&utm_source=kendoreact&utm_campaign=kendo-ui-react-purchase-license-keys-warning for more information.
+
+  Location: http://192.168.10.141:1365/assets/index-d914c119.js:771:191
+  Time: 1766243335929ms
+
+[ERROR] Failed to load resource: the server responded with a status of 404 (Not Found)
+  Location: http://192.168.10.141:1365/src/assets/images/avatar.png:0:0
+  Time: 1766243335937ms
+
+[ERROR] Access to XMLHttpRequest at 'http://192.168.10.162:8585/usermanagement/api/Users/is-admin' from origin 'http://192.168.10.141:1365' has been blocked by CORS policy: Response to preflight request doesn't pass access control check: No 'Access-Control-Allow-Origin' header is present on the requested resource.
+  Location: http://192.168.10.141:1365//#/:0:0
+  Time: 1766243337186ms
+
+[ERROR] Error fetching UM admin status: k1
+  Location: http://192.168.10.141:1365/assets/index-d914c119.js:771:191
+  Time: 1766243337188ms
+
+[ERROR] Failed to load resource: net::ERR_FAILED
+  Location: http://192.168.10.162:8585/usermanagement/api/Users/is-admin:0:0
+  Time: 1766243337190ms
+
+[WARNING] Deprecated API for given entry type.
+  Location: :5:0
+  Time: 1766243343789ms
+
+[WARNING] Deprecated API for given entry type.
+  Location: :20:0
+  Time: 1766243343790ms
+
+[WARNING] Deprecated API for given entry type.
+  Location: :54:0
+  Time: 1766243343791ms
+
+[WARNING] Deprecated API for given entry type.
+  Location: :82:0
+  Time: 1766243343794ms
+
+[WARNING] Deprecated API for given entry type.
+  Location: :2:0
+  Time: 1766243343806ms
+
+[WARNING] Deprecated API for given entry type.
+  Location: :2:0
+  Time: 1766243343813ms
+
+[WARNING] Deprecated API for given entry type.
+  Location: :2:0
+  Time: 1766243343820ms
+
+[WARNING] Deprecated API for given entry type.
+  Location: :2:0
+  Time: 1766243343832ms
+

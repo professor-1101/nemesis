@@ -1,0 +1,295 @@
+{
+  "total_requests": 12,
+  "total_responses": 12,
+  "total_failed": 0,
+  "status_codes": {
+    "200": 12
+  },
+  "avg_duration_ms": 0,
+  "total_size_bytes": 194834,
+  "requests": [
+    {
+      "url": "http://192.168.10.141:1365//",
+      "method": "GET",
+      "headers": {
+        "upgrade-insecure-requests": "1",
+        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36"
+      },
+      "resource_type": "document",
+      "post_data": null,
+      "timestamp": 1766216346523.5796,
+      "type": "request"
+    },
+    {
+      "url": "http://192.168.10.141:1365//",
+      "status": 200,
+      "status_text": "OK",
+      "method": "GET",
+      "duration": 0.0,
+      "size": 0,
+      "content_type": "text/html",
+      "timestamp": 1766216346595.5435,
+      "type": "response"
+    },
+    {
+      "url": "http://192.168.10.141:1365/assets/index-eee7f811.js",
+      "method": "GET",
+      "headers": {
+        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",
+        "origin": "http://192.168.10.141:1365",
+        "referer": "http://192.168.10.141:1365//"
+      },
+      "resource_type": "script",
+      "post_data": null,
+      "timestamp": 1766216346602.6938,
+      "type": "request"
+    },
+    {
+      "url": "http://192.168.10.141:1365/assets/index-fc49339f.css",
+      "method": "GET",
+      "headers": {
+        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",
+        "referer": "http://192.168.10.141:1365//"
+      },
+      "resource_type": "stylesheet",
+      "post_data": null,
+      "timestamp": 1766216346602.6938,
+      "type": "request"
+    },
+    {
+      "url": "http://192.168.10.141:1365/assets/index-fc49339f.css",
+      "status": 200,
+      "status_text": "OK",
+      "method": "GET",
+      "duration": 0.0,
+      "size": 0,
+      "content_type": "text/css",
+      "timestamp": 1766216346658.0562,
+      "type": "response"
+    },
+    {
+      "url": "http://192.168.10.141:1365/assets/index-eee7f811.js",
+      "status": 200,
+      "status_text": "OK",
+      "method": "GET",
+      "duration": 0.0,
+      "size": 0,
+      "content_type": "application/javascript",
+      "timestamp": 1766216347218.2673,
+      "type": "response"
+    },
+    {
+      "url": "http://192.168.10.141:1365/assets/IRANSansLight-8fe45ef2.woff",
+      "method": "GET",
+      "headers": {
+        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",
+        "origin": "http://192.168.10.141:1365",
+        "referer": "http://192.168.10.141:1365/assets/index-fc49339f.css"
+      },
+      "resource_type": "font",
+      "post_data": null,
+      "timestamp": 1766216347685.9062,
+      "type": "request"
+    },
+    {
+      "url": "http://192.168.10.141:1365/assets/Login-c236f0b6.js",
+      "method": "GET",
+      "headers": {
+        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",
+        "origin": "http://192.168.10.141:1365",
+        "referer": ""
+      },
+      "resource_type": "script",
+      "post_data": null,
+      "timestamp": 1766216347713.5984,
+      "type": "request"
+    },
+    {
+      "url": "http://192.168.10.141:1365/assets/api-91576d8e.js",
+      "method": "GET",
+      "headers": {
+        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",
+        "origin": "http://192.168.10.141:1365",
+        "referer": ""
+      },
+      "resource_type": "script",
+      "post_data": null,
+      "timestamp": 1766216347715.6252,
+      "type": "request"
+    },
+    {
+      "url": "http://192.168.10.141:1365/assets/IRANSansLight-8fe45ef2.woff",
+      "status": 200,
+      "status_text": "OK",
+      "method": "GET",
+      "duration": 0.0,
+      "size": 39108,
+      "content_type": "font/x-woff",
+      "timestamp": 1766216348194.126,
+      "type": "response"
+    },
+    {
+      "url": "blob:http://192.168.10.141:1365/e4fd6d54-ddd0-481a-9e07-2e880ce435eb",
+      "method": "GET",
+      "headers": {
+        "accept": "*/*"
+      },
+      "resource_type": "script",
+      "post_data": null,
+      "timestamp": 1766216348217.1113,
+      "type": "request"
+    },
+    {
+      "url": "http://192.168.10.141:1365/assets/Login-c236f0b6.js",
+      "status": 200,
+      "status_text": "OK",
+      "method": "GET",
+      "duration": 0.0,
+      "size": 0,
+      "content_type": "application/javascript",
+      "timestamp": 1766216348487.3054,
+      "type": "response"
+    },
+    {
+      "url": "http://192.168.10.141:1365/assets/api-91576d8e.js",
+      "status": 200,
+      "status_text": "OK",
+      "method": "GET",
+      "duration": 0.0,
+      "size": 0,
+      "content_type": "application/javascript",
+      "timestamp": 1766216348499.295,
+      "type": "response"
+    },
+    {
+      "url": "http://192.168.10.141:1365/assets/favIcon-dfeb2898.svg",
+      "method": "GET",
+      "headers": {
+        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",
+        "referer": "http://192.168.10.141:1365//"
+      },
+      "resource_type": "other",
+      "post_data": null,
+      "timestamp": 1766216348508.3083,
+      "type": "request"
+    },
+    {
+      "url": "http://192.168.10.141:1365/assets/mobile_backImage-85604429.svg",
+      "method": "GET",
+      "headers": {
+        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",
+        "referer": "http://192.168.10.141:1365//"
+      },
+      "resource_type": "image",
+      "post_data": null,
+      "timestamp": 1766216348628.2266,
+      "type": "request"
+    },
+    {
+      "url": "http://192.168.10.141:1365/assets/postBank-2dd4feb0.png",
+      "method": "GET",
+      "headers": {
+        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",
+        "referer": "http://192.168.10.141:1365//"
+      },
+      "resource_type": "image",
+      "post_data": null,
+      "timestamp": 1766216348631.2068,
+      "type": "request"
+    },
+    {
+      "url": "http://192.168.10.141:1365/assets/IRANSansMedium-04e1d43d.woff",
+      "method": "GET",
+      "headers": {
+        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",
+        "origin": "http://192.168.10.141:1365",
+        "referer": "http://192.168.10.141:1365/assets/index-fc49339f.css"
+      },
+      "resource_type": "font",
+      "post_data": null,
+      "timestamp": 1766216348644.2124,
+      "type": "request"
+    },
+    {
+      "url": "http://192.168.10.141:1369/api/auth/GenerateCaptcha",
+      "method": "GET",
+      "headers": {
+        "authorization": "Bearer null",
+        "referer": "http://192.168.10.141:1365/",
+        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",
+        "accept": "application/json, text/plain, */*",
+        "x-frame-options": "SAMEORIGIN"
+      },
+      "resource_type": "xhr",
+      "post_data": null,
+      "timestamp": 1766216348645.2087,
+      "type": "request"
+    },
+    {
+      "url": "blob:http://192.168.10.141:1365/e4fd6d54-ddd0-481a-9e07-2e880ce435eb",
+      "status": 200,
+      "status_text": "OK",
+      "method": "GET",
+      "duration": 0.0,
+      "size": 10285,
+      "content_type": "",
+      "timestamp": 1766216348695.2288,
+      "type": "response"
+    },
+    {
+      "url": "http://192.168.10.141:1365/assets/mobile_backImage-85604429.svg",
+      "status": 200,
+      "status_text": "OK",
+      "method": "GET",
+      "duration": 0.0,
+      "size": 14766,
+      "content_type": "image/svg+xml",
+      "timestamp": 1766216348732.2627,
+      "type": "response"
+    },
+    {
+      "url": "http://192.168.10.141:1365/assets/postBank-2dd4feb0.png",
+      "status": 200,
+      "status_text": "OK",
+      "method": "GET",
+      "duration": 0.0,
+      "size": 29238,
+      "content_type": "image/png",
+      "timestamp": 1766216348735.2324,
+      "type": "response"
+    },
+    {
+      "url": "http://192.168.10.141:1365/assets/favIcon-dfeb2898.svg",
+      "status": 200,
+      "status_text": "OK",
+      "method": "GET",
+      "duration": 0.0,
+      "size": 60986,
+      "content_type": "image/svg+xml",
+      "timestamp": 1766216348736.232,
+      "type": "response"
+    },
+    {
+      "url": "http://192.168.10.141:1365/assets/IRANSansMedium-04e1d43d.woff",
+      "status": 200,
+      "status_text": "OK",
+      "method": "GET",
+      "duration": 0.0,
+      "size": 34100,
+      "content_type": "font/x-woff",
+      "timestamp": 1766216348788.9565,
+      "type": "response"
+    },
+    {
+      "url": "http://192.168.10.141:1369/api/auth/GenerateCaptcha",
+      "status": 200,
+      "status_text": "OK",
+      "method": "GET",
+      "duration": 0.0,
+      "size": 6351,
+      "content_type": "application/json; charset=utf-8",
+      "timestamp": 1766216349110.9683,
+      "type": "response"
+    }
+  ]
+}

@@ -1,0 +1,77 @@
+{
+  "navigation": {
+    "fetch_start": 0,
+    "domain_lookup_start": 0,
+    "domain_lookup_end": 0,
+    "connect_start": 0,
+    "connect_end": 0,
+    "secure_connection_start": 0,
+    "request_start": 0,
+    "response_start": 0,
+    "response_end": 0,
+    "dom_interactive": 0,
+    "dom_content_loaded_start": 0,
+    "dom_content_loaded_end": 0,
+    "dom_complete": 0,
+    "load_event_start": 0,
+    "load_event_end": 0,
+    "transfer_size": 0,
+    "encoded_body_size": 0,
+    "decoded_body_size": 0,
+    "redirect_count": 0,
+    "type": "",
+    "dns_time": 0,
+    "tcp_time": 0,
+    "ttfb": 0,
+    "download_time": 0,
+    "dom_processing_time": 0,
+    "total_load_time": 0
+  },
+  "resources": [],
+  "paint": {
+    "first_paint": 0,
+    "first_contentful_paint": 0
+  },
+  "web_vitals": {
+    "lcp": 0,
+    "inp": 0,
+    "cls": 0,
+    "fcp": 0,
+    "tti": 0,
+    "tbt": 0,
+    "fid": 0,
+    "lcp_status": "",
+    "inp_status": "",
+    "cls_status": ""
+  },
+  "memory": {
+    "used_js_heap_size": 0,
+    "total_js_heap_size": 0,
+    "js_heap_size_limit": 0,
+    "used_js_heap_size_mb": 0,
+    "total_js_heap_size_mb": 0,
+    "heap_usage_percent": 0
+  },
+  "runtime": {
+    "fps": 0,
+    "dropped_frames": 0,
+    "total_frames": 0,
+    "jank_count": 0,
+    "average_frame_time": 0,
+    "longest_frame": 0
+  },
+  "long_tasks": [],
+  "layout_shifts": [],
+  "user_timing": [],
+  "event_timing": [],
+  "resource_summary": {
+    "total_count": 0,
+    "total_transfer_size": 0,
+    "total_encoded_size": 0,
+    "total_decoded_size": 0,
+    "total_duration": 0,
+    "by_type": {},
+    "cache_hit_ratio": 0,
+    "largest_resources": []
+  }
+}

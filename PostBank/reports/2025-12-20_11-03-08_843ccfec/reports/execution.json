@@ -1,0 +1,16 @@
+{
+  "execution_id": "2025-12-20_11-03-08_843ccfec",
+  "start_time": "2025-12-20T11:03:10.686984",
+  "end_time": "2025-12-20T11:03:14.978524",
+  "duration": 4.29154,
+  "total_scenarios": 1,
+  "scenarios": [
+    {
+      "name": "Successful login with standard user",
+      "feature": "User Authentication",
+      "status": "PASSED",
+      "duration": 0.0,
+      "steps": 7
+    }
+  ]
+}

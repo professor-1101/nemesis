@@ -1,0 +1,22 @@
+# Reporting Configuration - Master Control
+mode: all  # local, reportportal, all
+
+local:
+  enabled: true
+  format: html
+  base_dir: reports
+  auto_open: false
+
+  cleanup:
+    enabled: true
+    keep_days: 7
+    keep_minimum: 5
+
+reportportal:
+  enabled: true  # Master switch - controls if ReportPortal is used at all
+  send_artifacts: true
+  step_level_reporting: true
+  max_attachment_size: 10485760  # 10MB
+
+
+

@@ -1,0 +1,1 @@
+{"timestamp": 1766216973.71629, "level": "INFO", "message": "[dim]$ behave --tags @authentication --dry-run[/dim]\n", "correlation_id": null, "execution_id": null, "context": {"custom_context": {}}, "data": {}, "thread_id": 0, "process_id": 467808, "module": "framework", "service_name": "nemesis-framework", "operation_type": "framework_operation"}

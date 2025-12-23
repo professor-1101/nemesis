@@ -1,0 +1,43 @@
+======================================================================
+CONSOLE LOGS SUMMARY
+======================================================================
+WARNING             9 messages
+======================================================================
+
+[WARNING] No Telerik and Kendo UI License found.
+  To download a license key file, visit https://prgress.co/3PwQMKZ
+  Location: http://192.168.10.141:1365/assets/index-eee7f811.js:67:2841
+  Time: 1766217685392ms
+
+[WARNING] Deprecated API for given entry type.
+  Location: :5:0
+  Time: 1766217695239ms
+
+[WARNING] Deprecated API for given entry type.
+  Location: :20:0
+  Time: 1766217695242ms
+
+[WARNING] Deprecated API for given entry type.
+  Location: :54:0
+  Time: 1766217695243ms
+
+[WARNING] Deprecated API for given entry type.
+  Location: :82:0
+  Time: 1766217695243ms
+
+[WARNING] Deprecated API for given entry type.
+  Location: :2:0
+  Time: 1766217695267ms
+
+[WARNING] Deprecated API for given entry type.
+  Location: :2:0
+  Time: 1766217695277ms
+
+[WARNING] Deprecated API for given entry type.
+  Location: :2:0
+  Time: 1766217695290ms
+
+[WARNING] Deprecated API for given entry type.
+  Location: :2:0
+  Time: 1766217695315ms
+

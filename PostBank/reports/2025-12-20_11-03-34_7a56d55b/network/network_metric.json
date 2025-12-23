@@ -1,0 +1,252 @@
+{
+  "total_requests": 9,
+  "total_responses": 9,
+  "total_failed": 0,
+  "status_codes": {
+    "200": 7,
+    "401": 2
+  },
+  "avg_duration_ms": 0,
+  "total_size_bytes": 299963,
+  "requests": [
+    {
+      "url": "https://www.saucedemo.com/",
+      "method": "GET",
+      "headers": {
+        "upgrade-insecure-requests": "1",
+        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",
+        "sec-ch-ua": "\"Chromium\";v=\"143\", \"Not A(Brand\";v=\"24\"",
+        "sec-ch-ua-mobile": "?0",
+        "sec-ch-ua-platform": "\"Windows\""
+      },
+      "resource_type": "document",
+      "post_data": null,
+      "timestamp": 1766216070705.6726,
+      "type": "request"
+    },
+    {
+      "url": "https://www.saucedemo.com/",
+      "status": 200,
+      "status_text": "",
+      "method": "GET",
+      "duration": 0.0,
+      "size": 601,
+      "content_type": "text/html; charset=utf-8",
+      "timestamp": 1766216072427.5562,
+      "type": "response"
+    },
+    {
+      "url": "https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500",
+      "method": "GET",
+      "headers": {
+        "sec-ch-ua-platform": "\"Windows\"",
+        "referer": "https://www.saucedemo.com/",
+        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",
+        "sec-ch-ua": "\"Chromium\";v=\"143\", \"Not A(Brand\";v=\"24\"",
+        "sec-ch-ua-mobile": "?0"
+      },
+      "resource_type": "stylesheet",
+      "post_data": null,
+      "timestamp": 1766216072459.1196,
+      "type": "request"
+    },
+    {
+      "url": "https://www.saucedemo.com/static/js/main.bcf4bc5f.js",
+      "method": "GET",
+      "headers": {
+        "sec-ch-ua-platform": "\"Windows\"",
+        "referer": "https://www.saucedemo.com/",
+        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",
+        "sec-ch-ua": "\"Chromium\";v=\"143\", \"Not A(Brand\";v=\"24\"",
+        "sec-ch-ua-mobile": "?0"
+      },
+      "resource_type": "script",
+      "post_data": null,
+      "timestamp": 1766216072460.125,
+      "type": "request"
+    },
+    {
+      "url": "https://www.saucedemo.com/static/css/main.8a7d64a1.css",
+      "method": "GET",
+      "headers": {
+        "sec-ch-ua-platform": "\"Windows\"",
+        "referer": "https://www.saucedemo.com/",
+        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",
+        "sec-ch-ua": "\"Chromium\";v=\"143\", \"Not A(Brand\";v=\"24\"",
+        "sec-ch-ua-mobile": "?0"
+      },
+      "resource_type": "stylesheet",
+      "post_data": null,
+      "timestamp": 1766216072461.1213,
+      "type": "request"
+    },
+    {
+      "url": "https://www.saucedemo.com/static/js/main.bcf4bc5f.js",
+      "status": 200,
+      "status_text": "",
+      "method": "GET",
+      "duration": 0.0,
+      "size": 221612,
+      "content_type": "application/javascript; charset=utf-8",
+      "timestamp": 1766216072887.9827,
+      "type": "response"
+    },
+    {
+      "url": "https://www.saucedemo.com/static/css/main.8a7d64a1.css",
+      "status": 200,
+      "status_text": "",
+      "method": "GET",
+      "duration": 0.0,
+      "size": 10904,
+      "content_type": "text/css; charset=utf-8",
+      "timestamp": 1766216072921.9724,
+      "type": "response"
+    },
+    {
+      "url": "https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500",
+      "status": 200,
+      "status_text": "",
+      "method": "GET",
+      "duration": 0.0,
+      "size": 0,
+      "content_type": "text/css; charset=utf-8",
+      "timestamp": 1766216073078.624,
+      "type": "response"
+    },
+    {
+      "url": "https://events.backtrace.io/api/unique-events/submit?universe=UNIVERSE&token=TOKEN",
+      "method": "POST",
+      "headers": {
+        "sec-ch-ua-platform": "\"Windows\"",
+        "referer": "https://www.saucedemo.com/",
+        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",
+        "sec-ch-ua": "\"Chromium\";v=\"143\", \"Not A(Brand\";v=\"24\"",
+        "content-type": "application/json",
+        "sec-ch-ua-mobile": "?0"
+      },
+      "resource_type": "fetch",
+      "post_data": "{\"application\":\"Swag Store\",\"appversion\":\"3.0.0\",\"unique_events\":[{\"timestamp\":1766216073,\"attributes\":{\"application.session\":\"3a86c0af-369f-4115-8ccd-53be63caf475\",\"backtrace.agent\":\"@backtrace-labs/react\",\"backtrace.version\":\"0.0.5\",\"browser.name\":\"Chrome\",\"browser.version\":\"143.0.0.0\",\"engine.name\":\"Blink\",\"engine.version\":\"143.0.0.0\",\"browser.platform\":\"Win32\",\"cpu.arch\":\"amd64\",\"uname.sysname\":\"Windows\",\"uname.version\":\"10\",\"mobile\":\"false\",\"user.agent.full\":\"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36\",\"application\":\"Swag Store\",\"process.age\":\"0\",\"hostname\":\"www.saucedemo.com\",\"referrer\":\"https://www.saucedemo.com/\",\"location.port\":\"\",\"location.protocol\":\"https:\",\"location.origin\":\"https://www.saucedemo.com\",\"location.href\":\"https://www.saucedemo.com/\",\"language\":\"en-US\",\"cookies.enable\":\"true\",\"document.domain\":\"www.saucedemo.com\",\"document.baseURI\":\"https://www.saucedemo.com/\",\"document.title\":\"Swag Labs\",\"docu...[truncated]",
+      "timestamp": 1766216073349.7063,
+      "type": "request"
+    },
+    {
+      "url": "https://events.backtrace.io/api/summed-events/submit?universe=UNIVERSE&token=TOKEN",
+      "method": "POST",
+      "headers": {
+        "sec-ch-ua-platform": "\"Windows\"",
+        "referer": "https://www.saucedemo.com/",
+        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",
+        "sec-ch-ua": "\"Chromium\";v=\"143\", \"Not A(Brand\";v=\"24\"",
+        "content-type": "application/json",
+        "sec-ch-ua-mobile": "?0"
+      },
+      "resource_type": "fetch",
+      "post_data": "{\"application\":\"Swag Store\",\"appversion\":\"3.0.0\",\"summed_events\":[{\"timestamp\":1766216073,\"attributes\":{\"application.session\":\"3a86c0af-369f-4115-8ccd-53be63caf475\",\"backtrace.agent\":\"@backtrace-labs/react\",\"backtrace.version\":\"0.0.5\",\"browser.name\":\"Chrome\",\"browser.version\":\"143.0.0.0\",\"engine.name\":\"Blink\",\"engine.version\":\"143.0.0.0\",\"browser.platform\":\"Win32\",\"cpu.arch\":\"amd64\",\"uname.sysname\":\"Windows\",\"uname.version\":\"10\",\"mobile\":\"false\",\"user.agent.full\":\"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36\",\"application\":\"Swag Store\",\"process.age\":\"0\",\"hostname\":\"www.saucedemo.com\",\"referrer\":\"https://www.saucedemo.com/\",\"location.port\":\"\",\"location.protocol\":\"https:\",\"location.origin\":\"https://www.saucedemo.com\",\"location.href\":\"https://www.saucedemo.com/\",\"language\":\"en-US\",\"cookies.enable\":\"true\",\"document.domain\":\"www.saucedemo.com\",\"document.baseURI\":\"https://www.saucedemo.com/\",\"document.title\":\"Swag Labs\",\"docu...[truncated]",
+      "timestamp": 1766216073353.6753,
+      "type": "request"
+    },
+    {
+      "url": "https://fonts.gstatic.com/s/dmsans/v17/rP2Yp2ywxg089UriI5-g4vlH9VoD8Cmcqbu0-K4.woff2",
+      "method": "GET",
+      "headers": {
+        "origin": "https://www.saucedemo.com",
+        "sec-ch-ua-platform": "\"Windows\"",
+        "referer": "https://fonts.googleapis.com/",
+        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",
+        "sec-ch-ua": "\"Chromium\";v=\"143\", \"Not A(Brand\";v=\"24\"",
+        "sec-ch-ua-mobile": "?0"
+      },
+      "resource_type": "font",
+      "post_data": null,
+      "timestamp": 1766216073354.6763,
+      "type": "request"
+    },
+    {
+      "url": "https://fonts.gstatic.com/s/dmmono/v16/aFTU7PB1QTsUX8KYthqQBA.woff2",
+      "method": "GET",
+      "headers": {
+        "origin": "https://www.saucedemo.com",
+        "sec-ch-ua-platform": "\"Windows\"",
+        "referer": "https://fonts.googleapis.com/",
+        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",
+        "sec-ch-ua": "\"Chromium\";v=\"143\", \"Not A(Brand\";v=\"24\"",
+        "sec-ch-ua-mobile": "?0"
+      },
+      "resource_type": "font",
+      "post_data": null,
+      "timestamp": 1766216073355.6746,
+      "type": "request"
+    },
+    {
+      "url": "https://fonts.gstatic.com/s/dmmono/v16/aFTR7PB1QTsUX8KYvumzEYOtbQ.woff2",
+      "method": "GET",
+      "headers": {
+        "origin": "https://www.saucedemo.com",
+        "sec-ch-ua-platform": "\"Windows\"",
+        "referer": "https://fonts.googleapis.com/",
+        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",
+        "sec-ch-ua": "\"Chromium\";v=\"143\", \"Not A(Brand\";v=\"24\"",
+        "sec-ch-ua-mobile": "?0"
+      },
+      "resource_type": "font",
+      "post_data": null,
+      "timestamp": 1766216073355.6746,
+      "type": "request"
+    },
+    {
+      "url": "https://fonts.gstatic.com/s/dmmono/v16/aFTU7PB1QTsUX8KYthqQBA.woff2",
+      "status": 200,
+      "status_text": "",
+      "method": "GET",
+      "duration": 0.0,
+      "size": 14820,
+      "content_type": "font/woff2",
+      "timestamp": 1766216074296.929,
+      "type": "response"
+    },
+    {
+      "url": "https://fonts.gstatic.com/s/dmsans/v17/rP2Yp2ywxg089UriI5-g4vlH9VoD8Cmcqbu0-K4.woff2",
+      "status": 200,
+      "status_text": "",
+      "method": "GET",
+      "duration": 0.0,
+      "size": 36932,
+      "content_type": "font/woff2",
+      "timestamp": 1766216074431.9426,
+      "type": "response"
+    },
+    {
+      "url": "https://fonts.gstatic.com/s/dmmono/v16/aFTR7PB1QTsUX8KYvumzEYOtbQ.woff2",
+      "status": 200,
+      "status_text": "",
+      "method": "GET",
+      "duration": 0.0,
+      "size": 14988,
+      "content_type": "font/woff2",
+      "timestamp": 1766216074452.9387,
+      "type": "response"
+    },
+    {
+      "url": "https://events.backtrace.io/api/unique-events/submit?universe=UNIVERSE&token=TOKEN",
+      "status": 401,
+      "status_text": "Unauthorized",
+      "method": "POST",
+      "duration": 0.0,
+      "size": 53,
+      "content_type": "application/json",
+      "timestamp": 1766216075596.0408,
+      "type": "response"
+    },
+    {
+      "url": "https://events.backtrace.io/api/summed-events/submit?universe=UNIVERSE&token=TOKEN",
+      "status": 401,
+      "status_text": "Unauthorized",
+      "method": "POST",
+      "duration": 0.0,
+      "size": 53,
+      "content_type": "application/json",
+      "timestamp": 1766216075599.0403,
+      "type": "response"
+    }
+  ]
+}

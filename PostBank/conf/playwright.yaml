@@ -1,0 +1,76 @@
+# Playwright Configuration
+browser:
+  type: chromium                    # chromium, firefox, webkit
+  headless: false
+  slow_mo: 0
+  args: []
+  channel: null                     # chrome, msedge
+
+viewport:
+  width: 1920
+  height: 1080
+
+context:
+  ignore_https_errors: true
+  base_url: "http://192.168.10.141:1365/"
+
+timeouts:
+  default: 30000
+  navigation: 30000
+  action: 10000
+
+# Attachment settings
+attachments:
+  screenshots:
+    enabled: true
+    mode: on-failure                # always, on-failure, off
+    format: png                     # png, jpeg
+    quality: 90
+    full_page: true
+  
+  videos:
+    enabled: true
+    format: webm                    # webm, mp4, avi
+    quality: medium                 # low, medium, high
+    mode: retain-on-failure         # retain-on-failure, retain-on-first-failure, remove-on-success
+    size:
+      width: 1920
+      height: 1080
+  
+  traces:
+    enabled: true
+    format: zip                     # zip, json
+    include_screenshots: true
+    include_snapshots: true
+    include_sources: true
+  
+  network:
+    enabled: true
+    format: har                     # har, json
+    include_responses: true
+    omit_content: false
+    mode: full
+    timeout: 30000
+    retry_attempts: 3
+    buffer_size: 1048576           # 1MB buffer
+  
+  performance:
+    enabled: true
+    format: json                    # json, csv
+    collect_metrics: true
+    collect_navigation_timing: true
+    collect_resource_timing: true
+    metrics:
+      - timing
+      - memory
+      - network
+  
+  console:
+    enabled: true
+    format: jsonl                   # jsonl, txt, json
+    capture: true
+    levels:
+      - error
+      - warning
+      - info
+
