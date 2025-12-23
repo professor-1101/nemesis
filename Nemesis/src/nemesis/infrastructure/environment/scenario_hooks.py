@@ -76,7 +76,7 @@ def before_scenario(context: Any, scenario: Any) -> None:
         if not hasattr(context, 'test_config'):
             config_dict = env_manager.config.load()
             context.test_config = {
-                "base_url": config_dict.get("environments", {}).get("dev", {}).get("base_url", "https://www.saucedemo.com"),
+                "base_url": config_dict.get("environments", {}).get("dev", {}).get("base_url") or config_dict.get("playwright", {}).get("context", {}).get("base_url") or "http://192.168.10.141:1365/",
                 "browser_type": config_dict.get("browser", {}).get("type", "chromium"),
                 "headless": config_dict.get("browser", {}).get("headless", False),
             }

@@ -36,6 +36,24 @@ class StepHandler:
         """Start step reporting."""
         step_name = getattr(step, 'name', str(step))
 
+        # Replace PLACEHOLDER values with actual data for better reporting
+        # Get actual data from context if available
+        try:
+            from nemesis.infrastructure.environment.hooks import _get_env_manager
+            env_manager = _get_env_manager()
+            if env_manager and hasattr(env_manager, 'context'):
+                context = env_manager.context
+                if hasattr(context, 'current_user_data') and context.current_user_data:
+                    user_data = context.current_user_data
+                    username = user_data.get('نام_کاربری', '')
+                    password = user_data.get('رمز_عبور', '')
+                    if username:
+                        step_name = step_name.replace('"PLACEHOLDER"', f'"{username}"')
+                    if password and '"رمز_عبور"' in step_name:
+                        step_name = step_name.replace('"PLACEHOLDER"', f'"{password}"')
+        except Exception:
+            pass  # Fallback to original step name
+
         # Extract feature and scenario names for attributes
         feature_name = ""
         scenario_name = ""

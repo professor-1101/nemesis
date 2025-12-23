@@ -54,6 +54,8 @@ class TestExecutor:
         os.environ["TEST_ENV"] = self.env
         os.environ["HEADLESS"] = str(self.headless).lower()
         os.environ["DEBUG"] = str(self.debug).lower()
+        # Set UTF-8 encoding for Windows to handle Persian characters
+        os.environ["PYTHONIOENCODING"] = "utf-8"
 
         if self.report_mode in ["reportportal", "all"]:
             rp_config = self.config.get("reportportal", {})
@@ -120,6 +122,8 @@ class TestExecutor:
                 stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT,
                 text=True,
+                encoding='utf-8',
+                errors='replace',
                 bufsize=1,
                 universal_newlines=True,
             )
@@ -128,8 +132,29 @@ class TestExecutor:
             if process.stdout:
                 for line in process.stdout:
                     try:
-                        print(line, end="")
-                        sys.stdout.flush()
+                        # Ensure UTF-8 encoding for console output on Windows
+                        if sys.platform == 'win32':
+                            # Try to print with UTF-8 encoding
+                            try:
+                                # Reconfigure stdout if possible
+                                if hasattr(sys.stdout, 'reconfigure'):
+                                    sys.stdout.reconfigure(encoding='utf-8', errors='replace')
+                                print(line, end="")
+                                sys.stdout.flush()
+                            except (UnicodeEncodeError, AttributeError):
+                                # Fallback: encode and decode
+                                try:
+                                    encoded = line.encode('utf-8', errors='replace').decode('utf-8', errors='replace')
+                                    print(encoded, end="")
+                                    sys.stdout.flush()
+                                except Exception:
+                                    # Last resort: skip problematic characters
+                                    safe_line = line.encode('ascii', errors='replace').decode('ascii')
+                                    print(safe_line, end="")
+                                    sys.stdout.flush()
+                        else:
+                            print(line, end="")
+                            sys.stdout.flush()
 
                         # Check for EPIPE or browser crash indicators with HAR-specific handling
                         if "EPIPE" in line or "broken pipe" in line.lower():
