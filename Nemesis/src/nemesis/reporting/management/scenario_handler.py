@@ -125,9 +125,12 @@ class ScenarioHandler:
                     )
                 self._call_rp_client(_log_performance)
 
+            # Get performance metrics as attributes before finishing
+            perf_attributes = self._format_metrics_as_attributes()
+
             def _finish_rp():
-                self.reporter_manager.get_rp_client().finish_test(status_str)
-                self.logger.debug(f"Scenario finished in ReportPortal: {scenario_name} - {status_str}")
+                self.reporter_manager.get_rp_client().finish_test(status_str, perf_attributes)
+                self.logger.debug(f"Scenario finished in ReportPortal: {scenario_name} - {status_str} (with {len(perf_attributes) if perf_attributes else 0} metrics attributes)")
             self._call_rp_client(_finish_rp)
 
     def _log_scenario_stack_trace(self) -> None:
@@ -165,11 +168,78 @@ class ScenarioHandler:
         except Exception as e:  # pylint: disable=broad-exception-caught
             self.logger.warning(f"Failed to log scenario stack trace: {e}")
 
-    def _add_performance_attributes(self) -> None:
-        """Performance attributes are now logged as messages in end_scenario."""
-        # Performance metrics are logged as INFO messages in end_scenario
-        # Attributes cannot be added after test start in ReportPortal
-        pass
+    def _format_metrics_as_attributes(self) -> list:
+        """
+        Format performance metrics as ReportPortal attributes.
+
+        Converts performance metrics to ReportPortal attribute format for
+        display in the UI attributes section and enable filtering/analysis.
+
+        Returns:
+            List of attribute dicts with format [{"key": "metric_name", "value": "value"}]
+            Returns empty list if metrics unavailable or disabled.
+        """
+        try:
+            # Get performance collector data
+            from nemesis.infrastructure.collectors import get_collector
+            perf_collector = get_collector('performance')
+            if not perf_collector:
+                return []
+
+            perf_data = perf_collector.get_data()
+            if not perf_data:
+                return []
+
+            attributes = []
+
+            # Navigation Timing Metrics
+            if 'navigation' in perf_data:
+                nav = perf_data['navigation']
+                if nav.get('total_load'):
+                    attributes.append({"key": "perf.load_time_ms", "value": f"{nav['total_load']:.0f}"})
+                if nav.get('ttfb'):
+                    attributes.append({"key": "perf.ttfb_ms", "value": f"{nav['ttfb']:.0f}"})
+                if nav.get('dns_lookup'):
+                    attributes.append({"key": "perf.dns_ms", "value": f"{nav['dns_lookup']:.0f}"})
+                if nav.get('tcp_connection'):
+                    attributes.append({"key": "perf.tcp_ms", "value": f"{nav['tcp_connection']:.0f}"})
+
+            # Core Web Vitals
+            if 'web_vitals' in perf_data:
+                vitals = perf_data['web_vitals']
+                if vitals.get('fcp'):
+                    attributes.append({"key": "perf.fcp_ms", "value": f"{vitals['fcp']:.0f}"})
+                if vitals.get('lcp'):
+                    attributes.append({"key": "perf.lcp_ms", "value": f"{vitals['lcp']:.0f}"})
+                if vitals.get('cls') is not None:
+                    attributes.append({"key": "perf.cls", "value": f"{vitals['cls']:.3f}"})
+                if vitals.get('tti'):
+                    attributes.append({"key": "perf.tti_ms", "value": f"{vitals['tti']:.0f}"})
+
+            # Memory Metrics
+            if 'memory' in perf_data:
+                mem = perf_data['memory']
+                if mem.get('used_js_heap'):
+                    memory_mb = mem['used_js_heap'] / 1024 / 1024
+                    attributes.append({"key": "perf.memory_mb", "value": f"{memory_mb:.1f}"})
+                if mem.get('heap_usage'):
+                    attributes.append({"key": "perf.heap_usage_pct", "value": f"{mem['heap_usage']:.1f}"})
+
+            # Resource Metrics
+            if 'resources' in perf_data:
+                res = perf_data['resources']
+                if res.get('total_count'):
+                    attributes.append({"key": "perf.resource_count", "value": str(res['total_count'])})
+                if res.get('total_transfer'):
+                    transfer_kb = res['total_transfer'] / 1024
+                    attributes.append({"key": "perf.transfer_kb", "value": f"{transfer_kb:.1f}"})
+
+            self.logger.debug(f"Formatted {len(attributes)} performance metrics as attributes")
+            return attributes
+
+        except Exception as e:  # pylint: disable=broad-exception-caught
+            self.logger.warning(f"Failed to format metrics as attributes: {e}")
+            return []
 
     def _get_performance_summary(self) -> str:
         """Get performance metrics summary for scenario description."""

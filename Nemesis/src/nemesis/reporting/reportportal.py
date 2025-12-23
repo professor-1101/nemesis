@@ -231,14 +231,15 @@ class ReportPortalClient:
         if self.rp_step_manager:
             self.rp_step_manager.finish_step(status)
 
-    def finish_test(self, status: str) -> None:
-        """Finish a test (scenario) in ReportPortal.
-        
+    def finish_test(self, status: str, attributes: list = None) -> None:
+        """Finish a test (scenario) in ReportPortal with optional attributes.
+
         Args:
             status: Final status of the test (PASSED, FAILED, etc.)
+            attributes: Optional list of attributes (e.g., performance metrics)
         """
         if self.rp_test_manager:
-            self.rp_test_manager.finish_test(status)
+            self.rp_test_manager.finish_test(status, attributes)
 
     def finish_launch(self, status: str = "FINISHED", launch_id: str | None = None) -> None:
         """Finish a launch in ReportPortal.

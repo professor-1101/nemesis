@@ -114,23 +114,24 @@ class RPTestHandler:
             raise ReportPortalError(f"Failed to start test: {name}", str(e)) from e
 
     @safe_execute(log_exceptions=True)
-    def finish_test(self, status: str) -> None:
-        """Finish test with optional issue marking for skipped tests.
+    def finish_test(self, status: str, attributes: list = None) -> None:
+        """Finish test with optional issue marking and performance attributes.
 
         Note: test_id is kept after finishing to allow attachments.
         It will be cleared when a new test starts or launch finishes.
 
         Args:
             status: Test status (PASSED, FAILED, SKIPPED, etc.)
+            attributes: Optional list of attributes to add (e.g., performance metrics)
         """
         if not self.test_id:
             self.logger.warning(f"[RP DEBUG] finish_test: test_id is None, skipping finish")
             return
-        
+
         if not self.rp_launch_manager.is_launch_active():
             self.logger.warning(f"[RP DEBUG] finish_test: launch is not active (launch_id={self.rp_launch_manager.launch_id}), skipping finish")
             return
-        
+
         self.logger.info(f"[RP DEBUG] finish_test: test_id={self.test_id}, status={status}, launch_id={self.rp_launch_manager.get_launch_id()}")
 
         try:
@@ -140,6 +141,12 @@ class RPTestHandler:
                 "status": status,
                 "launch_uuid": self.rp_launch_manager.get_launch_id(),
             }
+
+            # Add attributes if provided (e.g., performance metrics)
+            # NOTE: ReportPortal supports attributes in finish_test_item
+            if attributes:
+                finish_params["attributes"] = attributes
+                self.logger.info(f"[RP DEBUG] Adding {len(attributes)} attributes to test finish")
 
             # Handle skipped tests based on is_skipped_an_issue configuration
             if status == "SKIPPED" and not self.is_skipped_an_issue:
