@@ -41,8 +41,73 @@ def _setup_action_logging_for_scenario(env_manager, context, scenario) -> None:
         LOGGER.warning(f"Failed to setup action logging: {e}")
 
 
+def _clear_browser_state(context: Any, scenario: Any) -> None:
+    """
+    Clear browser state for scenario independence.
+
+    Clears cookies, localStorage, and sessionStorage unless scenario is tagged
+    with @workflow (indicating intentional dependency on previous state).
+
+    Args:
+        context: Behave context with page adapter
+        scenario: Behave scenario to check for @workflow tag
+    """
+    try:
+        # Check if scenario is part of intentional workflow
+        is_workflow = False
+        if hasattr(scenario, 'tags'):
+            tag_names = []
+            for tag in scenario.tags:
+                if isinstance(tag, str):
+                    tag_names.append(tag)
+                elif hasattr(tag, 'name'):
+                    tag_names.append(tag.name)
+                else:
+                    tag_names.append(str(tag))
+
+            is_workflow = 'workflow' in tag_names
+
+        # Skip state clearing for @workflow scenarios
+        if is_workflow:
+            LOGGER.info(f"Scenario '{scenario.name}' tagged with @workflow - preserving browser state")
+            return
+
+        # Clear browser state for independent scenarios
+        if hasattr(context, 'page') and context.page:
+            page_adapter = context.page
+
+            # Access underlying Playwright page
+            if hasattr(page_adapter, 'playwright_page'):
+                playwright_page = page_adapter.playwright_page
+
+                try:
+                    # Clear cookies
+                    context_obj = playwright_page.context
+                    context_obj.clear_cookies()
+                    LOGGER.debug("Cleared browser cookies")
+
+                    # Clear localStorage
+                    playwright_page.evaluate("() => { window.localStorage.clear(); }")
+                    LOGGER.debug("Cleared localStorage")
+
+                    # Clear sessionStorage
+                    playwright_page.evaluate("() => { window.sessionStorage.clear(); }")
+                    LOGGER.debug("Cleared sessionStorage")
+
+                    LOGGER.info(f"Browser state cleared for scenario: {scenario.name}")
+
+                except Exception as e:
+                    LOGGER.warning(f"Failed to clear browser state: {e}")
+
+    except Exception as e:  # pylint: disable=broad-exception-caught
+        LOGGER.warning(f"Failed to clear browser state: {e}")
+
+
 def before_scenario(context: Any, scenario: Any) -> None:
     """Before each scenario.
+
+    Ensures scenario independence by clearing browser state (cookies, storage)
+    unless scenario is tagged with @workflow for intentional state preservation.
 
     Args:
         context: Behave context object
@@ -60,6 +125,11 @@ def before_scenario(context: Any, scenario: Any) -> None:
             scenario.skip("Browser crashed in previous scenario")
             return
 
+        # Clear browser state from previous scenario (unless @workflow tag)
+        # This must happen BEFORE lazy browser initialization to ensure clean state
+        if hasattr(context, 'browser_started') and context.browser_started:
+            _clear_browser_state(context, scenario)
+
         # LAZY BROWSER INITIALIZATION: Don't start browser here
         # Browser will be started on-demand in before_step when actually needed
         # This prevents interference with Behave step discovery
@@ -69,9 +139,11 @@ def before_scenario(context: Any, scenario: Any) -> None:
             context.browser_manager = env_manager.browser_env.get_browser_manager()
 
         # Mark browser as not started yet (lazy initialization)
-        context.browser_started = False
+        # Note: If browser was already started, keep it running but with cleared state
+        if not hasattr(context, 'browser_started'):
+            context.browser_started = False
         context.browser_crashed = False
-        
+
         # Set test_config for page objects (cannot use 'config' as it's reserved by behave)
         if not hasattr(context, 'test_config'):
             config_dict = env_manager.config.load()

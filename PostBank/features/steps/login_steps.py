@@ -345,3 +345,80 @@ def step_expected_error_message_displayed(context):
 def step_then_expected_error_message_displayed(context):
     """Expected error message is displayed (with 'آنگاه' prefix)."""
     step_expected_error_message_displayed(context)
+
+
+# ============================================================================
+# Generic Role-Based Login Steps (for Background scenarios)
+# ============================================================================
+
+@given('کاربر با نقش "{role}" وارد سیستم شده است')
+def step_user_logged_in_with_role(context, role):
+    """
+    Generic step for logging in user with specific role.
+    
+    This step:
+    1. Filters users from CSV with specified role
+    2. Selects a random active user with that role
+    3. Performs complete login process
+    4. Verifies login success (dashboard loaded)
+    
+    Used in Background sections for scenario independence.
+    
+    Args:
+        context: Behave context
+        role: Role name (e.g., "کارشناس حوزه باجه")
+    """
+    import random
+    import csv
+    from pathlib import Path
+    
+    # Get users with this role
+    role_users = []
+    if hasattr(context, 'available_users') and context.available_users:
+        role_users = [user for user in context.available_users
+                     if user.get('نقش_سازمانی', '') == role
+                     and user.get('فعال', '').strip().lower() == 'true']
+    else:
+        # Fallback: load from CSV directly
+        project_root = Path(__file__).parent.parent.parent
+        csv_file = project_root / "test_data" / "users.csv"
+        
+        with open(csv_file, 'r', encoding='utf-8-sig') as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                user_role = row.get('نقش سازمانی', '').strip()
+                if user_role == role and row.get('فعال', '').strip().lower() == 'true':
+                    role_users.append({
+                        'نام_کاربری': row.get('نام کاربری', '').strip(),
+                        'رمز_عبور': row.get('نام کاربری', '').strip(),  # password = username
+                        'نام_و_نام_خانوادگی': row.get('نام و نام خانوادگی', ''),
+                        'نقش_سازمانی': user_role,
+                        'سمت_سازمانی': row.get('سمت سازمانی', '')
+                    })
+    
+    if not role_users:
+        raise ValueError(f"No active users found with role: '{role}'")
+    
+    # Select random user
+    selected_user = random.choice(role_users)
+    
+    # Store for later use
+    context.current_user_data = selected_user
+    
+    # Perform login
+    login_page = LoginPage(context.page, context.test_config)
+    login_page.open()
+    login_page.enter_username(selected_user['نام_کاربری'])
+    login_page.enter_password(selected_user['رمز_عبور'])
+    login_page.click_login_button()
+    
+    # Verify login success
+    dashboard_page = DashboardPage(context.page, context.test_config)
+    dashboard_page.verify_page_loaded()
+    
+    # Log successful login
+    if hasattr(context, 'logger'):
+        context.logger.info(
+            f"Successfully logged in as '{role}': {selected_user['نام_کاربری']} "
+            f"({selected_user['نام_و_نام_خانوادگی']})"
+        )
