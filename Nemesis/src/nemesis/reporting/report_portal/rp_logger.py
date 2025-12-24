@@ -19,7 +19,12 @@ class RPLogger(RPBaseHandler):
 
     @retry(max_attempts=2, delay=0.5)
     def log_message(self, message: str, level: str = "INFO") -> None:
-        """Log message to current item.
+        """
+        Log message to current item.
+
+        Enhanced implementation:
+        - No truncation limits (show full message)
+        - Preserves complete log content
 
         Args:
             message: Message text to log
@@ -33,9 +38,7 @@ class RPLogger(RPBaseHandler):
             return
 
         try:
-            if len(message) > 10000:
-                message = message[:10000] + "\n[truncated]"
-
+            # No truncation - show full message
             self.logger.info(f"[RP LOG DEBUG] Logging message to item_id={item_id}, level={level}, message length={len(message)}")
             self.client.log(
                 time=RPUtils.timestamp(),
@@ -73,8 +76,20 @@ class RPLogger(RPBaseHandler):
         self.log_message(formatted_message, level)
 
     @retry(max_attempts=2, delay=0.5)
-    def log_exception(self, exception: Exception, description: str = "") -> None:
-        """Log exception with full stack trace to ReportPortal."""
+    def log_exception(self, exception: Exception, description: str = "", context: dict = None) -> None:
+        """
+        Log exception with full stack trace to ReportPortal.
+
+        Enhanced implementation:
+        - No truncation limits (show complete stack trace)
+        - Context information (step, scenario, feature names)
+        - Enhanced error formatting
+
+        Args:
+            exception: The exception to log
+            description: Optional description
+            context: Optional context dict with step/scenario/feature names
+        """
         item_id = self._get_current_item_id()
         launch_id = self.rp_launch_manager.get_launch_id()
 
@@ -86,17 +101,40 @@ class RPLogger(RPBaseHandler):
             exception_type = type(exception).__name__
             exception_message = str(exception)
 
+            # Extract full stack trace (no truncation)
             stack_trace = RPUtils.extract_stack_trace(exception)
 
-            header = f"EXCEPTION: {exception_type}"
+            # Build header with context information
+            header = "=" * 80
+            header += f"\n🔴 EXCEPTION: {exception_type}\n"
+            header += "=" * 80
+
             if description:
-                header = f"{description}\n{header}"
+                header = f"{description}\n\n{header}"
 
-            full_message = f"""{header}\n\nMessage: {exception_message}\n\nStack Trace:\n{stack_trace}\n\nTime: {RPUtils.timestamp()}"""
+            # Add context information if provided
+            context_info = ""
+            if context:
+                context_info = "\n📋 CONTEXT:\n"
+                if 'feature' in context:
+                    context_info += f"  Feature: {context['feature']}\n"
+                if 'scenario' in context:
+                    context_info += f"  Scenario: {context['scenario']}\n"
+                if 'step' in context:
+                    context_info += f"  Step: {context['step']}\n"
+                context_info += "\n"
 
-            if len(full_message) > 15000:
-                truncated_stack = stack_trace[:10000]
-                full_message = f"""{header}\n\nMessage: {exception_message}\n\nStack Trace:\n{truncated_stack}\n\n[truncated]\n\nTime: {RPUtils.timestamp()}"""
+            # Build complete message (no truncation)
+            full_message = f"""{header}
+
+💬 MESSAGE:
+{exception_message}
+{context_info}
+📚 STACK TRACE:
+{stack_trace}
+
+⏰ TIME: {RPUtils.timestamp()}
+"""
 
             self.client.log(
                 time=RPUtils.timestamp(),
@@ -105,7 +143,7 @@ class RPLogger(RPBaseHandler):
                 item_id=item_id,
             )
 
-            self.logger.info(f"Exception logged to ReportPortal: {exception_type}")
+            self.logger.info(f"Exception logged to ReportPortal: {exception_type} (full trace, {len(stack_trace)} chars)")
 
         except (AttributeError, RuntimeError) as e:
             # ReportPortal SDK API errors
@@ -144,8 +182,21 @@ class RPLogger(RPBaseHandler):
                 self.logger.error(f"Fallback logging also failed: {fallback_error}", traceback=traceback.format_exc(), module=__name__, class_name="RPLogger", method="log_exception")
 
     @retry(max_attempts=2, delay=0.5)
-    def log_exception_with_attachment(self, exception: Exception, attachment_path: Path = None, description: str = "") -> None:
-        """Log exception with stack trace and optional attachment."""
+    def log_exception_with_attachment(self, exception: Exception, attachment_path: Path = None, description: str = "", context: dict = None) -> None:
+        """
+        Log exception with stack trace and optional attachment.
+
+        Enhanced implementation:
+        - No truncation limits (show complete stack trace)
+        - Context information (step, scenario, feature names)
+        - Enhanced error formatting with attachment info
+
+        Args:
+            exception: The exception to log
+            attachment_path: Optional path to attachment file
+            description: Optional description
+            context: Optional context dict with step/scenario/feature names
+        """
         item_id = self._get_current_item_id()
         launch_id = self.rp_launch_manager.get_launch_id()
 
@@ -157,17 +208,45 @@ class RPLogger(RPBaseHandler):
             exception_type = type(exception).__name__
             exception_message = str(exception)
 
+            # Extract full stack trace (no truncation)
             stack_trace = RPUtils.extract_stack_trace(exception)
 
-            header = f"EXCEPTION WITH ATTACHMENT: {exception_type}"
+            # Build header with context information
+            header = "=" * 80
+            header += f"\n🔴 EXCEPTION WITH ATTACHMENT: {exception_type}\n"
+            header += "=" * 80
+
             if description:
-                header = f"{description}\n{header}"
+                header = f"{description}\n\n{header}"
 
-            full_message = f"""{header}\n\nMessage: {exception_message}\n\nStack Trace:\n{stack_trace}\n\nAttachment: {attachment_path.name if attachment_path and attachment_path.exists() else 'None'}\n\nTime: {RPUtils.timestamp()}"""
+            # Add context information if provided
+            context_info = ""
+            if context:
+                context_info = "\n📋 CONTEXT:\n"
+                if 'feature' in context:
+                    context_info += f"  Feature: {context['feature']}\n"
+                if 'scenario' in context:
+                    context_info += f"  Scenario: {context['scenario']}\n"
+                if 'step' in context:
+                    context_info += f"  Step: {context['step']}\n"
+                context_info += "\n"
 
-            if len(full_message) > 15000:
-                truncated_stack = stack_trace[:10000]
-                full_message = f"""{header}\n\nMessage: {exception_message}\n\nStack Trace:\n{truncated_stack}\n\n[truncated]\n\nAttachment: {attachment_path.name if attachment_path and attachment_path.exists() else 'None'}\n\nTime: {RPUtils.timestamp()}"""
+            # Attachment info
+            attachment_info = ""
+            if attachment_path and attachment_path.exists():
+                attachment_info = f"\n📎 ATTACHMENT: {attachment_path.name}\n"
+
+            # Build complete message (no truncation)
+            full_message = f"""{header}
+
+💬 MESSAGE:
+{exception_message}
+{context_info}{attachment_info}
+📚 STACK TRACE:
+{stack_trace}
+
+⏰ TIME: {RPUtils.timestamp()}
+"""
 
             self.client.log(
                 time=RPUtils.timestamp(),
@@ -181,7 +260,7 @@ class RPLogger(RPBaseHandler):
             # if attachment_path and attachment_path.exists():
             #     self.attach_file(attachment_path, f"Attachment for {exception_type}")
 
-            self.logger.info(f"Exception with attachment logged to ReportPortal: {exception_type}")
+            self.logger.info(f"Exception with attachment logged to ReportPortal: {exception_type} (full trace, {len(stack_trace)} chars)")
 
         except (AttributeError, RuntimeError) as e:
             # ReportPortal SDK API errors
