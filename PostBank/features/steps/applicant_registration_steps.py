@@ -1,4 +1,11 @@
-"""Step definitions for applicant registration scenarios in Persian."""
+"""
+Step definitions for applicant registration scenarios in Persian.
+
+Clean implementation:
+- Simplified user selection logic
+- No code duplication
+- Clear separation of concerns
+"""
 
 import random
 from behave import given, when, then
@@ -11,43 +18,68 @@ from pages.dashboard_page import DashboardPage
 use_step_matcher('parse')
 
 
+def _select_random_user_by_role(context, role: str) -> dict:
+    """
+    Select a random active user with specified role from CSV.
+
+    Helper function to reduce code duplication.
+
+    Args:
+        context: Behave context
+        role: Persian role name (e.g., "کارشناس حوزه باجه")
+
+    Returns:
+        dict: Selected user data
+
+    Raises:
+        ValueError: If no active users found with specified role
+    """
+    import csv
+    from pathlib import Path
+
+    # Check if users already loaded in context
+    if hasattr(context, 'available_users') and context.available_users:
+        role_users = [
+            user for user in context.available_users
+            if user.get('نقش_سازمانی', '') == role
+            and user.get('فعال', '').strip().lower() == 'true'
+        ]
+        if role_users:
+            return random.choice(role_users)
+
+    # Load from CSV if not in context
+    project_root = Path(__file__).parent.parent.parent
+    csv_file = project_root / "test_data" / "users.csv"
+
+    role_users = []
+    with open(csv_file, 'r', encoding='utf-8-sig') as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            user_role = row.get('نقش سازمانی', '').strip()
+            if user_role == role and row.get('فعال', '').strip().lower() == 'true':
+                role_users.append({
+                    'نام_کاربری': row.get('نام کاربری', '').strip(),
+                    'رمز_عبور': row.get('نام کاربری', '').strip(),  # password = username
+                    'نام_و_نام_خانوادگی': row.get('نام و نام خانوادگی', ''),
+                    'نقش_سازمانی': user_role,
+                    'سمت_سازمانی': row.get('سمت سازمانی', '')
+                })
+
+    if not role_users:
+        raise ValueError(f"No active users found with role: '{role}'")
+
+    return random.choice(role_users)
+
+
 @given('کاربر در نقش کارشناس حوزه باجه ها قرار دارد')
 def step_user_is_baje_expert(context):
     """
     Login as a random "کارشناس حوزه باجه" user from CSV.
-    This step handles the complete login process for baje experts.
+
+    Clean implementation using helper function.
     """
-    # Filter users with "کارشناس حوزه باجه" role
-    baje_experts = []
-    if hasattr(context, 'available_users') and context.available_users:
-        baje_experts = [user for user in context.available_users
-                       if user.get('نقش_سازمانی', '') == 'کارشناس حوزه باجه' and user.get('فعال', '').strip().lower() == 'true']
-
-    if not baje_experts:
-        # Fallback: load from CSV directly
-        import csv
-        from pathlib import Path
-        project_root = Path(__file__).parent.parent.parent
-        csv_file = project_root / "test_data" / "users.csv"
-
-        with open(csv_file, 'r', encoding='utf-8-sig') as f:
-            reader = csv.DictReader(f)
-            for row in reader:
-                role = row.get('نقش سازمانی', '').strip()
-                if role == 'کارشناس حوزه باجه' and row.get('فعال', '').strip().lower() == 'true':
-                    baje_experts.append({
-                        'نام_کاربری': row.get('نام کاربری', '').strip(),
-                        'رمز_عبور': row.get('نام کاربری', '').strip(),  # password = username
-                        'نام_و_نام_خانوادگی': row.get('نام و نام خانوادگی', ''),
-                        'نقش_سازمانی': role,
-                        'سمت_سازمانی': row.get('سمت سازمانی', '')
-                    })
-
-    if not baje_experts:
-        raise ValueError("No active 'کارشناس حوزه باجه' users found in CSV")
-
-    # Select random user
-    selected_user = random.choice(baje_experts)
+    # Select random user with helper function
+    selected_user = _select_random_user_by_role(context, 'کارشناس حوزه باجه')
 
     # Store for later use
     context.current_user_data = selected_user
@@ -105,16 +137,10 @@ def step_user_navigated_to_applicant_page(context):
         raise AssertionError("Applicant breadcrumb not visible - not navigated to applicant page")
 
 
-@when('و کاربر دکمه دوم "اضافه کردن" را کلیک می‌کند')
-def step_and_user_clicks_second_add_button(context):
-    """Click the second add button (with و prefix)"""
-    step_user_clicks_second_add_button(context)
-
-
-@then('کاربر دکمه دوم "اضافه کردن" را کلیک می‌کند')
-def step_then_user_clicks_second_add_button(context):
-    """Click the second add button (as then step - fallback)"""
-    step_user_clicks_second_add_button(context)
+# Removed duplicate step definitions:
+# - و کاربر دکمه دوم "اضافه کردن" را کلیک می‌کند
+# - then کاربر دکمه دوم "اضافه کردن" را کلیک می‌کند
+# These are redundant with the @when definition above
 
 
 @then('به صفحه "اطلاعات شخص" منتقل می‌شود')
@@ -129,29 +155,33 @@ def step_user_navigated_to_personal_info_page(context):
 
 @when('کاربر فیلد های الزامی را تکمیل می کند')
 def step_user_fills_required_fields(context):
-    """Fill required fields with random Persian test data"""
+    """
+    Fill required fields with random Persian test data.
+
+    Simplified implementation:
+    - PersianDataGenerator handles data generation
+    - No complex override mapping needed
+    """
     if not hasattr(context, 'applicant_page'):
         context.applicant_page = ApplicantRegistrationPage(context.page, context.test_config)
 
-    # Override with test data from Examples table if provided
+    # Override with test data from Examples table if provided (simple pass-through)
     overrides = {}
     if hasattr(context, 'table') and context.table:
         for row in context.table:
-            # Map Persian column names to English field names
             if 'نام' in row:
                 overrides['name'] = row['نام']
             if 'نام خانوادگی' in row:
                 overrides['family_name'] = row['نام خانوادگی']
             break
 
-    # Fill form with random data (overridden by Examples data if provided)
+    # Fill form (data generation handled by PersianDataGenerator)
     context.applicant_page.fill_personal_info_form(**overrides)
 
 
-@then('کاربر فیلد های الزامی را تکمیل می کند')
-def step_then_user_fills_required_fields(context):
-    """Fill required fields (as then step - fallback)"""
-    step_user_fills_required_fields(context)
+# Removed duplicate step:
+# @then('کاربر فیلد های الزامی را تکمیل می کند')
+# This is redundant with the @when definition above
 
 
 @when('کاربر دکمه "ذخیره" را کلیک می‌کند')
