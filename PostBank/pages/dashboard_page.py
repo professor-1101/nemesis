@@ -73,6 +73,15 @@ class DashboardPage(BasePage):
 
         return False
 
+    def is_dashboard_visible(self) -> bool:
+        """
+        Check if dashboard is visible - alias for is_loaded().
+
+        Returns:
+            True if dashboard elements are visible, False otherwise
+        """
+        return self.is_loaded()
+
     def verify_page_loaded(self) -> None:
         """Verify dashboard page is loaded"""
         if not self.is_loaded():
