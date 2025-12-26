@@ -46,6 +46,8 @@ class DashboardPage(BasePage):
                 welcome_elem.wait_for(state="visible", timeout=10000)  # 10 second timeout
                 if welcome_elem.count() > 0:
                     return True
+            except (KeyboardInterrupt, SystemExit):
+                raise
             except Exception:
                 pass
 
@@ -54,6 +56,8 @@ class DashboardPage(BasePage):
             try:
                 if self.is_visible(selector, timeout=5000):  # 5 second timeout
                     return True
+            except (KeyboardInterrupt, SystemExit):
+                raise
             except Exception:
                 continue
 
@@ -62,6 +66,8 @@ class DashboardPage(BasePage):
             page_content = self._playwright_page.content()
             if 'کاربر گرامی' in page_content:
                 return True
+        except (KeyboardInterrupt, SystemExit):
+            raise
         except Exception:
             pass
 
@@ -94,6 +100,8 @@ class DashboardPage(BasePage):
                     text = welcome_elem.text_content()
                     if text and text.strip():
                         return text.strip()
+            except (KeyboardInterrupt, SystemExit):
+                raise
             except Exception as e:
                 # Continue to next method
                 pass
@@ -106,6 +114,8 @@ class DashboardPage(BasePage):
                     text = welcome_elem.text_content()
                     if text and text.strip():
                         return text.strip()
+            except (KeyboardInterrupt, SystemExit):
+                raise
             except Exception:
                 pass
             
@@ -117,6 +127,8 @@ class DashboardPage(BasePage):
                     text = welcome_elem.text_content()
                     if text and text.strip():
                         return text.strip()
+            except (KeyboardInterrupt, SystemExit):
+                raise
             except Exception:
                 pass
         
@@ -128,6 +140,8 @@ class DashboardPage(BasePage):
                     text = self.get_text(selector)
                     if text and text.strip():
                         return text.strip()
+        except (KeyboardInterrupt, SystemExit):
+            raise
         except Exception:
             pass
         

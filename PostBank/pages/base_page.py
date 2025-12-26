@@ -101,6 +101,8 @@ class BasePage:
         """Check if element is visible"""
         try:
             return self.page.is_visible(selector)
+        except (KeyboardInterrupt, SystemExit):
+            raise
         except Exception:
             # If selector is invalid, return False instead of crashing
             return False
@@ -159,7 +161,9 @@ class BasePage:
             try:
                 self._playwright_page.wait_for_selector(selector, state="visible", timeout=1000)
                 break  # If any selector appears, dropdown is open
-            except:
+            except (KeyboardInterrupt, SystemExit):
+                raise
+            except Exception:
                 continue  # Try next selector
 
         for selector in option_selectors:
@@ -168,7 +172,9 @@ class BasePage:
                 if self._playwright_page.locator(selector).is_visible(timeout=2000):
                     self._playwright_page.click(selector, timeout=2000)
                     return
-            except:
+            except (KeyboardInterrupt, SystemExit):
+                raise
+            except Exception:
                 continue
 
         # If no selector worked, try typing the text directly
@@ -177,7 +183,9 @@ class BasePage:
             input_selector = f"{dropdown_selector} input, {dropdown_selector} .k-input"
             self._playwright_page.fill(input_selector, option_text)
             self._playwright_page.keyboard.press("Enter")
-        except:
+        except (KeyboardInterrupt, SystemExit):
+            raise
+        except Exception:
             raise Exception(f"Could not select option '{option_text}' from Kendo dropdown")
 
     def select_kendo_dropdown_tree_option(self, dropdown_selector: str, parent_text: str, child_text: str = None, timeout: int = 10000) -> None:
@@ -210,7 +218,9 @@ class BasePage:
             try:
                 self._playwright_page.wait_for_selector(selector, state="visible", timeout=1000)
                 break  # If any selector appears, dropdown tree is open
-            except:
+            except (KeyboardInterrupt, SystemExit):
+                raise
+            except Exception:
                 continue  # Try next selector
 
         parent_item = None
@@ -220,7 +230,9 @@ class BasePage:
                 if locator.is_visible(timeout=2000):
                     parent_item = locator
                     break
-            except:
+            except (KeyboardInterrupt, SystemExit):
+                raise
+            except Exception:
                 continue
 
         if not parent_item:
@@ -245,7 +257,9 @@ class BasePage:
                 else:
                     # If no expand icon visible, try clicking on the parent item itself
                     parent_item.click(timeout=2000)
-            except:
+            except (KeyboardInterrupt, SystemExit):
+                raise
+            except Exception:
                 # Last resort: click on parent item
                 parent_item.click(timeout=2000)
 
@@ -254,7 +268,9 @@ class BasePage:
                 try:
                     self._playwright_page.wait_for_selector(selector, state="visible", timeout=1500)
                     break  # If any child appears, expansion is complete
-                except:
+                except (KeyboardInterrupt, SystemExit):
+                    raise
+                except Exception:
                     continue  # Try next selector
 
             # Now find and select the first available child item (city)
@@ -271,11 +287,15 @@ class BasePage:
                                 # Click on the child item with force option to bypass pointer events
                                 child_locator.click(force=True, timeout=2000)
                                 return
-                        except:
+                        except (KeyboardInterrupt, SystemExit):
+                            raise
+                        except Exception:
                             # If can't get text, just click with force
                             child_locator.click(force=True, timeout=2000)
                             return
-                except:
+                except (KeyboardInterrupt, SystemExit):
+                    raise
+                except Exception:
                     continue
 
             raise Exception(f"Could not find any child item under parent '{parent_text}'")
@@ -287,13 +307,17 @@ class BasePage:
                 if parent_text_area.is_visible(timeout=1000):
                     parent_text_area.click(timeout=2000)
                     return
-            except:
+            except (KeyboardInterrupt, SystemExit):
+                raise
+            except Exception:
                 pass
 
             # Fallback: click the parent item itself
             try:
                 parent_item.click(timeout=2000)
-            except:
+            except (KeyboardInterrupt, SystemExit):
+                raise
+            except Exception:
                 raise Exception(f"Could not select parent item '{parent_text}'")
 
     def get_current_url(self) -> str:
@@ -328,6 +352,8 @@ class BasePage:
             # Save screenshot only (HTML removed for performance)
             screenshot_path = screenshot_dir / f"error_{safe_error}.png"
             self._playwright_page.screenshot(path=str(screenshot_path), full_page=True)
+        except (KeyboardInterrupt, SystemExit):
+            raise
         except Exception:
             # Don't fail if debug info saving fails
             pass
@@ -360,6 +386,8 @@ class BasePage:
                     text = self.get_text(selector)
                     if text and text.strip():
                         return text.strip()
+            except (KeyboardInterrupt, SystemExit):
+                raise
             except Exception as e:
                 last_error = e
                 continue
