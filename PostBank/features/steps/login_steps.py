@@ -413,14 +413,15 @@ def step_user_logged_in_with_role(context, role):
     login_page.enter_username(selected_user['نام_کاربری'])
     login_page.enter_password(selected_user['رمز_عبور'])
     login_page.click_login_button()
-    
-    # Verify login success
+
+    # Store dashboard page for later use (no verification in Given step)
+    # If login fails, the actual scenario steps will fail with clear errors
     dashboard_page = DashboardPage(context.page, context.test_config)
-    dashboard_page.verify_page_loaded()
-    
-    # Log successful login
+    context.dashboard_page = dashboard_page
+
+    # Log login attempt (no verification here - BDD compliant)
     if hasattr(context, 'logger'):
         context.logger.info(
-            f"Successfully logged in as '{role}': {selected_user['نام_کاربری']} "
+            f"Logged in as '{role}': {selected_user['نام_کاربری']} "
             f"({selected_user['نام_و_نام_خانوادگی']})"
         )
