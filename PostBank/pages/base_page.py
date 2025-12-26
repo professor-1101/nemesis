@@ -142,9 +142,6 @@ class BasePage:
         # Click on the dropdown to open it
         self._playwright_page.click(dropdown_selector, timeout=timeout)
 
-        # Wait for dropdown popup to appear
-        self._playwright_page.wait_for_timeout(500)
-
         # Try multiple selectors for Kendo options
         option_selectors = [
             f"[role='option']:has-text('{option_text}')",
@@ -156,6 +153,14 @@ class BasePage:
             f"[data-value*='{option_text}']",
             f"//div[contains(text(), '{option_text}')]"
         ]
+
+        # Wait for dropdown popup by checking if any option selector appears
+        for selector in option_selectors:
+            try:
+                self._playwright_page.wait_for_selector(selector, state="visible", timeout=1000)
+                break  # If any selector appears, dropdown is open
+            except:
+                continue  # Try next selector
 
         for selector in option_selectors:
             try:
@@ -192,9 +197,6 @@ class BasePage:
         # Click on the dropdown to open it
         self._playwright_page.click(dropdown_selector, timeout=timeout)
 
-        # Wait for dropdown popup to appear
-        self._playwright_page.wait_for_timeout(500)
-
         # Find the parent tree item
         parent_selectors = [
             f".k-treeview-item:has(.k-in:has-text('{parent_text}'))",
@@ -202,6 +204,14 @@ class BasePage:
             f".k-item.k-treeview-item:has-text('{parent_text}')",
             f"li:has-text('{parent_text}')"
         ]
+
+        # Wait for tree dropdown popup by checking if any parent selector appears
+        for selector in parent_selectors:
+            try:
+                self._playwright_page.wait_for_selector(selector, state="visible", timeout=1000)
+                break  # If any selector appears, dropdown tree is open
+            except:
+                continue  # Try next selector
 
         parent_item = None
         for selector in parent_selectors:
@@ -218,31 +228,36 @@ class BasePage:
 
         # If child_text is provided, we need to expand parent first, then select child
         if child_text:
-            # First, expand the parent by clicking on expand icon
-            try:
-                # Try to find expand icon first
-                expand_icon = parent_item.locator(".k-i-expand").first
-                if expand_icon.is_visible(timeout=1000):
-                    expand_icon.click(timeout=2000)
-                    # Wait for expansion
-                    self._playwright_page.wait_for_timeout(800)
-                else:
-                    # If no expand icon visible, try clicking on the parent item itself
-                    parent_item.click(timeout=2000)
-                    self._playwright_page.wait_for_timeout(800)
-            except:
-                # Last resort: click on parent item
-                parent_item.click(timeout=2000)
-                self._playwright_page.wait_for_timeout(800)
-
-            # Now find and select the first available child item (city)
-            # Look for any child item that is visible and doesn't have expand icon
+            # Define child selectors first (will be used to verify expansion)
             child_selectors = [
                 ".k-treeview-item:not(:has(.k-i-expand)) .k-in",  # Child items without expand icon
                 "li.k-treeview-item:not(:has(.k-i-expand)) .k-in",
                 ".k-treeview-item:not(:has(.k-i-expand))",
                 "li.k-treeview-item:not(:has(.k-i-expand))"
             ]
+
+            # First, expand the parent by clicking on expand icon
+            try:
+                # Try to find expand icon first
+                expand_icon = parent_item.locator(".k-i-expand").first
+                if expand_icon.is_visible(timeout=1000):
+                    expand_icon.click(timeout=2000)
+                else:
+                    # If no expand icon visible, try clicking on the parent item itself
+                    parent_item.click(timeout=2000)
+            except:
+                # Last resort: click on parent item
+                parent_item.click(timeout=2000)
+
+            # Wait for expansion by checking if any child element appears
+            for selector in child_selectors:
+                try:
+                    self._playwright_page.wait_for_selector(selector, state="visible", timeout=1500)
+                    break  # If any child appears, expansion is complete
+                except:
+                    continue  # Try next selector
+
+            # Now find and select the first available child item (city)
 
             for selector in child_selectors:
                 try:
