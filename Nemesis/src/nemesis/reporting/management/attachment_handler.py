@@ -1,5 +1,7 @@
 """Attachment management for reporting."""
 
+from pathlib import Path
+
 from nemesis.reporting.management.attachments.screenshot_handler import ScreenshotHandler
 from nemesis.reporting.management.attachments.video_handler import VideoHandler
 from nemesis.reporting.management.attachments.trace_handler import TraceHandler
@@ -20,19 +22,19 @@ class AttachmentHandler:
         """Attach screenshot to reports."""
         self.screenshot_manager.attach_screenshot(screenshot, name)
 
-    def attach_video(self, video_path) -> None:
+    def attach_video(self, video_path: Path) -> None:
         """Attach a video (local storage + optional ReportPortal upload)."""
         self.video_manager.attach_video(video_path)
 
-    def attach_trace(self, trace_path) -> None:
+    def attach_trace(self, trace_path: Path) -> None:
         """Attach a Playwright trace (local storage + optional ReportPortal upload)."""
         self.trace_manager.attach_trace(trace_path)
 
-    def attach_metrics(self, metrics_path, metric_type: str) -> None:
+    def attach_metrics(self, metrics_path: Path, metric_type: str) -> None:
         """Attach metrics file (local storage + optional ReportPortal upload)."""
         self.metrics_manager.attach_metrics(metrics_path, metric_type)
 
-    def attach_file(self, file_path, description: str = "", attachment_type: str = "") -> None:
+    def attach_file(self, file_path: Path, description: str = "", attachment_type: str = "") -> None:
         """Attach file to reports with optional attachment_type for filtering.
 
         Args:

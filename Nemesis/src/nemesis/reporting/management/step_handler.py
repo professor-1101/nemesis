@@ -1,5 +1,7 @@
 """Step management for reporting."""
 from datetime import datetime
+from typing import Any, Callable
+
 from nemesis.infrastructure.logging import Logger
 from nemesis.utils.decorators.exception_handler import handle_exceptions_with_fallback
 
@@ -7,7 +9,7 @@ from nemesis.utils.decorators.exception_handler import handle_exceptions_with_fa
 class StepHandler:
     """Handles step reporting."""
 
-    def __init__(self, reporter_manager):
+    def __init__(self, reporter_manager: Any) -> None:
         """Initialize step handler."""
         self.logger = Logger.get_instance({})
         self.reporter_manager = reporter_manager
@@ -18,7 +20,7 @@ class StepHandler:
         specific_message="Failed to call local reporter: {error}",
         fallback_message="Failed to call local reporter: {error}"
     )
-    def _call_local_reporter(self, callback) -> None:
+    def _call_local_reporter(self, callback: Callable[[], None]) -> None:
         """Call local reporter method with exception handling."""
         callback()
 
@@ -28,11 +30,11 @@ class StepHandler:
         specific_message="Failed to call ReportPortal: {error}",
         fallback_message="Failed to call ReportPortal: {error}"
     )
-    def _call_rp_client(self, callback) -> None:
+    def _call_rp_client(self, callback: Callable[[], None]) -> None:
         """Call ReportPortal client method with exception handling."""
         callback()
 
-    def start_step(self, step) -> None:
+    def start_step(self, step: Any) -> None:
         """Start step reporting."""
         step_name = getattr(step, 'name', str(step))
 
@@ -95,7 +97,7 @@ class StepHandler:
                 self.reporter_manager.get_local_reporter().add_log(f"Step started: {step_name}", "INFO")
             self._call_local_reporter(_start_local)
 
-    def end_step(self, step, duration: float = 0.0) -> None:
+    def end_step(self, step: Any, duration: float = 0.0) -> None:
         """End step reporting."""
         step_name = getattr(step, 'name', str(step))
         status = getattr(step, 'status', None)
@@ -192,7 +194,7 @@ class StepHandler:
         except Exception as e:  # pylint: disable=broad-exception-caught
             self.logger.warning(f"Failed to log step actions: {e}")
 
-    def _log_step_data(self, step, step_name: str, status: str) -> None:
+    def _log_step_data(self, step: Any, step_name: str, status: str) -> None:
         """Log step-level data for visibility in ReportPortal logs."""
         rp_client = self.reporter_manager.get_rp_client()
         if not rp_client:
@@ -210,7 +212,7 @@ class StepHandler:
         except Exception as log_error:  # pylint: disable=broad-exception-caught
             self.logger.warning(f"Failed to log console activity: {log_error}")
 
-    def _attach_step_data(self, step, step_name: str, status: str) -> None:
+    def _attach_step_data(self, step: Any, step_name: str, status: str) -> None:
         """Add step-level data as attachments within the step."""
         rp_client = self.reporter_manager.get_rp_client()
         if not rp_client:
@@ -501,7 +503,7 @@ class StepHandler:
 
     # _performance_data_to_attributes method removed - performance handled at scenario level
 
-    def _format_network_data(self, network_data) -> str:
+    def _format_network_data(self, network_data: Any) -> str:
         """
         Format network data as ASCII table with enhanced readability.
 
