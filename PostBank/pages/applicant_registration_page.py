@@ -76,6 +76,8 @@ class ApplicantRegistrationPage(BasePage):
             # Wait for page to load (verify add button visible)
             self._playwright_page.wait_for_selector(self.ADD_BUTTON, state="visible", timeout=10000)
 
+        except (KeyboardInterrupt, SystemExit):
+            raise
         except Exception as e:
             self._save_debug_info(f"Failed to navigate to applicant registration: {e}")
             raise AssertionError(f"Could not navigate to applicant registration page: {e}")
@@ -90,6 +92,8 @@ class ApplicantRegistrationPage(BasePage):
             self.click(self.ADD_BUTTON, timeout=5000)
             # Wait for navigation to complete (breadcrumb visible)
             self._playwright_page.wait_for_selector(self.APPLICANT_BREADCRUMB, state="visible", timeout=5000)
+        except (KeyboardInterrupt, SystemExit):
+            raise
         except Exception as e:
             self._save_debug_info(f"Failed to click add button: {e}")
             raise AssertionError(f"Could not click add button: {e}")
@@ -104,6 +108,8 @@ class ApplicantRegistrationPage(BasePage):
             self.click(self.SECOND_ADD_BUTTON, timeout=5000)
             # Wait for personal info form to load
             self._playwright_page.wait_for_selector(self.NATIONAL_CODE_FIELD, state="visible", timeout=5000)
+        except (KeyboardInterrupt, SystemExit):
+            raise
         except Exception as e:
             self._save_debug_info(f"Failed to click second add button: {e}")
             raise AssertionError(f"Could not click second add button: {e}")
@@ -112,6 +118,8 @@ class ApplicantRegistrationPage(BasePage):
         """Verify that applicant breadcrumb is visible"""
         try:
             return self.is_visible(self.APPLICANT_BREADCRUMB, timeout=5000)
+        except (KeyboardInterrupt, SystemExit):
+            raise
         except Exception:
             return False
 
@@ -124,6 +132,8 @@ class ApplicantRegistrationPage(BasePage):
                 self.is_visible(self.NATIONAL_CODE_FIELD, timeout=3000) or
                 self.is_visible(self.NAME_FIELD, timeout=3000)
             )
+        except (KeyboardInterrupt, SystemExit):
+            raise
         except Exception:
             return False
 
@@ -180,6 +190,8 @@ class ApplicantRegistrationPage(BasePage):
             if form_data.get('description'):
                 self.fill(self.DESCRIPTION_FIELD, form_data['description'])
 
+        except (KeyboardInterrupt, SystemExit):
+            raise
         except Exception as e:
             self._save_debug_info(f"Failed to fill personal info form: {e}")
             raise AssertionError(f"Could not fill personal info form: {e}")
@@ -193,6 +205,8 @@ class ApplicantRegistrationPage(BasePage):
         """
         try:
             self.select_option(self.RESULT_DROPDOWN, result)
+        except (KeyboardInterrupt, SystemExit):
+            raise
         except Exception as e:
             self._save_debug_info(f"Failed to select exam result '{result}': {e}")
             raise AssertionError(f"Could not select exam result '{result}': {e}")
@@ -211,6 +225,8 @@ class ApplicantRegistrationPage(BasePage):
                 state="visible",
                 timeout=10000
             )
+        except (KeyboardInterrupt, SystemExit):
+            raise
         except Exception as e:
             self._save_debug_info(f"Failed to click save button: {e}")
             raise AssertionError(f"Could not click save button: {e}")
@@ -219,6 +235,8 @@ class ApplicantRegistrationPage(BasePage):
         """Check if success message is displayed"""
         try:
             return self.is_visible(self.SUCCESS_MESSAGE, timeout=5000)
+        except (KeyboardInterrupt, SystemExit):
+            raise
         except Exception:
             return False
 
@@ -226,6 +244,8 @@ class ApplicantRegistrationPage(BasePage):
         """Get success message text"""
         try:
             return self.get_text(self.SUCCESS_MESSAGE)
+        except (KeyboardInterrupt, SystemExit):
+            raise
         except Exception:
             return ""
 
@@ -233,6 +253,8 @@ class ApplicantRegistrationPage(BasePage):
         """Check if error message is displayed"""
         try:
             return self.is_visible(self.ERROR_MESSAGE, timeout=5000)
+        except (KeyboardInterrupt, SystemExit):
+            raise
         except Exception:
             return False
 
@@ -240,6 +262,8 @@ class ApplicantRegistrationPage(BasePage):
         """Get error message text"""
         try:
             return self.get_text(self.ERROR_MESSAGE)
+        except (KeyboardInterrupt, SystemExit):
+            raise
         except Exception:
             return ""
 
@@ -251,5 +275,7 @@ class ApplicantRegistrationPage(BasePage):
                 self.is_visible(self.ADD_BUTTON, timeout=3000) or
                 self.is_visible("text=ثبت متقاضی", timeout=3000)
             )
+        except (KeyboardInterrupt, SystemExit):
+            raise
         except Exception:
             return False

@@ -104,6 +104,8 @@ class LoginPage(BasePage):
             if input_after.count() > 0:
                 input_after.fill(username)
                 return True
+        except (KeyboardInterrupt, SystemExit):
+            raise
         except Exception:
             pass
         return False
@@ -119,6 +121,8 @@ class LoginPage(BasePage):
             if form.count() > 0:
                 form.fill(username)
                 return True
+        except (KeyboardInterrupt, SystemExit):
+            raise
         except Exception:
             pass
         return False
@@ -136,6 +140,8 @@ class LoginPage(BasePage):
             if input_elem.count() > 0:
                 input_elem.fill(username)
                 return True
+        except (KeyboardInterrupt, SystemExit):
+            raise
         except Exception:
             pass
         return False
@@ -146,6 +152,8 @@ class LoginPage(BasePage):
             try:
                 self.fill(selector, username)
                 return
+            except (KeyboardInterrupt, SystemExit):
+                raise
             except Exception:
                 continue
 
@@ -187,6 +195,8 @@ class LoginPage(BasePage):
             if input_after.count() > 0:
                 input_after.fill(password)
                 return True
+        except (KeyboardInterrupt, SystemExit):
+            raise
         except Exception:
             pass
         return False
@@ -202,6 +212,8 @@ class LoginPage(BasePage):
             if form.count() > 0:
                 form.fill(password)
                 return True
+        except (KeyboardInterrupt, SystemExit):
+            raise
         except Exception:
             pass
         return False
@@ -219,6 +231,8 @@ class LoginPage(BasePage):
             if input_elem.count() > 0:
                 input_elem.fill(password)
                 return True
+        except (KeyboardInterrupt, SystemExit):
+            raise
         except Exception:
             pass
         return False
@@ -229,6 +243,8 @@ class LoginPage(BasePage):
             try:
                 self.fill(selector, password)
                 return
+            except (KeyboardInterrupt, SystemExit):
+                raise
             except Exception:
                 continue
 
@@ -246,6 +262,8 @@ class LoginPage(BasePage):
                 if button.count() > 0:
                     button.click()
                     return
+            except (KeyboardInterrupt, SystemExit):
+                raise
             except Exception:
                 pass
             
@@ -255,6 +273,8 @@ class LoginPage(BasePage):
                 if button.count() > 0:
                     button.click()
                     return
+            except (KeyboardInterrupt, SystemExit):
+                raise
             except Exception:
                 pass
         
@@ -263,6 +283,8 @@ class LoginPage(BasePage):
             try:
                 self.click(selector)
                 return
+            except (KeyboardInterrupt, SystemExit):
+                raise
             except Exception:
                 continue
         
@@ -293,6 +315,8 @@ class LoginPage(BasePage):
                     text = username_error.text_content()
                     if text and text.strip() and 'عبارت امنیتی' not in text:
                         return text.strip()
+            except (KeyboardInterrupt, SystemExit):
+                raise
             except Exception:
                 pass
             
@@ -305,9 +329,11 @@ class LoginPage(BasePage):
                     text = password_error.text_content()
                     if text and text.strip() and 'عبارت امنیتی' not in text:
                         return text.strip()
+            except (KeyboardInterrupt, SystemExit):
+                raise
             except Exception:
                 pass
-            
+
             # Try general error messages (but exclude captcha)
             try:
                 # Get all alert elements
@@ -323,6 +349,8 @@ class LoginPage(BasePage):
                         parent = alert.locator("xpath=ancestor::div[contains(@data-testid, 'captcha')]")
                         if parent.count() == 0:  # Not inside captcha field
                             return text.strip()
+            except (KeyboardInterrupt, SystemExit):
+                raise
             except Exception:
                 pass
         
@@ -332,6 +360,8 @@ class LoginPage(BasePage):
             # Filter out captcha-related errors
             if error_text and 'عبارت امنیتی' not in error_text and 'captcha' not in error_text.lower():
                 return error_text
+        except (KeyboardInterrupt, SystemExit):
+            raise
         except Exception:
             pass
         
@@ -352,9 +382,11 @@ class LoginPage(BasePage):
                     text = username_error.text_content()
                     if text and text.strip() and 'عبارت امنیتی' not in text:
                         return True
+            except (KeyboardInterrupt, SystemExit):
+                raise
             except Exception:
                 pass
-            
+
             try:
                 password_error = self._playwright_page.locator(
                     "[data-testid='KendoFormInput-password'] [role='alert']"
@@ -363,9 +395,11 @@ class LoginPage(BasePage):
                     text = password_error.text_content()
                     if text and text.strip() and 'عبارت امنیتی' not in text:
                         return True
+            except (KeyboardInterrupt, SystemExit):
+                raise
             except Exception:
                 pass
-        
+
         # Fallback: check other selectors but exclude captcha
         for selector in self.ERROR_MESSAGE_SELECTORS:
             if self.is_visible(selector):
@@ -374,6 +408,8 @@ class LoginPage(BasePage):
                     text = self.get_text(selector)
                     if text and 'عبارت امنیتی' not in text and 'captcha' not in text.lower():
                         return True
+                except (KeyboardInterrupt, SystemExit):
+                    raise
                 except Exception:
                     pass
         return False
