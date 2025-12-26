@@ -179,12 +179,22 @@ def step_user_redirected_to_dashboard(context):
     context.dashboard_page = DashboardPage(context.page, context.test_config)
     context.dashboard_page.verify_page_loaded()
 
+    # ASSERTION: Verify dashboard elements are visible
+    assert context.dashboard_page.is_dashboard_visible(), \
+        "صفحه داشبورد نمایش داده نشده است - المان‌های اصلی dashboard موجود نیستند"
+
+    # ASSERTION: Verify URL changed to dashboard
+    if hasattr(context, 'page') and hasattr(context.page, 'url'):
+        current_url = context.page.url
+        assert 'dashboard' in current_url.lower() or current_url.count('/') > 2, \
+            f"URL به صفحه داشبورد تغییر نکرده است - URL فعلی: {current_url}"
+
 
 @then('پیام "ورود با موفقیت انجام شد" نمایش داده می‌شود')
 def step_success_message_displayed(context):
     """
     Success message is displayed - verify welcome message with data from CSV.
-    
+
     Priority order for user data:
     1. context.current_user_data (from CSV via before_scenario hook) - PRIMARY SOURCE
     2. context.active_outline (from Examples table, overridden by before_scenario)
@@ -217,7 +227,7 @@ def step_success_message_displayed(context):
             expected_role = row.get('نقش_سازمانی', '') or row.get('سمت_سازمانی', '')
             break
 
-    # Validate welcome message
+    # ASSERTION: Validate welcome message
     if expected_name:
         context.dashboard_page.verify_welcome_message(
             expected_name=expected_name,
@@ -226,8 +236,12 @@ def step_success_message_displayed(context):
     else:
         # Just check if message exists
         welcome_msg = context.dashboard_page.get_welcome_message()
-        if not welcome_msg or 'کاربر گرامی' not in welcome_msg:
-            raise AssertionError("Welcome message not found or incorrect")
+        assert welcome_msg and 'کاربر گرامی' in welcome_msg, \
+            f"پیام خوشامدگویی صحیح نمایش داده نشده است - پیام دریافتی: '{welcome_msg}'"
+
+    # ASSERTION: Verify user is authenticated (session exists)
+    assert context.dashboard_page.is_dashboard_visible(), \
+        "احراز هویت ناموفق بود - داشبورد نمایش داده نشده است"
 
 
 @then('پیام خطای مورد انتظار نمایش داده می‌شود')

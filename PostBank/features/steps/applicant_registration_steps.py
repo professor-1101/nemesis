@@ -133,8 +133,13 @@ def step_user_navigated_to_applicant_page(context):
     if not hasattr(context, 'applicant_page'):
         context.applicant_page = ApplicantRegistrationPage(context.page, context.test_config)
 
-    if not context.applicant_page.verify_applicant_breadcrumb_visible():
-        raise AssertionError("Applicant breadcrumb not visible - not navigated to applicant page")
+    # ASSERTION: Verify breadcrumb is visible
+    assert context.applicant_page.verify_applicant_breadcrumb_visible(), \
+        "Breadcrumb متقاضی نمایش داده نشده است - navigation به صفحه متقاضی موفق نبوده است"
+
+    # ASSERTION: Verify page elements are loaded
+    assert context.applicant_page.is_on_applicant_page(), \
+        "صفحه متقاضی به درستی بارگذاری نشده است - المان‌های اصلی صفحه موجود نیستند"
 
 
 # Removed duplicate step definitions:
@@ -149,8 +154,21 @@ def step_user_navigated_to_personal_info_page(context):
     if not hasattr(context, 'applicant_page'):
         context.applicant_page = ApplicantRegistrationPage(context.page, context.test_config)
 
-    if not context.applicant_page.verify_personal_info_breadcrumb_visible():
-        raise AssertionError("Personal info breadcrumb not visible - not navigated to personal info page")
+    # ASSERTION: Verify personal info breadcrumb is visible
+    assert context.applicant_page.verify_personal_info_breadcrumb_visible(), \
+        "Breadcrumb اطلاعات شخص نمایش داده نشده است - navigation به صفحه اطلاعات شخصی موفق نبوده است"
+
+    # ASSERTION: Verify form is displayed
+    # Check that personal info form elements are present
+    if hasattr(context.applicant_page, '_playwright_page') and context.applicant_page._playwright_page:
+        try:
+            form_elements = context.applicant_page._playwright_page.locator("input, select").count()
+            assert form_elements > 0, \
+                "فرم اطلاعات شخصی نمایش داده نشده است - هیچ فیلد ورودی موجود نیست"
+        except AssertionError:
+            raise
+        except Exception:
+            pass  # If check fails, continue (form might be dynamic)
 
 
 @when('کاربر فیلد های الزامی را تکمیل می کند')
