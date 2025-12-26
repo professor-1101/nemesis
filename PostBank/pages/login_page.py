@@ -73,49 +73,82 @@ class LoginPage(BasePage):
 
     def enter_username(self, username: str) -> None:
         """Enter username - find input with label 'نام کاربری' using multiple methods"""
-        # Use Playwright locator to find label and associated input
-        if self._playwright_page:
-            try:
-                # Method 1: Find label with text 'نام کاربری' and then associated input
-                label = self._playwright_page.locator("label:has-text('نام کاربری')")
-                if label.count() > 0:
-                    # Find associated input - can be after label or inside label
-                    # Method A: input after label
-                    input_after = label.first.locator("xpath=following-sibling::input[1]")
-                    if input_after.count() > 0:
-                        input_after.fill(username)
-                        return
-                    # Method B: input inside form or container
-                    form = label.first.locator("xpath=ancestor::form[1]//input[1]")
-                    if form.count() > 0:
-                        form.fill(username)
-                        return
-            except Exception:
-                pass
-            
-            # Method 2: Find input with placeholder or name
-            try:
-                input_elem = self._playwright_page.locator(
-                    "input[placeholder*='نام کاربری'], "
-                    "input[name*='username'], "
-                    "input[name*='user'], "
-                    "input[id*='username'], "
-                    "input[id*='user']"
-                ).first
-                if input_elem.count() > 0:
-                    input_elem.fill(username)
-                    return
-            except Exception:
-                pass
-        
+        # Early exit if no Playwright page
+        if not self._playwright_page:
+            self._try_fallback_selectors_for_username(username)
+            return
+
+        # Method 1A: Find label with text and input after it
+        if self._try_username_via_label_sibling(username):
+            return
+
+        # Method 1B: Find label with text and input in ancestor form
+        if self._try_username_via_label_form(username):
+            return
+
+        # Method 2: Find input with placeholder or name attributes
+        if self._try_username_via_attributes(username):
+            return
+
         # Method 3: Use fallback selectors
+        self._try_fallback_selectors_for_username(username)
+
+    def _try_username_via_label_sibling(self, username: str) -> bool:
+        """Try to find username input as sibling of label."""
+        try:
+            label = self._playwright_page.locator("label:has-text('نام کاربری')")
+            if label.count() == 0:
+                return False
+
+            input_after = label.first.locator("xpath=following-sibling::input[1]")
+            if input_after.count() > 0:
+                input_after.fill(username)
+                return True
+        except Exception:
+            pass
+        return False
+
+    def _try_username_via_label_form(self, username: str) -> bool:
+        """Try to find username input in form ancestor."""
+        try:
+            label = self._playwright_page.locator("label:has-text('نام کاربری')")
+            if label.count() == 0:
+                return False
+
+            form = label.first.locator("xpath=ancestor::form[1]//input[1]")
+            if form.count() > 0:
+                form.fill(username)
+                return True
+        except Exception:
+            pass
+        return False
+
+    def _try_username_via_attributes(self, username: str) -> bool:
+        """Try to find username input via placeholder/name/id attributes."""
+        try:
+            input_elem = self._playwright_page.locator(
+                "input[placeholder*='نام کاربری'], "
+                "input[name*='username'], "
+                "input[name*='user'], "
+                "input[id*='username'], "
+                "input[id*='user']"
+            ).first
+            if input_elem.count() > 0:
+                input_elem.fill(username)
+                return True
+        except Exception:
+            pass
+        return False
+
+    def _try_fallback_selectors_for_username(self, username: str) -> None:
+        """Try fallback selectors for username - raises if all fail."""
         for selector in self.USERNAME_INPUT_SELECTORS:
             try:
                 self.fill(selector, username)
                 return
             except Exception:
                 continue
-        
+
         # All methods failed
         error_msg = f"Could not find username input field"
         self._save_debug_info(error_msg, str(self.USERNAME_INPUT_SELECTORS))
@@ -123,47 +156,82 @@ class LoginPage(BasePage):
 
     def enter_password(self, password: str) -> None:
         """Enter password - find input with label 'رمز عبور' using multiple methods"""
-        if self._playwright_page:
-            # Method 1: Find label and then associated input
-            try:
-                label = self._playwright_page.locator("label:has-text('رمز عبور')")
-                if label.count() > 0:
-                    # Find associated password input
-                    input_after = label.first.locator("xpath=following-sibling::input[@type='password'][1]")
-                    if input_after.count() > 0:
-                        input_after.fill(password)
-                        return
-                    # Or input inside form
-                    form = label.first.locator("xpath=ancestor::form[1]//input[@type='password'][1]")
-                    if form.count() > 0:
-                        form.fill(password)
-                        return
-            except Exception:
-                pass
-            
-            # Method 2: Find password input with placeholder or name
-            try:
-                input_elem = self._playwright_page.locator(
-                    "input[type='password'][placeholder*='رمز'], "
-                    "input[type='password'][name*='password'], "
-                    "input[type='password'][name*='pass'], "
-                    "input[type='password'][id*='password'], "
-                    "input[type='password'][id*='pass']"
-                ).first
-                if input_elem.count() > 0:
-                    input_elem.fill(password)
-                    return
-            except Exception:
-                pass
-        
+        # Early exit if no Playwright page
+        if not self._playwright_page:
+            self._try_fallback_selectors_for_password(password)
+            return
+
+        # Method 1A: Find label with text and password input after it
+        if self._try_password_via_label_sibling(password):
+            return
+
+        # Method 1B: Find label with text and password input in ancestor form
+        if self._try_password_via_label_form(password):
+            return
+
+        # Method 2: Find password input via placeholder/name/id attributes
+        if self._try_password_via_attributes(password):
+            return
+
         # Method 3: Use fallback selectors
+        self._try_fallback_selectors_for_password(password)
+
+    def _try_password_via_label_sibling(self, password: str) -> bool:
+        """Try to find password input as sibling of label."""
+        try:
+            label = self._playwright_page.locator("label:has-text('رمز عبور')")
+            if label.count() == 0:
+                return False
+
+            input_after = label.first.locator("xpath=following-sibling::input[@type='password'][1]")
+            if input_after.count() > 0:
+                input_after.fill(password)
+                return True
+        except Exception:
+            pass
+        return False
+
+    def _try_password_via_label_form(self, password: str) -> bool:
+        """Try to find password input in form ancestor."""
+        try:
+            label = self._playwright_page.locator("label:has-text('رمز عبور')")
+            if label.count() == 0:
+                return False
+
+            form = label.first.locator("xpath=ancestor::form[1]//input[@type='password'][1]")
+            if form.count() > 0:
+                form.fill(password)
+                return True
+        except Exception:
+            pass
+        return False
+
+    def _try_password_via_attributes(self, password: str) -> bool:
+        """Try to find password input via placeholder/name/id attributes."""
+        try:
+            input_elem = self._playwright_page.locator(
+                "input[type='password'][placeholder*='رمز'], "
+                "input[type='password'][name*='password'], "
+                "input[type='password'][name*='pass'], "
+                "input[type='password'][id*='password'], "
+                "input[type='password'][id*='pass']"
+            ).first
+            if input_elem.count() > 0:
+                input_elem.fill(password)
+                return True
+        except Exception:
+            pass
+        return False
+
+    def _try_fallback_selectors_for_password(self, password: str) -> None:
+        """Try fallback selectors for password - raises if all fail."""
         for selector in self.PASSWORD_INPUT_SELECTORS:
             try:
                 self.fill(selector, password)
                 return
             except Exception:
                 continue
-        
+
         # All methods failed
         error_msg = f"Could not find password input field"
         self._save_debug_info(error_msg, str(self.PASSWORD_INPUT_SELECTORS))
