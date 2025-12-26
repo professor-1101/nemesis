@@ -140,8 +140,9 @@ def before_scenario(context: Any, scenario: Any) -> None:
         # Call framework hook
         framework_before_scenario(context, scenario)
     except KeyError as e:
-        print(f"[DEBUG] KeyError in framework_before_scenario: {e}")
-        # Continue anyway
+        # Log KeyError but continue - not critical
+        if hasattr(context, 'logger'):
+            context.logger.debug(f"KeyError in framework_before_scenario: {e}")
         pass
     
     # Check if scenario has @file_data tag and if we have available users
@@ -172,9 +173,6 @@ def before_scenario(context: Any, scenario: Any) -> None:
                 f"Selected random user from CSV: {selected_user.get('نام_کاربری', 'N/A')} "
                 f"({selected_user.get('نام_و_نام_خانوادگی', 'N/A')})"
             )
-        else:
-            print(f"[DEBUG] Selected random user from CSV: {selected_user.get('نام_کاربری', 'N/A')} "
-                  f"({selected_user.get('نام_و_نام_خانوادگی', 'N/A')})")
         
         # Create user data dictionary
         user_data = {
@@ -210,10 +208,6 @@ def before_scenario(context: Any, scenario: Any) -> None:
         # Store in context.current_user_data for use in step definitions
         # This is the primary source of truth for user data in steps
         context.current_user_data = user_data
-        
-        # Debug: Print to verify data is set
-        print(f"[DEBUG] context.active_outline set: {context.active_outline.get('نام_کاربری', 'NOT SET')}")
-        print(f"[DEBUG] context.current_user_data set: {context.current_user_data.get('نام_کاربری', 'NOT SET')}")
     
     # If Scenario Outline (and not already handled above), add user data from Examples to context
     # This handles scenarios without @file_data tag (uses Examples table as-is)

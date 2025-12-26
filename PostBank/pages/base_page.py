@@ -313,13 +313,9 @@ class BasePage:
             # Save screenshot only (HTML removed for performance)
             screenshot_path = screenshot_dir / f"error_{safe_error}.png"
             self._playwright_page.screenshot(path=str(screenshot_path), full_page=True)
-            
-            # Log debug info
-            print(f"\n[DEBUG] Error occurred with selector: {selector}")
-            print(f"[DEBUG] Screenshot saved: {screenshot_path}")
-        except Exception as debug_error:
+        except Exception:
             # Don't fail if debug info saving fails
-            print(f"[WARNING] Could not save debug info: {debug_error}")
+            pass
 
     def get_text_with_fallback(self, selectors: list[str], timeout: int = 10000) -> str:
         """

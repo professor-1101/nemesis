@@ -38,7 +38,6 @@ def step_user_enters_username(context, نام_کاربری):
     if hasattr(context, 'active_outline') and context.active_outline:
         username = context.active_outline.get('نام_کاربری', '')
         if username and username != 'PLACEHOLDER' and username.strip():
-            print(f"[DEBUG] Using username from context.active_outline: {username}")
             # Update step text for reporting
             if hasattr(context, 'current_step'):
                 context.current_step.actual_username = username
@@ -53,7 +52,6 @@ def step_user_enters_username(context, نام_کاربری):
     if hasattr(context, 'current_user_data') and context.current_user_data:
         username = context.current_user_data.get('نام_کاربری', '')
         if username and username != 'PLACEHOLDER' and username.strip():
-            print(f"[DEBUG] Using username from context.current_user_data: {username}")
             # Update step text for reporting
             if hasattr(context, 'current_step'):
                 context.current_step.actual_username = username
@@ -64,7 +62,6 @@ def step_user_enters_username(context, نام_کاربری):
     username = نام_کاربری if نام_کاربری and نام_کاربری != 'PLACEHOLDER' else ""
 
     if username and username != 'PLACEHOLDER' and username.strip():
-        print(f"[DEBUG] Using username from feature file parameter: {username}")
         # Update step text for reporting
         if hasattr(context, 'current_step'):
             context.current_step.actual_username = username
@@ -73,9 +70,6 @@ def step_user_enters_username(context, نام_کاربری):
         if not hasattr(context, 'current_user_data'):
             context.current_user_data = {}
         context.current_user_data['نام_کاربری'] = username
-    else:
-        # Debug: log if no username found
-        print(f"[DEBUG] No valid username found. Parameter: '{نام_کاربری}', active_outline: {getattr(context, 'active_outline', None)}, current_user_data: {getattr(context, 'current_user_data', None)}")
 
 
 @when('کاربر رمز عبور "{رمز_عبور}" را وارد می‌کند')
@@ -98,7 +92,6 @@ def step_user_enters_password(context, رمز_عبور):
     if hasattr(context, 'active_outline') and context.active_outline:
         password = context.active_outline.get('رمز_عبور', '')
         if password and password != 'PLACEHOLDER' and password.strip():
-            print(f"[DEBUG] Using password from context.active_outline: {password}")
             # Update step text for reporting
             if hasattr(context, 'current_step'):
                 context.current_step.actual_password = password
@@ -113,7 +106,6 @@ def step_user_enters_password(context, رمز_عبور):
     if hasattr(context, 'current_user_data') and context.current_user_data:
         password = context.current_user_data.get('رمز_عبور', '')
         if password and password != 'PLACEHOLDER' and password.strip():
-            print(f"[DEBUG] Using password from context.current_user_data: {password}")
             # Update step text for reporting
             if hasattr(context, 'current_step'):
                 context.current_step.actual_password = password
@@ -124,7 +116,6 @@ def step_user_enters_password(context, رمز_عبور):
     password = رمز_عبور if رمز_عبور and رمز_عبور != 'PLACEHOLDER' else ""
 
     if password and password != 'PLACEHOLDER' and password.strip():
-        print(f"[DEBUG] Using password from feature file parameter: {password}")
         # Update step text for reporting
         if hasattr(context, 'current_step'):
             context.current_step.actual_password = password
@@ -133,9 +124,6 @@ def step_user_enters_password(context, رمز_عبور):
         if not hasattr(context, 'current_user_data'):
             context.current_user_data = {}
         context.current_user_data['رمز_عبور'] = password
-    else:
-        # Debug: log if no password found
-        print(f"[DEBUG] No valid password found. Parameter: '{رمز_عبور}', active_outline: {getattr(context, 'active_outline', None)}, current_user_data: {getattr(context, 'current_user_data', None)}")
 
 
 # Step definitions for empty values - parse matcher doesn't match empty strings well
